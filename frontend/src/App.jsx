@@ -9,7 +9,6 @@ import EligibilityResults from './pages/EligibilityResults';
 import SchemeGuide from './pages/SchemeGuide';
 import CscPrintSlip from './components/results/CscPrintSlip';
 import { evaluateEligibilityLocally } from './services/api';
-import { VERIFIED_SCHEMES } from './data/schemesData';
 
 export default function App() {
   const [screen, setScreen] = useState('home'); // 'home' | 'interview' | 'review' | 'results' | 'guide' | 'slip'
@@ -20,12 +19,10 @@ export default function App() {
   const [results, setResults] = useState([]);
   const [selectedScheme, setSelectedScheme] = useState(null);
 
-  // Dynamic root font size based on accessibility scaler and citizen mode
   const getFontSizeStyle = () => {
-    // In Citizen Mode, baseline is 18px (1.125rem) for extreme legibility with Hindi script
-    let base = mode === 'citizen' ? 18 : 16;
-    if (fontSizeDelta === 1) base += 2;
-    if (fontSizeDelta === -1) base -= 2;
+    let base = 16;
+    if (fontSizeDelta === 1) base = 18;
+    if (fontSizeDelta === -1) base = 15;
     return { fontSize: `${base}px` };
   };
 
@@ -35,7 +32,6 @@ export default function App() {
   };
 
   const handleBrowseSchemes = () => {
-    // Run evaluation with empty profile to browse all 3 schemes
     const evaluated = evaluateEligibilityLocally({});
     setResults(evaluated);
     setScreen('results');
@@ -48,7 +44,6 @@ export default function App() {
   };
 
   const handleConfirmReview = () => {
-    // Convert answers into profile fields for deterministic rule engine
     const profile = {};
     Object.keys(answers).forEach(key => {
       profile[key] = answers[key].value;
@@ -72,19 +67,15 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Dynamic container width based on mode
-  const containerWidthClass = mode === 'operator' ? 'max-w-7xl' : 'max-w-5xl';
-
   return (
     <div
-      className="min-h-screen flex flex-col bg-slate-50 text-slate-900 transition-all selection:bg-[#004B87] selection:text-white"
+      className="min-h-screen flex flex-col bg-slate-50 text-slate-900 transition-all font-sans selection:bg-[#004B87] selection:text-white"
       style={getFontSizeStyle()}
     >
-      
-      {/* 1. Top Civic Trust Disclaimer */}
+      {/* 1. Subtle Trust Top Tag */}
       <DisclaimerBanner language={language} />
 
-      {/* 2. Sticky Civic Header */}
+      {/* 2. Sleek Sticky Header */}
       <Navbar
         currentScreen={screen}
         setScreen={setScreen}
@@ -96,26 +87,8 @@ export default function App() {
         setFontSizeDelta={setFontSizeDelta}
       />
 
-      {/* 3. Kiosk Mode Operator Notice Banner */}
-      {mode === 'operator' && (
-        <aside className="bg-slate-900 text-white px-4 py-2.5 text-xs font-semibold text-center flex items-center justify-center gap-3 border-b border-slate-800 animate-fade-in no-print">
-          <span className="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded text-[11px] uppercase tracking-wider">
-            CSC KIOSK WORKSPACE
-          </span>
-          <span className="hidden sm:inline">
-            ग्राम स्तरीय उद्यमी (VLE) सहायता मोड सक्रिय है। 2-कॉलम लेआउट व कीबोर्ड शॉर्टकट (1, 2, 3) सक्षम हैं।
-          </span>
-          <button
-            onClick={() => setMode('citizen')}
-            className="text-amber-400 hover:text-amber-300 underline font-bold ml-2 text-xs"
-          >
-            नागरिक मोड में बदलें
-          </button>
-        </aside>
-      )}
-
-      {/* 4. Main Dynamic Viewport */}
-      <main className={`flex-1 ${containerWidthClass} w-full mx-auto p-4 sm:p-6 lg:p-8 transition-all duration-300`}>
+      {/* 3. Main Viewport */}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {screen === 'home' && (
           <Home
             onStart={handleStartInterview}
@@ -174,11 +147,10 @@ export default function App() {
         )}
       </main>
 
-      {/* 5. Civic Footer (Hidden on print) */}
+      {/* 4. Minimalist Footer */}
       <div className="no-print">
         <Footer language={language} />
       </div>
-
     </div>
   );
 }

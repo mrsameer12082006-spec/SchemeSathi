@@ -1,322 +1,259 @@
-import React, { useState } from 'react';
-import { ArrowRight, Sparkles, CheckCircle2, ShieldCheck, ExternalLink, Clock, FileCheck, Layers } from 'lucide-react';
+import React from 'react';
+import { ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import AudioButton from '../components/common/AudioButton';
-import TouchButton from '../components/common/TouchButton';
 import { VERIFIED_SCHEMES } from '../data/schemesData';
 
 export default function Home({ onStart, onBrowse, language }) {
-  const [isIntroSpeaking, setIsIntroSpeaking] = useState(false);
-
   const audioIntro = language === 'hi'
-    ? 'नमस्ते! यह योजना साथी मंच है। आप बिना किसी फॉर्म या लॉगिन के सिर्फ तीन चार आसान सवालों के जवाब देकर अपनी सरकारी योजना पात्रता जांच सकते हैं। आवाज सुनने के लिए किसी भी सवाल पर बने लाउडस्पीकर बटन को दबाएं।'
-    : 'Welcome to SchemeSathi. Discover verified government welfare schemes you qualify for by answering just three or four simple questions. No forms or login required. Tap any speaker button to listen to questions in your language.';
+    ? 'नमस्ते! योजना साथी में आपका स्वागत है। आप बिना किसी फॉर्म या लॉगिन के केवल चार आसान सवालों के जवाब देकर अपनी सरकारी योजना पात्रता जांच सकते हैं। शुरू करने के लिए नीचे दिए गए नीले बटन को दबाएं।'
+    : 'Welcome to SchemeSathi. Discover verified government welfare schemes you qualify for by answering just four simple questions. No forms or login required. Tap the start button below to begin.';
 
   return (
-    <div className="space-y-10 sm:space-y-12">
+    <div className="space-y-12 sm:space-y-16 py-4">
       
       {/* ───────────────────────────────────────────────────────────
-          1. HERO SECTION (Functional Minimalism with Tactile CTA)
+          1. HERO SECTION: Radical Clarity & Focus
           ─────────────────────────────────────────────────────────── */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-sm relative overflow-hidden">
+      <section className="text-center max-w-3xl mx-auto space-y-6 pt-4 sm:pt-8">
         
-        {/* Subtle decorative background accent */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50/60 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-
-        <div className="relative z-10 space-y-6 sm:space-y-8 max-w-4xl">
-          
-          {/* Trust verification pill */}
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-[#004B87] px-3.5 py-1.5 rounded-full text-xs font-bold shadow-2xs">
-            <ShieldCheck className="w-4 h-4 text-[#004B87]" />
-            <span>{language === 'hi' ? '3 मुख्य योजनाएं सत्यापित' : '3 Central Schemes Verified'}</span>
-            <span className="text-blue-300">|</span>
-            <span className="text-slate-600 font-mono text-[11px]">{language === 'hi' ? 'सत्यापन: 1 Nov 2026' : 'Verified: 1 Nov 2026'}</span>
-          </div>
-
-          {/* Hero Headline & Value Proposition */}
-          <div className="space-y-4">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.2] font-hindi">
-              {language === 'hi' ? (
-                <>
-                  सरकारी योजनाओं की सही जानकारी, <br />
-                  <span className="text-[#004B87] underline decoration-blue-200 underline-offset-8">
-                    अब एक-एक आसान सवाल पूछकर।
-                  </span>
-                </>
-              ) : (
-                <>
-                  Find Government Schemes You Qualify For— <br />
-                  <span className="text-[#004B87] underline decoration-blue-200 underline-offset-8">
-                    One Simple Question at a Time.
-                  </span>
-                </>
-              )}
-            </h1>
-
-            <p className="text-slate-600 text-base sm:text-lg lg:text-xl leading-relaxed max-w-3xl">
-              {language === 'hi'
-                ? 'कोई कठिन सरकारी दस्तावेज नहीं, कोई लम्बा फॉर्म नहीं। हम आपसे एक समय में सिर्फ एक सवाल पूछते हैं — आप छूकर या बोलकर जवाब दे सकते हैं।'
-                : 'No bureaucratic jargon, no multi-page forms, no login needed. We guide you step-by-step with voice and text, matching your profile against official government eligibility rules.'}
-            </p>
-          </div>
-
-          {/* Interactive Bhashini Audio Assistant Bar */}
-          <div className={`border rounded-2xl p-4 sm:p-5 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-            isIntroSpeaking
-              ? 'bg-blue-50/90 border-[#004B87] ring-2 ring-blue-200'
-              : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-          }`}>
-            <div className="flex items-start sm:items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#004B87] flex items-center justify-center font-bold text-lg shrink-0">
-                🔊
-              </div>
-              <div className="space-y-0.5">
-                <span className="font-bold text-slate-900 text-sm sm:text-base block">
-                  {language === 'hi' ? 'बोलकर समझें (Bhashini AI Audio):' : 'Audio Guide via Bhashini TTS:'}
-                </span>
-                <p className={`text-xs sm:text-sm ${isIntroSpeaking ? 'text-[#004B87] font-semibold' : 'text-slate-600'}`}>
-                  {isIntroSpeaking
-                    ? (language === 'hi' ? '» "नमस्ते! यह योजना साथी मंच है..."' : '» "Welcome to SchemeSathi..."')
-                    : (language === 'hi' ? 'पढ़ने में कठिनाई हो तो पूरा संदेश सुनकर समझें।' : 'Listen to how SchemeSathi checks your eligibility.')}
-                </p>
-              </div>
-            </div>
-
-            <div className="shrink-0 self-start sm:self-auto">
-              <AudioButton
-                textToSpeak={audioIntro}
-                language={language}
-                onPlayingChange={setIsIntroSpeaking}
-                size="default"
-              />
-            </div>
-          </div>
-
-          {/* Action CTAs Row */}
-          <div className="space-y-3 pt-2">
-            <div className="flex flex-wrap items-center gap-4">
-              {/* Dominant Primary CTA */}
-              <button
-                type="button"
-                onClick={onStart}
-                className="group min-h-[54px] px-8 py-3.5 rounded-2xl bg-[#004B87] hover:bg-[#002D54] text-white font-extrabold text-lg sm:text-xl shadow-cta hover:shadow-cta-hover transition-all duration-200 flex items-center justify-center gap-3 active:scale-98 focus:outline-hidden focus:ring-4 focus:ring-blue-300"
-              >
-                <span>👉</span>
-                <span>{language === 'hi' ? 'पात्रता जांच शुरू करें' : 'Start Eligibility Check'}</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-              </button>
-
-              {/* Secondary Browse CTA */}
-              <TouchButton onClick={onBrowse} variant="secondary" className="min-h-[54px] text-base font-bold">
-                <Layers className="w-5 h-5 text-slate-600" />
-                <span>{language === 'hi' ? '3 मुख्य योजनाएं देखें' : 'Browse All Schemes'}</span>
-              </TouchButton>
-            </div>
-
-            {/* Micro-caption directly underneath */}
-            <p className="text-xs text-slate-500 font-medium flex items-center gap-2 pt-1">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
-              <span>{language === 'hi' ? '⏱️ केवल 1 मिनट · 4 आसान सवाल · कोई दस्तावेज़ अपलोड नहीं' : '⏱️ Takes 1 min · 4 simple questions · Zero document upload'}</span>
-            </p>
-          </div>
-
-          {/* Privacy Guarantee Footer */}
-          <div className="border-t border-slate-200 pt-4 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
-            <span className="flex items-center gap-1.5 font-medium text-slate-700">
-              <CheckCircle2 className="w-4 h-4 text-green-700 shrink-0" />
-              <span>
-                {language === 'hi'
-                  ? 'गोपनीयता की पक्की गारंटी: आधार नंबर या बैंक खाता नंबर कभी नहीं पूछा जाता।'
-                  : 'Privacy guaranteed: No Aadhaar or bank account numbers collected.'}
-              </span>
-            </span>
-            <span className="font-mono text-[11px] text-slate-400">CS002 Community Project · 100% Free</span>
-          </div>
-
-        </div>
-      </section>
-
-
-      {/* ───────────────────────────────────────────────────────────
-          2. 3 VERIFIED SCHEMES: METRIC-FIRST BENTO GRID
-          ─────────────────────────────────────────────────────────── */}
-      <section className="space-y-6">
-        
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                {language === 'hi' ? 'आज जांची जाने वाली 3 मुख्य योजनाएं' : '3 Verified Schemes Evaluated Today'}
-              </h2>
-            </div>
-            <p className="text-sm text-slate-600 mt-1">
-              {language === 'hi'
-                ? 'सरकारी पोर्टलों से सत्यापित नियम। किसी अनुमान या AI की मनगढ़ंत जानकारी के बिना।'
-                : 'Deterministic eligibility rules verified against official ministry portals.'}
-            </p>
-          </div>
-
-          <div className="inline-flex items-center gap-1.5 bg-green-50 text-green-900 border border-green-300 px-3 py-1.5 rounded-full text-xs font-bold self-start sm:self-auto shrink-0">
-            <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse" />
-            <span>{language === 'hi' ? '100% आधिकारिक नियम' : '100% Official Rules'}</span>
-          </div>
+        {/* Subtle trust tag */}
+        <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200/80 px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-700">
+          <ShieldCheck className="w-4 h-4 text-[#004B87]" />
+          <span>{language === 'hi' ? '3 मुख्य केंद्रीय योजनाएं सत्यापित' : '3 Verified Central Schemes'}</span>
+          <span className="text-slate-300">·</span>
+          <span className="text-slate-500 font-mono text-[11px]">{language === 'hi' ? 'सत्यापन: 1 Nov 2026' : 'Audit: Nov 2026'}</span>
         </div>
 
-        {/* 3-Tile Asymmetric Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-          {VERIFIED_SCHEMES.map((scheme, idx) => {
-            // Colors per card for instant visual scanning
-            const colors = [
-              { border: 'hover:border-green-400', badgeBg: 'bg-green-100 text-green-900 border-green-200', statColor: 'text-green-800' },
-              { border: 'hover:border-amber-400', badgeBg: 'bg-amber-100 text-amber-950 border-amber-200', statColor: 'text-amber-800' },
-              { border: 'hover:border-blue-400', badgeBg: 'bg-blue-100 text-[#004B87] border-blue-200', statColor: 'text-[#004B87]' },
-            ][idx % 3];
+        {/* Display Headline */}
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15] font-hindi">
+          {language === 'hi' ? (
+            <>
+              सरकारी योजनाओं की सही जानकारी, <br />
+              <span className="text-[#004B87]">अब एक-एक आसान सवाल में।</span>
+            </>
+          ) : (
+            <>
+              Find Government Schemes You Qualify For— <br />
+              <span className="text-[#004B87]">One Simple Question at a Time.</span>
+            </>
+          )}
+        </h1>
 
-            return (
-              <div
-                key={scheme.id}
-                className={`bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-7 shadow-sm transition-all duration-200 flex flex-col justify-between group ${colors.border} hover:shadow-card-hover`}
-              >
-                
-                {/* Top: Category Tag + Audio Pronunciation */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${colors.badgeBg}`}>
-                      {scheme.tag}
-                    </span>
-                    <AudioButton
-                      textToSpeak={`${scheme.name}। ${scheme.benefitSummary}`}
-                      language={language}
-                      size="icon"
-                    />
-                  </div>
+        {/* Calm Plain-Language Subtitle */}
+        <p className="text-slate-600 text-base sm:text-lg lg:text-xl leading-relaxed max-w-2xl mx-auto">
+          {language === 'hi'
+            ? 'कोई लंबा फॉर्म नहीं, कोई लॉगिन नहीं। हम आपसे एक समय में सिर्फ एक सवाल पूछते हैं — आप बोलकर या छूकर जवाब दे सकते हैं।'
+            : 'No bureaucratic forms, no login needed. Answer simple prompts one by one with voice or tap, verified against official rules.'}
+        </p>
 
-                  {/* METRIC-FIRST HIERARCHY: Oversized Benefit Stat Header */}
-                  <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-1">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-                      {language === 'hi' ? 'सरकारी आर्थिक लाभ:' : 'Government Financial Benefit:'}
-                    </span>
-                    <div className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${colors.statColor} metric-highlight`}>
-                      {scheme.highlightAmount}
-                    </div>
-                    <span className="text-xs text-slate-600 font-medium block">
-                      {language === 'hi' ? scheme.highlightFrequency : scheme.englishHighlightFrequency}
-                    </span>
-                  </div>
+        {/* Dominant Primary Action CTA */}
+        <div className="pt-2 space-y-3">
+          <button
+            type="button"
+            onClick={onStart}
+            className="group min-h-[56px] px-8 py-4 rounded-2xl bg-[#004B87] hover:bg-[#002D54] text-white font-extrabold text-lg sm:text-xl shadow-cta hover:shadow-cta-hover transition-all duration-200 inline-flex items-center justify-center gap-3 active:scale-[0.98] focus:outline-hidden focus:ring-4 focus:ring-blue-200"
+          >
+            <span>{language === 'hi' ? 'पात्रता जांच शुरू करें' : 'Check Your Eligibility'}</span>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+          </button>
 
-                  {/* Scheme Title & Plain-Language Summary */}
-                  <div className="space-y-2 pt-1">
-                    <h3 className="font-extrabold text-slate-900 text-lg sm:text-xl group-hover:text-[#004B87] transition-colors leading-snug">
-                      {language === 'hi' ? scheme.name : scheme.englishName}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
-                      {language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Bottom: Clean 1px Visual Trust Divider */}
-                <div className="pt-4 mt-5 border-t border-slate-200 space-y-2.5 text-xs">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="font-medium truncate max-w-[170px]" title={scheme.ministry}>
-                      {language === 'hi' ? scheme.ministry : scheme.englishMinistry}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-green-700 font-bold shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-600 inline-block" />
-                      <span>{language === 'hi' ? 'सत्यापित' : 'Verified'}</span>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-1">
-                    <a
-                      href={scheme.officialUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[#004B87] hover:text-[#002D54] font-bold inline-flex items-center gap-1 hover:underline text-xs"
-                    >
-                      <span>{scheme.officialUrl.replace('https://', '')}</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <span className="text-[11px] font-mono text-slate-400">
-                      {scheme.lastVerified}
-                    </span>
-                  </div>
-                </div>
-
-              </div>
-            );
-          })}
-        </div>
-
-      </section>
-
-
-      {/* ───────────────────────────────────────────────────────────
-          3. HOW IT WORKS: 3-STEP TRANSPARENCY BENTO ROW
-          ─────────────────────────────────────────────────────────── */}
-      <section className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm space-y-8">
-        
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-xs font-bold text-[#004B87] uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-            {language === 'hi' ? 'पारदर्शी प्रक्रिया' : 'Transparent Workflow'}
-          </span>
-          <h3 className="font-extrabold text-2xl sm:text-3xl text-slate-900">
-            {language === 'hi' ? 'यह कैसे काम करता है?' : 'How SchemeSathi Works'}
-          </h3>
-          <p className="text-sm text-slate-600">
-            {language === 'hi' ? '3 सरल चरणों में जानिए अपनी पात्रता' : '3 simple steps to find schemes you qualify for'}
+          <p className="text-xs text-slate-500 font-medium">
+            {language === 'hi' ? '⏱️ केवल 1 मिनट · 4 आसान सवाल · कोई दस्तावेज़ अपलोड नहीं' : '⏱️ Takes 1 minute · 4 simple questions · Zero document uploads'}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Ambient Audio Pill */}
+        <div className="pt-1 flex justify-center">
+          <AudioButton
+            textToSpeak={audioIntro}
+            label={language === 'hi' ? '🔊 बोलकर समझें (Listen)' : '🔊 Audio Guide'}
+            language={language}
+          />
+        </div>
+
+      </section>
+
+
+      {/* ───────────────────────────────────────────────────────────
+          2. THE CLEAN BENTO GRID: 3 Verified Central Schemes
+          ─────────────────────────────────────────────────────────── */}
+      <section className="space-y-6">
+        
+        <div className="flex items-center justify-between border-b border-slate-200/80 pb-4">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-hindi">
+              {language === 'hi' ? 'आज जांची जाने वाली योजनाएं' : 'Featured Verified Schemes'}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              {language === 'hi' ? 'आधिकारिक सरकारी पोर्टलों से सीधे सत्यापित नियम' : 'Eligibility rules verified against official ministry portals'}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onBrowse}
+            className="text-xs sm:text-sm font-bold text-[#004B87] hover:underline"
+          >
+            {language === 'hi' ? 'विस्तार से देखें →' : 'View all →'}
+          </button>
+        </div>
+
+        {/* 2 + 1 Asymmetric Bento Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           
-          {/* Step 1 */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-3 relative">
-            <div className="w-12 h-12 rounded-xl bg-blue-100 text-[#004B87] font-black flex items-center justify-center text-lg shadow-2xs">
-              1
+          {/* Card 1: PM-KISAN */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-card hover:shadow-card-hover transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                {language === 'hi' ? 'किसान कल्याण' : 'Farmer Support'}
+              </span>
+              <span className="text-[11px] font-mono text-slate-400">pmkisan.gov.in</span>
             </div>
-            <h4 className="font-extrabold text-slate-900 text-lg">
-              {language === 'hi' ? '1-1 सवाल का जवाब दें' : 'Answer One Question at a Time'}
-            </h4>
-            <p className="text-slate-600 text-sm leading-relaxed">
+
+            <div className="space-y-1">
+              <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                ₹6,000 <span className="text-base sm:text-lg font-semibold text-slate-500">/ वर्ष</span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 font-hindi">
+                {language === 'hi' ? 'प्रधानमंत्री किसान सम्मान निधि (PM-KISAN)' : 'PM Kisan Samman Nidhi'}
+              </h3>
+            </div>
+
+            <p className="text-sm text-slate-600 leading-relaxed">
               {language === 'hi'
-                ? 'बोलकर या छूकर आसान सवालों के जवाब दें। एक समय पर सिर्फ 1 सवाल स्क्रीन पर आता है ताकि कोई भ्रम न हो।'
-                : 'Focus on one question per screen with large touch targets and instant voice playback support.'}
+                ? 'खेती योग्य भूमि वाले पात्र किसान परिवारों को हर वर्ष ₹6,000 की सीधी आर्थिक सहायता (₹2,000 की 3 समान किस्तों में DBT द्वारा)।'
+                : 'Direct income support of ₹6,000 per year transferred in 3 equal installments to landholding farmer families.'}
             </p>
+
+            <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 font-medium">
+              कृषि एवं किसान कल्याण मंत्रालय · DBT सीधे बैंक खाते में
+            </div>
           </div>
 
-          {/* Step 2 */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-3 relative">
-            <div className="w-12 h-12 rounded-xl bg-blue-100 text-[#004B87] font-black flex items-center justify-center text-lg shadow-2xs">
-              2
+          {/* Card 2: PMAY-G */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-card hover:shadow-card-hover transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                {language === 'hi' ? 'ग्रामीण आवास' : 'Rural Housing'}
+              </span>
+              <span className="text-[11px] font-mono text-slate-400">pmayg.nic.in</span>
             </div>
-            <h4 className="font-extrabold text-slate-900 text-lg">
-              {language === 'hi' ? 'समीक्षा व नियम मिलान' : 'Review & Deterministic Rules'}
-            </h4>
-            <p className="text-slate-600 text-sm leading-relaxed">
+
+            <div className="space-y-1">
+              <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                ₹1.20 – ₹1.30 <span className="text-base sm:text-lg font-semibold text-slate-500">लाख</span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 font-hindi">
+                {language === 'hi' ? 'प्रधानमंत्री आवास योजना - ग्रामीण (PMAY-G)' : 'PM Awas Yojana (Gramin)'}
+              </h3>
+            </div>
+
+            <p className="text-sm text-slate-600 leading-relaxed">
               {language === 'hi'
-                ? 'अपने दिए जवाबों की जांच करें। हमारा पारदर्शी नियम इंजन हर सरकारी शर्त का सटीक मिलान करेगा (AI अनुमान नहीं लगाएगा)।'
-                : 'Confirm your answers. Our rule engine verifies exact government criteria without generative guessing.'}
+                ? 'कच्चे मकानों या बेघर ग्रामीण परिवारों को पक्का मकान निर्माण हेतु ₹1.20 से ₹1.30 लाख की वित्तीय सहायता + 90 दिन मनरेगा मजदूरी।'
+                : 'Grant of ₹1.20 to ₹1.30 Lakh + 90 days MGNREGA wages for building a pucca house for homeless or kutcha households.'}
             </p>
+
+            <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 font-medium">
+              ग्रामीण विकास मंत्रालय · केंद्र + राज्य संयुक्त
+            </div>
           </div>
 
-          {/* Step 3 */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-3 relative">
-            <div className="w-12 h-12 rounded-xl bg-blue-100 text-[#004B87] font-black flex items-center justify-center text-lg shadow-2xs">
-              3
+          {/* Wide Anchor Card: Ayushman Bharat */}
+          <div className="md:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 shadow-card hover:shadow-card-hover transition-all">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[#004B87] bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full">
+                {language === 'hi' ? 'मुफ्त स्वास्थ्य सुरक्षा' : 'Free Healthcare'}
+              </span>
+              <span className="text-[11px] font-mono text-slate-400">pmjay.gov.in</span>
             </div>
-            <h4 className="font-extrabold text-slate-900 text-lg">
-              {language === 'hi' ? 'कागजात सूची व CSC पर्ची' : 'Document Checklist & CSC Slip'}
-            </h4>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              {language === 'hi'
-                ? 'पात्रता मिलते ही जरूरी कागजात की सूची पाएं और 1-क्लिक में जन सेवा केंद्र (CSC) के लिए पर्ची प्रिंट या WhatsApp करें।'
-                : 'Generate a clean 1-page slip with matched rules and required documents to take directly to your local CSC kiosk.'}
-            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <div className="md:col-span-2 space-y-2">
+                <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                  ₹5,00,000 <span className="text-base sm:text-lg font-semibold text-slate-500">/ प्रति परिवार प्रति वर्ष</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-hindi">
+                  {language === 'hi' ? 'आयुष्मान भारत - प्रधानमंत्री जन आरोग्य योजना (PM-JAY)' : 'Ayushman Bharat PM-JAY'}
+                </h3>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {language === 'hi'
+                    ? 'देश भर के 27,000 से अधिक सूचीबद्ध सरकारी और निजी अस्पतालों में गंभीर बीमारियों के लिए ₹5 लाख तक का पूरी तरह कैशलेस और मुफ्त इलाज।'
+                    : 'Cashless hospital treatment up to ₹5 Lakh per family per year in over 27,000 empanelled hospitals across India.'}
+                </p>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 text-xs text-slate-600 space-y-1.5">
+                <div className="font-bold text-slate-900">पात्रता आधार:</div>
+                <div>• SECC 2011 वंचित परिवार</div>
+                <div>• राशन कार्ड (NFSA) धारक</div>
+                <div>• कोई आयकर दाता नहीं होना चाहिए</div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 font-medium">
+              स्वास्थ्य एवं परिवार कल्याण मंत्रालय / National Health Authority (NHA)
+            </div>
           </div>
 
         </div>
 
+      </section>
+
+
+      {/* ───────────────────────────────────────────────────────────
+          3. HOW IT WORKS: Serene 3-Step Flow
+          ─────────────────────────────────────────────────────────── */}
+      <section className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-card space-y-6">
+        <h3 className="text-center font-bold text-lg sm:text-xl text-slate-900 font-hindi">
+          {language === 'hi' ? 'यह कैसे काम करता है?' : 'How It Works'}
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center sm:text-left">
+          
+          <div className="space-y-2">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#004B87] font-extrabold flex items-center justify-center text-sm">
+              1
+            </div>
+            <h4 className="font-bold text-slate-900 text-base font-hindi">
+              {language === 'hi' ? '1-1 सवाल का जवाब दें' : 'Answer One Question at a Time'}
+            </h4>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              {language === 'hi'
+                ? 'बोलकर या छूकर आसान सवालों के जवाब दें। कोई भ्रम नहीं, कोई कठिन फॉर्म नहीं।'
+                : 'Answer simple prompts with voice or tap without complicated jargon.'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#004B87] font-extrabold flex items-center justify-center text-sm">
+              2
+            </div>
+            <h4 className="font-bold text-slate-900 text-base font-hindi">
+              {language === 'hi' ? 'सटीक नियम मिलान' : 'Deterministic Rule Match'}
+            </h4>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              {language === 'hi'
+                ? 'हमारा नियम इंजन सरकारी शर्तों का 100% सटीक मिलान करता है, बिना किसी अनुमान के।'
+                : 'Exact verification against official government criteria without guessing.'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 text-[#004B87] font-extrabold flex items-center justify-center text-sm">
+              3
+            </div>
+            <h4 className="font-bold text-slate-900 text-base font-hindi">
+              {language === 'hi' ? 'CSC पर्ची प्राप्त करें' : 'Print Your Kiosk Slip'}
+            </h4>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              {language === 'hi'
+                ? 'कागजात की सूची वाली 1-पेज पर्ची प्रिंट करें और सीधे जन सेवा केंद्र ले जाएं।'
+                : 'Get a clean 1-page paper slip with matched schemes and required documents.'}
+            </p>
+          </div>
+
+        </div>
       </section>
 
     </div>

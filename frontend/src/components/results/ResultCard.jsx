@@ -1,8 +1,6 @@
 import React from 'react';
-import { CheckCircle2, AlertCircle, XCircle, ExternalLink, Printer, FileText, ArrowRight } from 'lucide-react';
+import { CheckCircle2, AlertCircle, XCircle, ExternalLink, Printer, ArrowRight } from 'lucide-react';
 import RuleAuditTrace from './RuleAuditTrace';
-import TouchButton from '../common/TouchButton';
-import AudioButton from '../common/AudioButton';
 
 export default function ResultCard({
   scheme,
@@ -17,163 +15,110 @@ export default function ResultCard({
   const name = language === 'hi' ? scheme.schemeName : scheme.englishName;
   const benefit = language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary;
 
-  const audioSummary = `${name}। ${
-    isEligible
-      ? 'आप इस योजना के लिए संभावित रूप से पात्र हैं।'
-      : isNeedsInfo
-      ? `इस योजना के लिए अभी कुछ जानकारी बाकी है।`
-      : 'वर्तमान शर्तों के अनुसार आप इस योजना के लिए पात्र नहीं हैं।'
-  } सरकारी लाभ: ${scheme.highlightAmount || benefit}`;
-
   return (
-    <div className={`bg-white rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 transition-all duration-200 ${
+    <div className={`bg-white rounded-3xl p-6 sm:p-8 space-y-6 transition-all border ${
       isEligible
-        ? 'border-2 border-green-600 shadow-md ring-1 ring-green-100'
+        ? 'border-emerald-300 shadow-sm'
         : isNeedsInfo
-        ? 'border-2 border-amber-400'
-        : 'border-2 border-slate-200 opacity-80'
+        ? 'border-amber-300 shadow-sm'
+        : 'border-slate-200 opacity-75'
     }`}>
       
-      {/* ───────────────────────────────────────────────────────────
-          Top Badge Row with Audio Button & Verification Dot
-          ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
-        <div className="flex items-center gap-2.5">
+      {/* Top Status & Verification Row */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+        <div className="flex items-center gap-2">
           {isEligible && (
-            <span className="bg-green-100 text-green-900 border border-green-400 text-xs font-black px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 text-green-700" />
-              <span>{language === 'hi' ? 'संभावित रूप से पात्र (Eligible)' : 'Potentially Eligible'}</span>
+            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{language === 'hi' ? 'संभावित रूप से पात्र' : 'Potentially Eligible'}</span>
             </span>
           )}
 
           {isNeedsInfo && (
-            <span className="bg-amber-100 text-amber-950 border border-amber-400 text-xs font-black px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-2xs">
-              <AlertCircle className="w-4 h-4 text-amber-700" />
-              <span>{language === 'hi' ? `${scheme.missing.length} जानकारी बाकी` : `${scheme.missing.length} More Info Needed`}</span>
+            <span className="bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+              <span>{language === 'hi' ? '1 जानकारी बाकी' : 'Needs Information'}</span>
             </span>
           )}
 
           {isNotEligible && (
-            <span className="bg-red-100 text-red-900 border border-red-300 text-xs font-black px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-2xs">
-              <XCircle className="w-4 h-4 text-red-700" />
-              <span>{language === 'hi' ? 'शर्तें पूरी नहीं (Not Eligible)' : 'Not Eligible'}</span>
+            <span className="bg-slate-100 text-slate-600 border border-slate-200 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+              <XCircle className="w-3.5 h-3.5 text-slate-400" />
+              <span>{language === 'hi' ? 'शर्तें पूरी नहीं' : 'Not Eligible'}</span>
             </span>
           )}
 
-          <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-bold">
+          <span className="text-xs text-slate-400 font-medium">
             {scheme.scope}
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <AudioButton
-            textToSpeak={audioSummary}
-            language={language}
-            size="sm"
-            variant="subtle"
-          />
-
-          <span className="text-xs text-slate-500 font-mono hidden sm:inline">
-            सत्यापित: {scheme.lastVerified}
-          </span>
-        </div>
+        <span className="text-[11px] font-mono text-slate-400">
+          सत्यापित: {scheme.lastVerified}
+        </span>
       </div>
 
-      {/* ───────────────────────────────────────────────────────────
-          Title & Financial Metric Header
-          ─────────────────────────────────────────────────────────── */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug">
-            {name}
-          </h3>
-          <p className="text-xs text-slate-500 font-semibold mt-1">
-            {language === 'hi' ? scheme.ministry : scheme.englishMinistry}
-          </p>
-        </div>
+      {/* Scheme Title & Benefit Stat */}
+      <div className="space-y-3">
+        <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-hindi leading-snug">
+          {name}
+        </h3>
 
-        {/* Oversized Financial Benefit Header */}
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-start gap-3">
-            <span className="text-3xl" role="img" aria-hidden="true">💰</span>
-            <div>
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500 block">
-                {language === 'hi' ? 'निश्चित सरकारी आर्थिक लाभ:' : 'Government Financial Benefit:'}
-              </span>
-              <p className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
-                {scheme.highlightAmount || benefit}
-              </p>
-              <p className="text-xs text-slate-600 mt-0.5">
-                {benefit}
-              </p>
+        <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              {language === 'hi' ? 'सरकारी लाभ:' : 'Government Benefit:'}
+            </span>
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">
+              {scheme.highlightAmount || benefit}
             </div>
           </div>
-
-          {isEligible && (
-            <span className="bg-green-100 text-green-900 border border-green-300 text-xs font-bold px-3 py-1.5 rounded-xl shrink-0 self-start sm:self-center">
-              DBT डायरेक्ट ट्रांसफर
-            </span>
-          )}
+          <div className="text-xs text-slate-500 max-w-sm">
+            {benefit}
+          </div>
         </div>
       </div>
 
-      {/* ───────────────────────────────────────────────────────────
-          Two Columns: Deterministic Rule Trace vs Required Documents
-          ─────────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
+      {/* Two Clean Columns: Rules Evaluated vs Documents */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
         
-        {/* Rule Trace */}
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-            <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-              <span>🔍</span>
-              <span>{language === 'hi' ? 'सत्यापित नियम मिलान:' : 'Rule Verification Trace:'}</span>
-            </h4>
-            <span className="text-xs text-slate-500 font-mono font-bold">
-              {scheme.passed.length} पास / {scheme.failed.length} फेल
-            </span>
-          </div>
-
-          <ul className="space-y-2 text-xs sm:text-sm text-slate-800">
+        {/* Rules */}
+        <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+          <strong className="text-slate-900 font-bold block text-xs uppercase tracking-wider">
+            {language === 'hi' ? 'नियम सत्यापन:' : 'Verified Rules:'}
+          </strong>
+          <ul className="space-y-1.5 text-slate-700">
             {scheme.passed.map(p => (
-              <li key={p.ruleId} className="flex items-start gap-2 bg-white p-2 rounded-lg border border-green-200">
-                <span className="text-green-700 font-bold shrink-0 mt-0.5">✓</span>
-                <span className="text-green-950 font-medium">{p.description}</span>
+              <li key={p.ruleId} className="flex items-start gap-2">
+                <span className="text-emerald-600 font-bold">✓</span>
+                <span>{p.description}</span>
               </li>
             ))}
             {scheme.failed.map(f => (
-              <li key={f.ruleId} className="flex items-start gap-2 bg-white p-2 rounded-lg border border-red-200 text-red-900">
-                <span className="text-red-600 font-bold shrink-0 mt-0.5">✕</span>
-                <span className="font-medium">{f.description}</span>
+              <li key={f.ruleId} className="flex items-start gap-2 text-slate-500">
+                <span className="text-red-500 font-bold">✕</span>
+                <span>{f.description}</span>
               </li>
             ))}
             {scheme.missing.map(m => (
-              <li key={m.ruleId} className="flex items-start gap-2 bg-white p-2 rounded-lg border border-amber-200 text-amber-950">
-                <span className="text-amber-700 font-bold shrink-0 mt-0.5">?</span>
-                <span className="font-medium">{m.description}</span>
+              <li key={m.ruleId} className="flex items-start gap-2 text-amber-700">
+                <span className="font-bold">?</span>
+                <span>{m.description}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Required Documents */}
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-            <h4 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-[#004B87]" />
-              <span>{language === 'hi' ? 'जरूरी कागजात (Documents):' : 'Required Documents:'}</span>
-            </h4>
-            <span className="text-xs text-slate-500 font-semibold">{scheme.documents.length} मुख्य दस्तावेज</span>
-          </div>
-
-          <ul className="space-y-2 text-xs sm:text-sm text-slate-800">
+        {/* Documents */}
+        <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+          <strong className="text-slate-900 font-bold block text-xs uppercase tracking-wider">
+            {language === 'hi' ? 'आवश्यक कागजात:' : 'Required Documents:'}
+          </strong>
+          <ul className="space-y-1.5 text-slate-700">
             {scheme.documents.map((doc, idx) => (
-              <li key={idx} className="flex items-start gap-2.5 bg-white p-2 rounded-lg border border-slate-200">
-                <span className="w-2 h-2 rounded-full bg-[#004B87] mt-1.5 shrink-0" />
-                <div>
-                  <strong className="block text-slate-900 font-bold">{doc.name}</strong>
-                  <span className="text-xs text-slate-500">{doc.note}</span>
-                </div>
+              <li key={idx} className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#004B87] mt-1.5 shrink-0" />
+                <span><strong>{doc.name}</strong> - {doc.note}</span>
               </li>
             ))}
           </ul>
@@ -181,44 +126,42 @@ export default function ResultCard({
 
       </div>
 
-      {/* Expandable Technical Trace */}
+      {/* Expandable Technical Audit Trace for Evaluators */}
       <RuleAuditTrace scheme={scheme} language={language} />
 
-      {/* ───────────────────────────────────────────────────────────
-          Action Footer Row
-          ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
-        
-        <TouchButton
-          onClick={() => onOpenDetails(scheme)}
-          variant="primary"
-          className="text-sm font-bold min-h-[48px]"
-        >
-          <FileText className="w-4 h-4" />
-          <span>{language === 'hi' ? 'आवेदन प्रक्रिया व गाइड देखें' : 'Application Guide & Steps'}</span>
-        </TouchButton>
+      {/* Clean 2-Action Footer Row */}
+      <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
+        <div className="flex flex-wrap items-center gap-3">
+          {isEligible && (
+            <button
+              type="button"
+              onClick={() => onPrintSlip(scheme)}
+              className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#002D54] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-colors"
+            >
+              <Printer className="w-4 h-4" />
+              <span>{language === 'hi' ? 'CSC पर्ची देखें व प्रिंट करें' : 'Print CSC Slip'}</span>
+            </button>
+          )}
 
-        {isEligible && (
-          <TouchButton
-            onClick={() => onPrintSlip(scheme)}
-            variant="amberAction"
-            className="text-sm font-bold min-h-[48px]"
+          <button
+            type="button"
+            onClick={() => onOpenDetails(scheme)}
+            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-colors"
           >
-            <Printer className="w-4 h-4" />
-            <span>{language === 'hi' ? '🖨️ CSC ऑपरेटर पर्ची प्रिंट करें' : 'Print CSC Kiosk Slip'}</span>
-          </TouchButton>
-        )}
+            <span>{language === 'hi' ? 'आवेदन चरण देखें' : 'Application Guide'}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
 
         <a
           href={scheme.officialUrl}
           target="_blank"
           rel="noreferrer"
-          className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold text-xs sm:text-sm px-4 h-12 rounded-xl flex items-center gap-1.5 transition-colors ml-auto"
+          className="text-xs text-slate-400 hover:text-[#004B87] flex items-center gap-1 font-mono transition-colors"
         >
-          <span>आधिकारिक पोर्टल</span>
-          <ExternalLink className="w-3.5 h-3.5" />
+          <span>{scheme.officialUrl.replace('https://', '')}</span>
+          <ExternalLink className="w-3 h-3" />
         </a>
-
       </div>
 
     </div>
