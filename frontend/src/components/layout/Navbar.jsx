@@ -38,23 +38,29 @@ export default function Navbar({
         {/* Center/Right Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
           
-          {/* Mode Pill: Citizen vs Kiosk */}
-          <div className="bg-slate-100 p-0.5 rounded-lg flex text-xs font-semibold">
+          {/* Mode Pill: Citizen vs Kiosk (Linear Segmented Control) */}
+          <div 
+            role="group" 
+            aria-label="User Mode"
+            className="bg-slate-100 border border-slate-200/80 p-1 rounded-xl flex items-center text-xs font-semibold shadow-2xs"
+          >
             <button
+              type="button"
               onClick={() => setMode('citizen')}
-              className={`px-2.5 py-1.5 rounded-md transition-all ${
+              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
                 mode === 'citizen'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               {language === 'hi' ? 'नागरिक' : 'Citizen'}
             </button>
             <button
+              type="button"
               onClick={() => setMode('operator')}
-              className={`px-2.5 py-1.5 rounded-md transition-all ${
+              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
                 mode === 'operator'
-                  ? 'bg-[#004B87] text-white shadow-2xs font-bold'
+                  ? 'bg-[#004B87] text-white shadow-xs font-bold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
@@ -63,47 +69,72 @@ export default function Navbar({
           </div>
 
           {/* Accessible Font Resizer (A- / A / A+) */}
-          <div className="hidden sm:flex items-center bg-slate-100 p-0.5 rounded-lg text-xs font-semibold" aria-label="Text sizing">
+          <div 
+            role="group" 
+            aria-label="Text sizing"
+            className="hidden sm:flex items-center bg-slate-100 border border-slate-200/80 p-1 rounded-xl text-xs font-semibold shadow-2xs"
+          >
             <button
+              type="button"
               onClick={() => setFontSizeDelta(-1)}
-              className={`px-2 py-1 rounded transition-colors ${fontSizeDelta === -1 ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900'}`}
-              title="अक्षर छोटे करें"
+              className={`px-2.5 py-1.5 rounded-lg transition-all duration-200 ${
+                fontSizeDelta === -1 
+                  ? 'bg-white text-slate-900 shadow-xs font-bold' 
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+              title={language === 'hi' ? 'अक्षर छोटे करें' : 'Smaller text'}
             >
               A-
             </button>
             <button
+              type="button"
               onClick={() => setFontSizeDelta(0)}
-              className={`px-2 py-1 rounded transition-colors ${fontSizeDelta === 0 ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900'}`}
-              title="सामान्य आकार"
+              className={`px-2.5 py-1.5 rounded-lg transition-all duration-200 ${
+                fontSizeDelta === 0 
+                  ? 'bg-white text-slate-900 shadow-xs font-bold' 
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+              title={language === 'hi' ? 'सामान्य आकार' : 'Default text size'}
             >
               A
             </button>
             <button
+              type="button"
               onClick={() => setFontSizeDelta(1)}
-              className={`px-2 py-1 rounded transition-colors ${fontSizeDelta === 1 ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900'}`}
-              title="अक्षर बड़े करें"
+              className={`px-2.5 py-1.5 rounded-lg transition-all duration-200 ${
+                fontSizeDelta === 1 
+                  ? 'bg-white text-slate-900 shadow-xs font-bold' 
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+              title={language === 'hi' ? 'अक्षर बड़े करें' : 'Larger text'}
             >
               A+
             </button>
           </div>
 
           {/* Language Switcher */}
-          <div className="bg-slate-100 p-0.5 rounded-lg flex text-xs font-semibold">
+          <div 
+            role="group" 
+            aria-label="Language selection"
+            className="bg-slate-100 border border-slate-200/80 p-1 rounded-xl flex items-center text-xs font-semibold shadow-2xs"
+          >
             <button
+              type="button"
               onClick={() => setLanguage('hi')}
-              className={`px-2.5 py-1.5 rounded-md transition-all ${
+              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
                 language === 'hi'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold font-hindi'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               हिन्दी
             </button>
             <button
+              type="button"
               onClick={() => setLanguage('en')}
-              className={`px-2.5 py-1.5 rounded-md transition-all ${
+              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
                 language === 'en'
-                  ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >

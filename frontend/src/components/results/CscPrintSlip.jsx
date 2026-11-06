@@ -63,8 +63,13 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
         </div>
       </div>
 
-      {/* The Perforated Boarding Pass Receipt */}
-      <div className="print-area csc-receipt p-6 sm:p-10 shadow-card space-y-6 text-slate-900 bg-white">
+      {/* Thermal Printer Slot Bar Illusion */}
+      <div className="no-print flex justify-center pb-1">
+        <div className="w-48 h-2 bg-slate-300 rounded-full opacity-60 shadow-inner" title="CSC Printer Slot" />
+      </div>
+
+      {/* The Perforated Boarding Pass Receipt with Slot Emerge Animation */}
+      <div className="print-area csc-receipt animate-printer-emerge p-6 sm:p-10 shadow-card space-y-6 text-slate-900 bg-white">
         
         {/* Slip Header with Emblem and Slip ID */}
         <div className="border-b border-slate-200 pb-5 flex items-start justify-between gap-4">

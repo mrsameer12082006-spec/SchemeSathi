@@ -100,57 +100,65 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
 
       {/* Schemes Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {filteredSchemes.map(scheme => (
-          <div
-            key={scheme.id}
-            className="bg-white hairline-border rounded-3xl p-6 space-y-4 shadow-card hover:shadow-card-hover tactile-card flex flex-col justify-between"
-          >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-[#004B87] bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">
-                  {scheme.tag || scheme.scope}
-                </span>
-                <span className="font-mono text-[11px] text-slate-400">
-                  {scheme.lastVerified}
-                </span>
-              </div>
+        {filteredSchemes.map(scheme => {
+          const accentBorder = scheme.id.includes('kisan')
+            ? 'border-t-4 border-t-emerald-600'
+            : scheme.id.includes('awas')
+            ? 'border-t-4 border-t-amber-500'
+            : 'border-t-4 border-t-[#004B87]';
 
-              <div className="space-y-1">
-                <div className="text-2xl font-extrabold text-slate-900 metric-tabular">
-                  {scheme.highlightAmount}
+          return (
+            <div
+              key={scheme.id}
+              className={`bg-white hairline-border ${accentBorder} rounded-3xl p-6 space-y-4 shadow-card hover:shadow-card-hover tactile-card flex flex-col justify-between`}
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-[#004B87] bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">
+                    {scheme.tag || scheme.scope}
+                  </span>
+                  <span className="font-mono text-[11px] text-slate-400">
+                    {scheme.lastVerified}
+                  </span>
                 </div>
-                <h3 className="font-extrabold text-slate-900 text-base font-hindi leading-snug">
-                  {language === 'hi' ? scheme.name : scheme.englishName}
-                </h3>
+
+                <div className="space-y-1">
+                  <div className="text-2xl font-extrabold text-slate-900 metric-tabular">
+                    {scheme.highlightAmount}
+                  </div>
+                  <h3 className="font-extrabold text-slate-900 text-base font-hindi leading-snug">
+                    {language === 'hi' ? scheme.name : scheme.englishName}
+                  </h3>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed hindi-body line-clamp-3">
+                  {language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary}
+                </p>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed hindi-body line-clamp-3">
-                {language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary}
-              </p>
-            </div>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => onSelectScheme(scheme)}
+                  className="text-xs font-bold text-[#004B87] hover:underline flex items-center gap-1"
+                >
+                  <span>{language === 'hi' ? 'कागजात व आवेदन देखें' : 'View details'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => onSelectScheme(scheme)}
-                className="text-xs font-bold text-[#004B87] hover:underline flex items-center gap-1"
-              >
-                <span>{language === 'hi' ? 'कागजात व आवेदन देखें' : 'View details'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-
-              <a
-                href={scheme.officialUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11px] text-slate-400 hover:text-[#004B87] font-mono flex items-center gap-1"
-              >
-                <span>{scheme.officialUrl.replace('https://', '')}</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+                <a
+                  href={scheme.officialUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-slate-400 hover:text-[#004B87] font-mono flex items-center gap-1"
+                >
+                  <span>{scheme.officialUrl.replace('https://', '')}</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
     </div>

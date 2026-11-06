@@ -39,7 +39,10 @@ export default function QuestionCard({
   };
 
   return (
-    <div className="bg-white hairline-border rounded-3xl p-6 sm:p-10 shadow-card space-y-8 animate-fade-in max-w-2xl mx-auto">
+    <div 
+      key={question.field}
+      className="bg-white hairline-border rounded-3xl p-6 sm:p-10 shadow-card space-y-8 animate-question-slide max-w-2xl mx-auto"
+    >
       
       {/* Question Headline (Display Heading with tight tracking) */}
       <div className="space-y-2 text-center sm:text-left">
@@ -73,9 +76,13 @@ export default function QuestionCard({
                 </span>
               </div>
 
-              {/* Minimal bullet indicator */}
-              <div className="w-8 h-8 rounded-full border border-slate-200 group-hover:border-[#004B87] group-hover:bg-[#004B87] group-hover:text-white flex items-center justify-center text-xs font-bold text-slate-400 shrink-0 transition-colors">
-                {mode === 'operator' ? (idx + 1) : '➔'}
+              {/* Minimal indicator with Kiosk shortcut support */}
+              <div className="w-8 h-8 rounded-full border border-slate-200 group-hover:border-[#004B87] group-hover:bg-[#004B87] group-hover:text-white flex items-center justify-center text-xs font-bold text-slate-500 shrink-0 transition-colors">
+                {mode === 'operator' ? (
+                  <span className="font-mono">[{idx + 1}]</span>
+                ) : (
+                  '➔'
+                )}
               </div>
             </button>
           );

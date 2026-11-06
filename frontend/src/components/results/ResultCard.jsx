@@ -15,14 +15,14 @@ export default function ResultCard({
   const name = language === 'hi' ? scheme.schemeName : scheme.englishName;
   const benefit = language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary;
 
+  const topAccent = isEligible
+    ? 'border-t-4 border-t-emerald-600 border-emerald-200 shadow-sm'
+    : isNeedsInfo
+    ? 'border-t-4 border-t-amber-500 border-amber-200 shadow-sm'
+    : 'border-t-4 border-t-slate-300 border-slate-200 opacity-80';
+
   return (
-    <div className={`bg-white rounded-3xl p-6 sm:p-8 space-y-6 transition-all tactile-card hairline-border ${
-      isEligible
-        ? 'border-emerald-300 shadow-sm'
-        : isNeedsInfo
-        ? 'border-amber-300 shadow-sm'
-        : 'border-slate-200 opacity-75'
-    }`}>
+    <div className={`bg-white rounded-3xl p-6 sm:p-8 space-y-6 transition-all tactile-card hairline-border ${topAccent}`}>
       
       {/* Top Status & Verification Row */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">

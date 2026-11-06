@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import QuestionCard from '../components/questionnaire/QuestionCard';
 import { QUESTION_REGISTRY } from '../data/schemesData';
@@ -12,6 +12,7 @@ export default function GuidedInterview({
   initialStep = 0
 }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
+  const currentQuestion = QUESTION_REGISTRY[currentStep];
 
   const handleSelectOption = (field, value, shortText) => {
     setAnswers(prev => ({
@@ -32,7 +33,22 @@ export default function GuidedInterview({
     }
   };
 
-  const currentQuestion = QUESTION_REGISTRY[currentStep];
+  // Kiosk high-speed keyboard shortcuts (1, 2, 3...)
+  useEffect(() => {
+    if (mode !== 'operator' || !currentQuestion) return;
+
+    const handleKeyDown = (e) => {
+      const num = parseInt(e.key, 10);
+      if (!isNaN(num) && num >= 1 && num <= currentQuestion.options.length) {
+        const selected = currentQuestion.options[num - 1];
+        handleSelectOption(currentQuestion.field, selected.value, selected.shortText);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentStep, mode, currentQuestion]);
+
   const progressPercent = Math.round(((currentStep + 1) / QUESTION_REGISTRY.length) * 100);
 
   return (
@@ -45,6 +61,11 @@ export default function GuidedInterview({
             {language === 'hi'
               ? `सवाल ${currentStep + 1} / ${QUESTION_REGISTRY.length}`
               : `Question ${currentStep + 1} of ${QUESTION_REGISTRY.length}`}
+            {mode === 'operator' && (
+              <span className="ml-2 px-1.5 py-0.5 rounded-sm bg-blue-100 text-[#004B87] font-mono text-[10px]">
+                KEYBOARD NUMPAD ENABLED
+              </span>
+            )}
           </span>
 
           {currentStep > 0 && (
@@ -59,10 +80,10 @@ export default function GuidedInterview({
           )}
         </div>
 
-        {/* 1px sleek progress track */}
-        <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+        {/* 1px sleek progress track with smooth transition */}
+        <div className="w-full bg-slate-200/90 rounded-full h-2 overflow-hidden">
           <div
-            className="bg-[#004B87] h-full rounded-full transition-all duration-300"
+            className="bg-[#004B87] h-full rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
