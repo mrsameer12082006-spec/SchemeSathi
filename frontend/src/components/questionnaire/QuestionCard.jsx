@@ -17,7 +17,6 @@ export default function QuestionCard({
 
   const handleVoiceSimulate = () => {
     setIsListening(true);
-    // Simulate Bhashini ASR listening window
     setTimeout(() => {
       setIsListening(false);
       if (question.options.length > 0) {
@@ -40,19 +39,19 @@ export default function QuestionCard({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-card space-y-8 animate-fade-in max-w-2xl mx-auto">
+    <div className="bg-white hairline-border rounded-3xl p-6 sm:p-10 shadow-card space-y-8 animate-fade-in max-w-2xl mx-auto">
       
-      {/* Question Headline */}
+      {/* Question Headline (Display Heading with tight tracking) */}
       <div className="space-y-2 text-center sm:text-left">
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug font-hindi">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug display-heading">
           {title}
         </h2>
-        <p className="text-sm text-slate-500 font-medium">
+        <p className="text-sm text-slate-400 font-medium">
           {subtitle}
         </p>
       </div>
 
-      {/* Clean, Tactile Option Cards (56px min height, zero nested buttons) */}
+      {/* Clean Tactile Option Cards (Linear/Wise Spring Press, Zero Nested Buttons) */}
       <div className="space-y-3">
         {question.options.map((opt, idx) => {
           const label = language === 'hi' ? opt.labelHindi : opt.labelEnglish;
@@ -63,10 +62,10 @@ export default function QuestionCard({
               key={idx}
               type="button"
               onClick={() => onSelectOption(question.field, opt.value, opt.shortText)}
-              className="w-full text-left bg-white hover:bg-blue-50/60 active:bg-blue-100/60 border-2 border-slate-200 hover:border-[#004B87] rounded-2xl p-4 sm:p-5 transition-all flex items-center justify-between group active:scale-[0.99] focus:outline-hidden focus:border-[#004B87]"
+              className="w-full text-left bg-white hover:bg-blue-50/50 active:bg-blue-100/60 border border-slate-200 hover:border-[#004B87] rounded-2xl p-4 sm:p-5 tactile-card flex items-center justify-between group focus:outline-hidden focus:border-[#004B87]"
             >
               <div className="space-y-0.5">
-                <span className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#004B87] transition-colors block font-hindi leading-snug">
+                <span className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#004B87] transition-colors block hindi-body leading-snug">
                   {label}
                 </span>
                 <span className="text-xs text-slate-400 font-medium block">
@@ -74,8 +73,8 @@ export default function QuestionCard({
                 </span>
               </div>
 
-              {/* Minimal bullet or shortcut indicator */}
-              <div className="w-8 h-8 rounded-full border-2 border-slate-200 group-hover:border-[#004B87] group-hover:bg-[#004B87] group-hover:text-white flex items-center justify-center text-xs font-bold text-slate-400 shrink-0 transition-colors">
+              {/* Minimal bullet indicator */}
+              <div className="w-8 h-8 rounded-full border border-slate-200 group-hover:border-[#004B87] group-hover:bg-[#004B87] group-hover:text-white flex items-center justify-center text-xs font-bold text-slate-400 shrink-0 transition-colors">
                 {mode === 'operator' ? (idx + 1) : '➔'}
               </div>
             </button>
@@ -90,7 +89,7 @@ export default function QuestionCard({
         <button
           type="button"
           onClick={handleToggleQuestionAudio}
-          className={`inline-flex items-center gap-2 text-xs font-bold px-4 py-2.5 rounded-full transition-all ${
+          className={`inline-flex items-center gap-2 text-xs font-bold px-4 py-2.5 rounded-full spring-press ${
             isPlayingAudio
               ? 'bg-[#004B87] text-white shadow-xs'
               : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
@@ -105,7 +104,7 @@ export default function QuestionCard({
           type="button"
           onClick={handleVoiceSimulate}
           disabled={isListening}
-          className={`inline-flex items-center gap-2 text-xs font-bold px-4 py-2.5 rounded-full transition-all ${
+          className={`inline-flex items-center gap-2 text-xs font-bold px-4 py-2.5 rounded-full spring-press ${
             isListening
               ? 'bg-red-600 text-white mic-active'
               : 'bg-slate-900 hover:bg-slate-800 text-white'

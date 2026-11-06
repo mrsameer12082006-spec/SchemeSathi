@@ -16,7 +16,7 @@ export default function ResultCard({
   const benefit = language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary;
 
   return (
-    <div className={`bg-white rounded-3xl p-6 sm:p-8 space-y-6 transition-all border ${
+    <div className={`bg-white rounded-3xl p-6 sm:p-8 space-y-6 transition-all tactile-card hairline-border ${
       isEligible
         ? 'border-emerald-300 shadow-sm'
         : isNeedsInfo
@@ -69,11 +69,11 @@ export default function ResultCard({
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
               {language === 'hi' ? 'सरकारी लाभ:' : 'Government Benefit:'}
             </span>
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5 metric-tabular">
               {scheme.highlightAmount || benefit}
             </div>
           </div>
-          <div className="text-xs text-slate-500 max-w-sm">
+          <div className="text-xs text-slate-500 max-w-sm hindi-body">
             {benefit}
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function ResultCard({
           <strong className="text-slate-900 font-bold block text-xs uppercase tracking-wider">
             {language === 'hi' ? 'नियम सत्यापन:' : 'Verified Rules:'}
           </strong>
-          <ul className="space-y-1.5 text-slate-700">
+          <ul className="space-y-1.5 text-slate-700 hindi-body">
             {scheme.passed.map(p => (
               <li key={p.ruleId} className="flex items-start gap-2">
                 <span className="text-emerald-600 font-bold">✓</span>
@@ -114,7 +114,7 @@ export default function ResultCard({
           <strong className="text-slate-900 font-bold block text-xs uppercase tracking-wider">
             {language === 'hi' ? 'आवश्यक कागजात:' : 'Required Documents:'}
           </strong>
-          <ul className="space-y-1.5 text-slate-700">
+          <ul className="space-y-1.5 text-slate-700 hindi-body">
             {scheme.documents.map((doc, idx) => (
               <li key={idx} className="flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#004B87] mt-1.5 shrink-0" />
@@ -136,7 +136,7 @@ export default function ResultCard({
             <button
               type="button"
               onClick={() => onPrintSlip(scheme)}
-              className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#002D54] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-colors"
+              className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#002D54] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xs spring-press"
             >
               <Printer className="w-4 h-4" />
               <span>{language === 'hi' ? 'CSC पर्ची देखें व प्रिंट करें' : 'Print CSC Slip'}</span>
@@ -146,7 +146,7 @@ export default function ResultCard({
           <button
             type="button"
             onClick={() => onOpenDetails(scheme)}
-            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-colors"
+            className="min-h-[44px] px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs sm:text-sm flex items-center gap-1.5 spring-press"
           >
             <span>{language === 'hi' ? 'आवेदन चरण देखें' : 'Application Guide'}</span>
             <ArrowRight className="w-4 h-4" />

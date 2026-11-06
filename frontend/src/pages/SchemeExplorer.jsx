@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ArrowLeft, ArrowRight, ExternalLink, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Search, ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import { VERIFIED_SCHEMES } from '../data/schemesData';
 
 export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, language }) {
@@ -44,7 +44,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
             <span>{language === 'hi' ? 'मुख्य पृष्ठ पर लौटें' : 'Back to Home'}</span>
           </button>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-hindi tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-hindi tracking-tight display-heading">
             {language === 'hi' ? 'सत्यापित केंद्रीय सरकारी योजनाएं' : 'Verified Central Welfare Schemes'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500">
@@ -52,11 +52,11 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
           </p>
         </div>
 
-        {/* Quick Check CTA */}
+        {/* Quick Check CTA with Spring Press */}
         <button
           type="button"
           onClick={onStartCheck}
-          className="min-h-[46px] px-6 py-2.5 rounded-2xl bg-[#004B87] hover:bg-[#002D54] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-cta hover:shadow-cta-hover transition-all active:scale-[0.98] self-start sm:self-auto shrink-0"
+          className="min-h-[46px] px-6 py-2.5 rounded-2xl bg-[#004B87] hover:bg-[#002D54] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-cta hover:shadow-cta-hover spring-press self-start sm:self-auto shrink-0"
         >
           <span>{language === 'hi' ? 'अपनी पात्रता जांचें' : 'Check Eligibility'}</span>
           <ArrowRight className="w-4 h-4" />
@@ -66,7 +66,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
       {/* Search & Category Filter Controls */}
       <div className="space-y-4">
         
-        {/* Search Input */}
+        {/* Search Input with Linear Style Hairline */}
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
@@ -74,7 +74,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={language === 'hi' ? 'योजना का नाम, मंत्रालय या लाभ खोजें...' : 'Search by scheme name, ministry, or benefit...'}
-            className="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-[#004B87] shadow-2xs font-hindi"
+            className="w-full bg-white hairline-border rounded-2xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-[#004B87] shadow-2xs font-hindi"
           />
         </div>
 
@@ -85,10 +85,10 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3.5 py-2 rounded-xl transition-all ${
+              className={`px-3.5 py-2 rounded-xl spring-press ${
                 selectedCategory === cat.id
                   ? 'bg-[#004B87] text-white shadow-2xs'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 hairline-border'
               }`}
             >
               {language === 'hi' ? cat.labelHindi : cat.labelEnglish}
@@ -103,7 +103,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
         {filteredSchemes.map(scheme => (
           <div
             key={scheme.id}
-            className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between"
+            className="bg-white hairline-border rounded-3xl p-6 space-y-4 shadow-card hover:shadow-card-hover tactile-card flex flex-col justify-between"
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs">
@@ -124,7 +124,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
                 </h3>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
+              <p className="text-xs text-slate-600 leading-relaxed hindi-body line-clamp-3">
                 {language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary}
               </p>
             </div>
