@@ -97,17 +97,14 @@ export function speakAudio(text, lang = 'hi', callbacks = {}) {
     return;
   }
 
-  // Stop any active utterance
   window.speechSynthesis.cancel();
-
   if (!text) return;
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
-  utterance.rate = 0.92; // Clear, comfortable cadence for bilingual audio guidance
+  utterance.rate = 0.92;
   utterance.pitch = 1.0;
 
-  // Attempt to select a natural Hindi/Indian English voice if available
   const voices = window.speechSynthesis.getVoices();
   if (voices.length > 0) {
     const targetLang = lang === 'hi' ? 'hi' : 'en-IN';
@@ -133,18 +130,6 @@ export function speakAudio(text, lang = 'hi', callbacks = {}) {
     if (callbacks.onError) callbacks.onError(e);
   };
 
-  utterance.onpause = () => {
-    if (callbacks.onPause) callbacks.onPause();
-  };
-
-  utterance.onresume = () => {
-    if (callbacks.onResume) callbacks.onResume();
-  };
-
-  utterance.onboundary = (e) => {
-    if (callbacks.onBoundary) callbacks.onBoundary(e.charIndex);
-  };
-
   currentUtterance = utterance;
   window.speechSynthesis.speak(utterance);
 }
@@ -156,14 +141,42 @@ export function stopAudio() {
   }
 }
 
-export function pauseAudio() {
-  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    window.speechSynthesis.pause();
-  }
-}
+/**
+ * Web Audio API Success Chime (Tez / Google Pay inspired)
+ * Generates an affirmative, harmonic two-tone chime without external audio files.
+ */
+export function playSuccessChime() {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
 
-export function resumeAudio() {
-  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    window.speechSynthesis.resume();
+    // Note 1: C5 (523.25 Hz)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(523.25, now);
+    gain1.gain.setValueAtTime(0.12, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.28);
+
+    // Note 2: E5 (659.25 Hz)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(659.25, now + 0.1);
+    gain2.gain.setValueAtTime(0.15, now + 0.1);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.1);
+    osc2.stop(now + 0.42);
+  } catch (e) {
+    // AudioContext blocked by user agent policy or unsupported
   }
 }

@@ -4,7 +4,7 @@
 
 /* ============================================================
    SchemeSathi (योजना साथी) — Global Design Tokens & Utilities
-   Hybrid Functional Minimalism + Modular Bento System
+   Calm Civic Precision (Linear + Apple + Wise + Bharat Inclusive)
    ============================================================ */
 
 :root {
@@ -14,11 +14,15 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  
+  /* Brand Tokens */
   --civic-navy: #004B87;
   --civic-navy-hover: #002D54;
+
+  /* Benchmark Snappy Cubic Bezier (Linear & Apple HIG standard) */
+  --ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── 8px Spatial Grid Base ──────────────────────────── */
 * {
   scroll-behavior: smooth;
 }
@@ -29,66 +33,50 @@
   min-width: 48px;
 }
 
-/* ── Bento Grid Utilities ───────────────────────────── */
-@layer utilities {
-  .bento-grid {
-    display: grid;
-    gap: 1rem;
-  }
-  .bento-grid-home {
-    display: grid;
-    gap: 1.25rem;
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 768px) {
-    .bento-grid-home {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
+/* ── Tactile Physical Feedback (Wise & Linear standard) ── */
+.tactile-card {
+  transition: transform 200ms var(--ease-snappy), border-color 150ms ease, box-shadow 200ms var(--ease-snappy);
+}
+.tactile-card:active {
+  transform: scale(0.985);
+}
+
+/* ── Hairline Border (Linear precision) ─────────────── */
+.hairline-border {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+/* ── Typographic Classes ────────────────────────────── */
+.display-heading {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.hindi-body {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+.metric-tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 /* ── Audio Equalizer Bars ───────────────────────────── */
 .eq-bar {
-  width: 3px;
+  width: 2.5px;
   border-radius: 2px;
   background: currentColor;
   display: inline-block;
 }
 
-/* ── Interactive Option Card Pressed State ──────────── */
-.option-card {
-  transition: all 0.15s ease;
-}
-.option-card:active {
-  transform: scale(0.97);
-}
-.option-card:focus-visible {
-  outline: 3px solid var(--civic-navy);
-  outline-offset: 2px;
-}
-
-/* ── Keyboard shortcut badge ────────────────────────── */
-.kbd-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 24px;
-  height: 24px;
-  padding: 0 6px;
-  border-radius: 6px;
-  border: 1px solid #CBD5E1;
-  background: #F8FAFC;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: #475569;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-}
-
-/* ── Dashed CSC Receipt / Boarding Pass ─────────────── */
+/* ── Perforated Boarding Pass Receipt ───────────────── */
 .csc-receipt {
   border: 2px dashed #CBD5E1;
-  border-radius: 16px;
+  border-radius: 24px;
   position: relative;
   background: white;
 }
@@ -96,70 +84,37 @@
 .csc-receipt::after {
   content: '';
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   background: #F8FAFC;
   border-radius: 50%;
   top: 50%;
   transform: translateY(-50%);
 }
-.csc-receipt::before { left: -11px; }
-.csc-receipt::after  { right: -11px; }
+.csc-receipt::before { left: -13px; }
+.csc-receipt::after  { right: -13px; }
 
-/* ── Status dot pulse ───────────────────────────────── */
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-  position: relative;
-}
-.status-dot.active::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 2px solid currentColor;
-  opacity: 0.3;
-  animation: pulse-ring 1.5s ease-out infinite;
+/* ── Mic Pulse Animation ────────────────────────────── */
+@keyframes mic-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
 }
 
-/* ── Progress bar animated stripes ──────────────────── */
-.progress-animated {
-  background-image: linear-gradient(
-    45deg,
-    rgba(255,255,255,0.15) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(255,255,255,0.15) 50%,
-    rgba(255,255,255,0.15) 75%,
-    transparent 75%
-  );
-  background-size: 40px 40px;
-  animation: progress-stripe 1s linear infinite;
-}
-
-/* ── Mic Active State ───────────────────────────────── */
 .mic-active {
   animation: mic-pulse 1.4s infinite;
-}
-
-/* ── Mode transition ────────────────────────────────── */
-.mode-transition {
-  transition: max-width 0.35s ease, padding 0.35s ease, font-size 0.25s ease;
-}
-
-/* ── Scheme card metric highlight ───────────────────── */
-.metric-highlight {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
 }
 
 /* ── Print Styles ───────────────────────────────────── */
 @media print {
   body {
     background: white !important;
-    font-size: 12pt;
+    font-size: 11pt;
   }
   header, footer, aside, nav,
   button:not(.print-include),
@@ -174,22 +129,17 @@
     max-width: 100% !important;
   }
   .csc-receipt {
-    border: 2px dashed #999 !important;
+    border: 2px dashed #64748B !important;
     break-inside: avoid;
   }
   .csc-receipt::before,
   .csc-receipt::after {
     background: white !important;
   }
-  a[href]::after {
-    content: " (" attr(href) ")";
-    font-size: 9pt;
-    color: #666;
-  }
 }
 
-/* ── Scrollbar styling (subtle) ─────────────────────── */
-::-webkit-scrollbar { width: 6px; }
+/* ── Subtle Scrollbar ───────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
@@ -197,7 +147,6 @@
 }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-/* ── Selection color ────────────────────────────────── */
 ::selection {
   background: #004B87;
   color: white;

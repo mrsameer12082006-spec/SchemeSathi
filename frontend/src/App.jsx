@@ -8,10 +8,11 @@ import ReviewAnswers from './pages/ReviewAnswers';
 import EligibilityResults from './pages/EligibilityResults';
 import SchemeGuide from './pages/SchemeGuide';
 import CscPrintSlip from './components/results/CscPrintSlip';
-import { evaluateEligibilityLocally } from './services/api';
+import SchemeExplorer from './pages/SchemeExplorer';
+import { evaluateEligibilityLocally, playSuccessChime } from './services/api';
 
 export default function App() {
-  const [screen, setScreen] = useState('home'); // 'home' | 'interview' | 'review' | 'results' | 'guide' | 'slip'
+  const [screen, setScreen] = useState('home'); // 'home' | 'interview' | 'review' | 'results' | 'guide' | 'slip' | 'explorer'
   const [language, setLanguage] = useState('hi'); // 'hi' | 'en'
   const [mode, setMode] = useState('citizen'); // 'citizen' | 'operator'
   const [fontSizeDelta, setFontSizeDelta] = useState(0); // -1, 0, 1
@@ -32,13 +33,12 @@ export default function App() {
   };
 
   const handleBrowseSchemes = () => {
-    const evaluated = evaluateEligibilityLocally({});
-    setResults(evaluated);
-    setScreen('results');
+    setScreen('explorer');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleInterviewComplete = () => {
+    playSuccessChime();
     setScreen('review');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -51,6 +51,7 @@ export default function App() {
 
     const evaluated = evaluateEligibilityLocally(profile);
     setResults(evaluated);
+    playSuccessChime();
     setScreen('results');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -93,6 +94,15 @@ export default function App() {
           <Home
             onStart={handleStartInterview}
             onBrowse={handleBrowseSchemes}
+            language={language}
+          />
+        )}
+
+        {screen === 'explorer' && (
+          <SchemeExplorer
+            onBack={() => setScreen('home')}
+            onStartCheck={handleStartInterview}
+            onSelectScheme={handleOpenDetails}
             language={language}
           />
         )}
