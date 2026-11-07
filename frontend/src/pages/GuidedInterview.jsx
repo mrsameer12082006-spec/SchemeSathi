@@ -57,18 +57,21 @@ export default function GuidedInterview({
       {/* Top Step Counter & Progress Bar */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs font-medium text-zinc-500">
-          <span className="flex items-center gap-2">
-            <span>
+          <div className="flex items-center gap-2.5">
+            <span className="font-mono text-zinc-700 font-semibold bg-zinc-100 border border-zinc-200/80 px-2 py-0.5 rounded text-[11px]">
+              0{currentStep + 1} / 0{QUESTION_REGISTRY.length}
+            </span>
+            <span className="font-hindi text-zinc-600">
               {language === 'hi'
-                ? `सवाल ${currentStep + 1} / ${QUESTION_REGISTRY.length}`
-                : `Question ${currentStep + 1} of ${QUESTION_REGISTRY.length}`}
+                ? `सवाल ${currentStep + 1}`
+                : `Question ${currentStep + 1}`}
             </span>
             {mode === 'operator' && (
-              <span className="px-1.5 py-0.5 rounded bg-zinc-100 border border-zinc-200 text-zinc-700 font-mono text-[10px] font-bold">
-                NUMPAD [1-9] ACTIVE
+              <span className="keycap-badge text-[10px] h-5 tracking-tight">
+                NUMPAD 1-9
               </span>
             )}
-          </span>
+          </div>
 
           {currentStep > 0 && (
             <button

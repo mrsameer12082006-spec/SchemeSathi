@@ -23,10 +23,16 @@ export default function EligibilityResults({
       
       {/* Top Header Card */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 pb-6">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{language === 'hi' ? 'सत्यापित नियम मिलान पूर्ण' : 'Audit Complete'}</span>
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 bg-[#F2F2F4] border border-[#E4E4E7] px-3.5 py-1 rounded-full text-xs font-mono text-zinc-600 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block shrink-0" />
+            <span className="font-medium text-zinc-800 font-sans">
+              {language === 'hi' ? 'सत्यापित नियम मिलान पूर्ण' : 'Rule Match Complete'}
+            </span>
+            <span className="text-zinc-300">·</span>
+            <span className="text-zinc-500 font-mono text-[11px]">
+              {eligibleCount} / {results.length} MATCHED
+            </span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-semibold text-[#141417] font-hindi">
             {language === 'hi' ? 'आपकी योजना पात्रता रिपोर्ट' : 'Your Eligibility Report'}
@@ -41,22 +47,22 @@ export default function EligibilityResults({
         <button
           type="button"
           onClick={onEditAnswers}
-          className="text-xs font-medium text-zinc-700 hover:text-[#141417] px-4 py-2.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+          className="text-xs font-medium text-zinc-700 hover:text-[#141417] px-4 py-2.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-50 flex items-center gap-1.5 self-start sm:self-auto transition-colors shadow-2xs"
         >
           <Edit3 className="w-3.5 h-3.5" />
           <span>{language === 'hi' ? 'उत्तर बदलें' : 'Edit Answers'}</span>
         </button>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 text-xs font-medium">
+      {/* Filter Tabs in Segmented Recessed Well */}
+      <div className="flex items-center gap-1 bg-[#F2F2F4] border border-[#E4E4E7] p-1 rounded-lg w-fit shadow-2xs text-xs font-medium">
         <button
           type="button"
           onClick={() => setFilter('all')}
-          className={`px-3.5 py-2 rounded-lg transition-all ${
+          className={`px-3 py-1.5 rounded-md transition-all ${
             filter === 'all'
               ? 'bg-[#141417] text-white shadow-2xs font-semibold'
-              : 'bg-white text-zinc-600 hover:bg-zinc-50 border border-zinc-200'
+              : 'text-zinc-600 hover:text-zinc-900'
           }`}
         >
           {language === 'hi' ? `सभी योजनाएं (${results.length})` : `All Schemes (${results.length})`}
@@ -65,10 +71,10 @@ export default function EligibilityResults({
         <button
           type="button"
           onClick={() => setFilter('potentially_eligible')}
-          className={`px-3.5 py-2 rounded-lg transition-all ${
+          className={`px-3 py-1.5 rounded-md transition-all ${
             filter === 'potentially_eligible'
               ? 'bg-[#141417] text-white shadow-2xs font-semibold'
-              : 'bg-white text-zinc-600 hover:bg-zinc-50 border border-zinc-200'
+              : 'text-zinc-600 hover:text-zinc-900'
           }`}
         >
           {language === 'hi' ? `संभावित पात्र (${eligibleCount})` : `Eligible (${eligibleCount})`}

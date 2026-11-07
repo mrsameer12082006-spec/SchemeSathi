@@ -13,9 +13,11 @@ export default function SchemeGuide({
 
   if (!scheme) {
     return (
-      <div className="bg-white p-8 rounded-3xl text-center space-y-4 max-w-xl mx-auto border border-slate-200">
-        <p className="text-slate-600 font-medium">कोई योजना चयनित नहीं है।</p>
-        <button onClick={onBack} className="px-5 py-2.5 bg-[#004B87] text-white rounded-xl text-sm font-bold">वापस जाएं</button>
+      <div className="tactile-card p-8 rounded-xl text-center space-y-4 max-w-xl mx-auto border border-zinc-200">
+        <p className="text-zinc-600 font-medium">कोई योजना चयनित नहीं है।</p>
+        <button onClick={onBack} className="px-5 py-2.5 bg-[#141417] hover:bg-[#27272D] text-white rounded-lg text-sm font-medium">
+          {language === 'hi' ? 'वापस जाएं' : 'Go back'}
+        </button>
       </div>
     );
   }
@@ -60,7 +62,7 @@ export default function SchemeGuide({
       </div>
 
       {/* Main Guide Card */}
-      <div className="bg-white border border-[#E4E4E7] rounded-xl p-6 sm:p-10 shadow-[0_1px_2px_rgba(0,0,0,0.03)] space-y-8">
+      <div className="tactile-card rounded-xl p-6 sm:p-10 space-y-8">
         
         {/* Header */}
         <div className="border-b border-zinc-100 pb-5 space-y-2">
@@ -118,8 +120,8 @@ export default function SchemeGuide({
 
             <ol className="space-y-2.5 text-xs sm:text-sm text-zinc-700">
               {scheme.applicationSteps.map((step, idx) => (
-                <li key={idx} className="flex gap-3 bg-zinc-50/80 p-3 rounded-lg border border-zinc-200/60">
-                  <span className="w-5 h-5 rounded-md bg-[#141417] text-white flex items-center justify-center shrink-0 font-mono text-xs font-bold mt-0.5">
+                <li key={idx} className="flex gap-3 bg-zinc-50/80 p-3 rounded-lg border border-zinc-200/60 items-center">
+                  <span className="keycap-badge shrink-0">
                     {idx + 1}
                   </span>
                   <span className="leading-relaxed hindi-body">{step}</span>

@@ -8,14 +8,14 @@ export default function TouchButton({
   disabled = false,
   type = 'button'
 }) {
-  const baseStyles = "min-h-[48px] px-6 py-3 rounded-2xl font-bold text-base spring-press flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden";
+  const baseStyles = "min-h-[44px] px-5 py-2.5 rounded-lg font-medium text-sm sm:text-base spring-press flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden";
 
   const variants = {
-    primary: "bg-[#004B87] hover:bg-[#002D54] text-white shadow-cta hover:shadow-cta-hover focus:ring-4 focus:ring-blue-100",
-    secondary: "bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 hover:border-slate-300 shadow-2xs focus:ring-4 focus:ring-slate-100",
-    amberAction: "bg-amber-800 hover:bg-amber-900 text-white shadow-xs focus:ring-4 focus:ring-amber-100",
-    subtle: "bg-slate-100 hover:bg-slate-200 text-slate-800 focus:ring-2 focus:ring-slate-300",
-    danger: "bg-red-700 hover:bg-red-800 text-white shadow-xs focus:ring-4 focus:ring-red-100"
+    primary: "bg-[#141417] hover:bg-[#27272D] text-white shadow-xs focus:ring-2 focus:ring-zinc-400",
+    secondary: "bg-white hover:bg-zinc-50 text-zinc-800 border border-zinc-200 hover:border-zinc-300 shadow-2xs focus:ring-2 focus:ring-zinc-200",
+    amberAction: "bg-amber-800 hover:bg-amber-900 text-white shadow-xs focus:ring-2 focus:ring-amber-200",
+    subtle: "bg-zinc-100 hover:bg-zinc-200 text-zinc-800 focus:ring-2 focus:ring-zinc-300",
+    danger: "bg-red-700 hover:bg-red-800 text-white shadow-xs focus:ring-2 focus:ring-red-200"
   };
 
   return (

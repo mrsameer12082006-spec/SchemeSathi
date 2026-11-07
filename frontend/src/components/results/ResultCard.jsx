@@ -15,35 +15,35 @@ export default function ResultCard({
   const name = language === 'hi' ? scheme.schemeName : scheme.englishName;
   const benefit = language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary;
 
-  const topAccent = isEligible
-    ? 'border-t-4 border-t-emerald-600 border-emerald-200 shadow-sm'
+  const cardBorder = isEligible
+    ? 'border-zinc-200'
     : isNeedsInfo
-    ? 'border-t-4 border-t-amber-500 border-amber-200 shadow-sm'
-    : 'border-t-4 border-t-slate-300 border-slate-200 opacity-80';
+    ? 'border-zinc-200'
+    : 'border-zinc-200/60 opacity-80';
 
   return (
-    <div className={`bg-white rounded-xl p-6 sm:p-7 space-y-5 transition-all tactile-card border border-zinc-200 shadow-2xs ${topAccent}`}>
+    <div className={`tactile-card rounded-xl p-6 sm:p-7 space-y-5 transition-all ${cardBorder}`}>
       
       {/* Top Status & Verification Row */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-100 pb-3">
         <div className="flex items-center gap-2">
           {isEligible && (
             <span className="bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-semibold px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
               <span>{language === 'hi' ? 'संभावित रूप से पात्र' : 'Potentially Eligible'}</span>
             </span>
           )}
 
           {isNeedsInfo && (
             <span className="bg-amber-50 text-amber-900 border border-amber-200/80 text-xs font-semibold px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0" />
               <span>{language === 'hi' ? '1 जानकारी बाकी' : 'Needs Information'}</span>
             </span>
           )}
 
           {isNotEligible && (
             <span className="bg-zinc-100 text-zinc-600 border border-zinc-200 text-xs font-medium px-2.5 py-0.5 rounded-md flex items-center gap-1.5">
-              <XCircle className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 shrink-0" />
               <span>{language === 'hi' ? 'शर्तें पूरी नहीं' : 'Not Eligible'}</span>
             </span>
           )}

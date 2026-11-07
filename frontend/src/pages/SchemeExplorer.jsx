@@ -66,7 +66,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
       {/* Search & Category Filter Controls */}
       <div className="space-y-4">
         
-        {/* Search Input with Razor-Sharp Border */}
+        {/* Search Input with Razor-Sharp Border & Keycap Indicator */}
         <div className="relative">
           <Search className="w-4 h-4 text-zinc-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
@@ -74,21 +74,24 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={language === 'hi' ? 'योजना का नाम, मंत्रालय या लाभ खोजें...' : 'Search by scheme name, ministry, or benefit...'}
-            className="w-full bg-white border border-zinc-200 rounded-lg pl-11 pr-4 py-3 text-sm text-[#141417] placeholder:text-zinc-400 focus:outline-hidden focus:border-[#141417] shadow-2xs font-hindi"
+            className="w-full bg-white border border-zinc-200 rounded-lg pl-11 pr-12 py-3 text-sm text-[#141417] placeholder:text-zinc-400 focus:outline-hidden focus:border-[#141417] shadow-2xs font-hindi"
           />
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            <span className="keycap-badge">/</span>
+          </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="flex flex-wrap gap-2 text-xs font-medium">
+        {/* Category Segmented Recessed Well */}
+        <div className="flex items-center gap-1 bg-[#F2F2F4] border border-[#E4E4E7] p-1 rounded-lg w-fit max-w-full overflow-x-auto shadow-2xs text-xs font-medium">
           {categories.map(cat => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
+              className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
                 selectedCategory === cat.id
                   ? 'bg-[#141417] text-white shadow-2xs font-semibold'
-                  : 'bg-white text-zinc-600 hover:bg-zinc-50 border border-zinc-200'
+                  : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
               {language === 'hi' ? cat.labelHindi : cat.labelEnglish}
@@ -104,7 +107,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
           return (
             <div
               key={scheme.id}
-              className="bg-white border border-[#E4E4E7] rounded-xl p-5 sm:p-6 space-y-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:border-zinc-300 transition-all flex flex-col justify-between"
+              className="tactile-card rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs">

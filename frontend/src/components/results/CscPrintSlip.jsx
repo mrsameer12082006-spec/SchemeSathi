@@ -87,46 +87,49 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
             </div>
           </div>
 
-          <div className="text-right font-mono text-xs text-slate-400 space-y-0.5">
-            <div className="font-bold text-slate-700">#{slipId}</div>
+          <div className="text-right font-mono text-xs text-zinc-400 space-y-0.5">
+            <div className="font-bold text-zinc-700">#{slipId}</div>
             <div>{currentDate}</div>
-            <div className="text-[10px] text-emerald-600 font-semibold">● नियम सत्यापित</div>
+            <div className="text-[10px] text-emerald-600 font-semibold flex items-center justify-end gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
+              <span>नियम सत्यापित</span>
+            </div>
           </div>
         </div>
 
         {/* Target Scheme Box */}
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-2">
+        <div className="bg-[#F2F2F4] border border-[#E4E4E7] rounded-xl p-4 sm:p-5 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[11px] font-mono font-medium text-zinc-500 uppercase tracking-wider">
               लक्षित सरकारी योजना (Target Scheme):
             </span>
-            <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+            <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/80 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
               <span>संभावित पात्र</span>
             </span>
           </div>
 
-          <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-hindi leading-snug">
+          <h3 className="text-lg sm:text-xl font-semibold text-[#141417] font-hindi leading-snug">
             {scheme ? scheme.schemeName : 'प्रधानमंत्री किसान सम्मान निधि (PM-KISAN)'}
           </h3>
 
-          <div className="text-emerald-800 font-extrabold text-xl metric-tabular">
+          <div className="text-2xl font-bold text-[#141417] metric-tabular">
             {scheme?.highlightAmount || '₹6,000 / वर्ष'}
           </div>
 
-          <div className="text-xs text-slate-500 font-mono pt-2 border-t border-slate-200/80 flex justify-between">
+          <div className="text-xs text-zinc-500 font-mono pt-2 border-t border-zinc-200 flex justify-between">
             <span>पोर्टल: {scheme?.officialUrl || 'pmkisan.gov.in'}</span>
-            <span className="text-slate-400">DBT Transfer</span>
+            <span className="text-zinc-400">DBT Transfer</span>
           </div>
         </div>
 
         {/* Interactive Document Checklist with Checkboxes */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[#141417] uppercase tracking-wider font-mono">
               CSC केंद्र ले जाने वाले जरूरी कागजात (Documents Checklist):
             </span>
-            <span className="text-[11px] font-mono text-slate-400 no-print">
+            <span className="text-[11px] font-mono text-zinc-400 no-print">
               घर से निकलने से पहले टिक करें
             </span>
           </div>
@@ -138,25 +141,25 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
                 <label
                   key={idx}
                   onClick={() => toggleDoc(idx)}
-                  className={`flex items-start gap-3 p-3.5 rounded-xl border cursor-pointer transition-colors ${
+                  className={`flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition-colors ${
                     isChecked
-                      ? 'bg-blue-50/70 border-blue-300'
-                      : 'bg-white border-slate-200 hover:border-slate-300'
+                      ? 'bg-zinc-50 border-zinc-400'
+                      : 'bg-white border-zinc-200 hover:border-zinc-300'
                   }`}
                 >
-                  <div className="mt-0.5 text-[#004B87] shrink-0">
+                  <div className="mt-0.5 text-[#141417] shrink-0">
                     {isChecked ? (
-                      <CheckSquare className="w-4 h-4 text-[#004B87]" />
+                      <CheckSquare className="w-4 h-4 text-[#141417]" />
                     ) : (
-                      <Square className="w-4 h-4 text-slate-400" />
+                      <Square className="w-4 h-4 text-zinc-400" />
                     )}
                   </div>
                   <div className="flex-1 text-xs">
-                    <strong className="text-slate-900 font-bold block font-hindi">{doc.name}</strong>
-                    <span className="text-slate-500">{doc.note}</span>
+                    <strong className="text-[#141417] font-semibold block font-hindi">{doc.name}</strong>
+                    <span className="text-zinc-500">{doc.note}</span>
                   </div>
                   {isChecked && (
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0 no-print">
+                    <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/80 shrink-0 no-print">
                       ✓ तैयार है
                     </span>
                   )}
@@ -167,23 +170,23 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
         </div>
 
         {/* Operator Note & Stamp Box with QR Placeholder */}
-        <div className="border-t border-slate-200 pt-5 grid grid-cols-1 sm:grid-cols-12 gap-4 text-xs text-slate-500 items-end">
+        <div className="border-t border-zinc-200 pt-5 grid grid-cols-1 sm:grid-cols-12 gap-4 text-xs text-zinc-500 items-end">
           
           <div className="sm:col-span-8 space-y-1">
-            <strong className="text-slate-700">CSC संचालक महोदय के लिए निर्देश:</strong>
-            <p className="leading-relaxed text-[11px] text-slate-500">
+            <strong className="text-zinc-700">CSC संचालक महोदय के लिए निर्देश:</strong>
+            <p className="leading-relaxed text-[11px] text-zinc-500">
               कृपया इस नागरिक का ऑनलाइन आवेदन आधिकारिक सरकारी पोर्टल पर दर्ज कर पावती रसीद प्रदान करें। यह सेवा 100% निशुल्क पात्रता जांच के उपरांत जनरेट की गई है।
             </p>
-            <div className="text-[10px] text-slate-400 pt-1 font-mono">
+            <div className="text-[10px] text-zinc-400 pt-1 font-mono">
               Session Ref: {slipId} · No PII Collected
             </div>
           </div>
 
-          <div className="sm:col-span-4 border border-slate-200 rounded-xl p-3 text-center bg-slate-50/60 flex flex-col justify-between h-24">
-            <span className="font-semibold text-[11px] text-slate-600">
+          <div className="sm:col-span-4 border border-zinc-200 rounded-lg p-3 text-center bg-zinc-50/60 flex flex-col justify-between h-24">
+            <span className="font-medium text-[11px] text-zinc-600">
               CSC संचालक मोहर व हस्ताक्षर
             </span>
-            <span className="text-[10px] text-slate-400 border-t border-slate-200 pt-1 font-mono">
+            <span className="text-[10px] text-zinc-400 border-t border-zinc-200 pt-1 font-mono">
               दिनांक: _______________
             </span>
           </div>
