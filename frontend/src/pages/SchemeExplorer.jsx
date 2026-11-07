@@ -56,7 +56,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
         <button
           type="button"
           onClick={onStartCheck}
-          className="px-5 py-2.5 rounded-lg bg-[#141417] hover:bg-[#27272D] text-white font-medium text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-all active:scale-[0.985] self-start sm:self-auto shrink-0"
+          className="px-5 py-2.5 rounded-xl btn-primary-glow font-semibold text-xs sm:text-sm flex items-center gap-2 active:scale-[0.985] self-start sm:self-auto shrink-0 cursor-pointer"
         >
           <span>{language === 'hi' ? 'अपनी पात्रता जांचें' : 'Check Eligibility'}</span>
           <ArrowRight className="w-4 h-4" />
@@ -102,42 +102,61 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
       </div>
 
       {/* Schemes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {filteredSchemes.map(scheme => {
+          const isKisan = scheme.id.includes('kisan');
+          const isAwas = scheme.id.includes('awas');
+          const isJay = scheme.id.includes('jay');
+
+          const accentBar = isKisan
+            ? 'from-emerald-500 to-teal-500'
+            : isAwas
+            ? 'from-amber-500 to-orange-500'
+            : 'from-blue-600 to-indigo-600';
+
+          const tagBadge = isKisan
+            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+            : isAwas
+            ? 'bg-amber-50 text-amber-900 border-amber-200'
+            : 'bg-blue-50 text-blue-900 border-blue-200';
+
           return (
             <div
               key={scheme.id}
-              className="tactile-card rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between"
+              className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between group"
             >
               <div className="space-y-3">
+                {/* Top Colored Accent Bar */}
+                <div className={`h-1.5 bg-gradient-to-r ${accentBar} rounded-t-2xl -mt-5 -mx-5 sm:-mt-6 sm:-mx-6 mb-3`} />
+
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-zinc-700 bg-zinc-100 border border-zinc-200 px-2.5 py-0.5 rounded-md text-[11px]">
+                  <span className={`font-bold px-2.5 py-0.5 rounded-full text-[11px] border ${tagBadge}`}>
                     {scheme.tag || scheme.scope}
                   </span>
-                  <span className="font-mono text-[11px] text-zinc-400">
+                  <span className="font-mono text-[11px] text-slate-400">
                     {scheme.lastVerified}
                   </span>
                 </div>
 
                 <div className="space-y-1">
-                  <div className="text-2xl font-bold text-[#141417] metric-tabular">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 metric-tabular">
                     {scheme.highlightAmount}
                   </div>
-                  <h3 className="font-semibold text-[#141417] text-base font-hindi leading-snug">
+                  <h3 className="font-bold text-slate-900 text-base font-hindi leading-snug group-hover:text-blue-900 transition-colors">
                     {language === 'hi' ? scheme.name : scheme.englishName}
                   </h3>
                 </div>
 
-                <p className="text-xs text-zinc-600 leading-relaxed hindi-body line-clamp-3">
+                <p className="text-xs text-slate-600 leading-relaxed hindi-body line-clamp-3">
                   {language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-zinc-100 flex items-center justify-between">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => onSelectScheme(scheme)}
-                  className="text-xs font-semibold text-[#141417] hover:underline flex items-center gap-1"
+                  className="text-xs font-bold text-blue-700 hover:text-blue-900 hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <span>{language === 'hi' ? 'कागजात व आवेदन देखें' : 'View details'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -147,7 +166,7 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
                   href={scheme.officialUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-[11px] text-zinc-400 hover:text-zinc-800 font-mono flex items-center gap-1"
+                  className="text-[11px] text-slate-400 hover:text-slate-800 font-mono flex items-center gap-1"
                 >
                   <span>{scheme.officialUrl.replace('https://', '')}</span>
                   <ExternalLink className="w-3 h-3" />

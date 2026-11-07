@@ -13,23 +13,23 @@ export default function Navbar({
   setFontSizeDelta
 }) {
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200">
+    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         
-        {/* Brand identity: Clean Mercury/Cal style */}
+        {/* Brand identity: Dignified Civic Presence */}
         <button
           onClick={() => setScreen('home')}
-          className="flex items-center gap-2.5 text-left group focus:outline-hidden"
+          className="flex items-center gap-3 text-left group focus:outline-hidden"
         >
-          <div className="w-8 h-8 rounded-lg bg-[#141417] text-white flex items-center justify-center font-bold shadow-xs transition-transform group-hover:scale-105">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-blue-800 text-white flex items-center justify-center font-bold shadow-md shadow-blue-600/25 ring-1 ring-white/30 transition-transform group-hover:scale-105">
             <Landmark className="w-4 h-4 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-base sm:text-lg text-[#141417] tracking-tight font-hindi">
+              <span className="font-bold text-base sm:text-lg text-slate-900 tracking-tight font-hindi">
                 योजना साथी
               </span>
-              <span className="text-[11px] font-mono text-zinc-400 font-medium hidden sm:inline">
+              <span className="text-[11px] font-mono text-blue-700 bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-full font-semibold hidden sm:inline">
                 SchemeSathi
               </span>
             </div>
