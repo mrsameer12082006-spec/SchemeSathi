@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
-import { Search, ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
+import { Search, ArrowLeft, ArrowRight, ExternalLink, Sprout, Home as HomeIcon, ShieldPlus, Layers } from 'lucide-react';
 import { VERIFIED_SCHEMES } from '../data/schemesData';
-import { AgricultureIcon, HousingIcon, HealthShieldIcon } from '../components/common/CivicIcons';
 
-export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, language }) {
+export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const categories = [
-    { id: 'all', labelHindi: 'सभी योजनाएं', labelEnglish: 'All Schemes', icon: null },
-    { id: 'farmer', labelHindi: 'किसान कल्याण', labelEnglish: 'Farmer Support', icon: AgricultureIcon },
-    { id: 'housing', labelHindi: 'ग्रामीण आवास', labelEnglish: 'Rural Housing', icon: HousingIcon },
-    { id: 'health', labelHindi: 'स्वास्थ्य सुरक्षा', labelEnglish: 'Healthcare', icon: HealthShieldIcon },
+    { id: 'all', label: 'All Schemes', icon: Layers },
+    { id: 'farmer', label: 'Farmer Support', icon: Sprout },
+    { id: 'housing', label: 'Rural Housing', icon: HomeIcon },
+    { id: 'health', label: 'Free Healthcare', icon: ShieldPlus },
   ];
 
   const filteredSchemes = VERIFIED_SCHEMES.filter(scheme => {
@@ -39,17 +38,17 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
           <button
             type="button"
             onClick={onBack}
-            className="text-xs font-medium text-zinc-500 hover:text-[#141417] flex items-center gap-1.5 transition-colors mb-2"
+            className="text-xs font-semibold text-zinc-500 hover:text-[#111111] flex items-center gap-1.5 transition-colors mb-2"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>{language === 'hi' ? 'मुख्य पृष्ठ पर लौटें' : 'Back to Home'}</span>
+            <span>Back to Home</span>
           </button>
 
-          <h2 className="text-2xl sm:text-3xl font-semibold text-[#141417] font-hindi tracking-tight">
-            {language === 'hi' ? 'सत्यापित केंद्रीय सरकारी योजनाएं' : 'Verified Central Welfare Schemes'}
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight">
+            Verified Central Welfare Schemes
           </h2>
           <p className="text-xs sm:text-sm text-zinc-500">
-            {language === 'hi' ? 'भारत सरकार के आधिकारिक पोर्टलों से सत्यापित नियम' : 'Official eligibility rules grounded in ministry guidelines'}
+            Deterministic eligibility rules grounded directly in official central ministry guidelines
           </p>
         </div>
 
@@ -57,9 +56,9 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
         <button
           type="button"
           onClick={onStartCheck}
-          className="px-5 py-2.5 rounded-lg bg-[#141417] hover:bg-[#27272D] text-white font-medium text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-all active:scale-[0.985] self-start sm:self-auto shrink-0"
+          className="px-5 py-2.5 rounded-full bg-[#111111] hover:bg-[#262626] text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-all active:scale-[0.985] self-start sm:self-auto shrink-0"
         >
-          <span>{language === 'hi' ? 'अपनी पात्रता जांचें' : 'Check Eligibility'}</span>
+          <span>Check Eligibility</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
@@ -67,15 +66,15 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
       {/* Search & Category Filter Controls */}
       <div className="space-y-4">
         
-        {/* Search Input with Razor-Sharp Border & Keycap Indicator */}
+        {/* Search Input with Clean Border */}
         <div className="relative">
           <Search className="w-4 h-4 text-zinc-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={language === 'hi' ? 'योजना का नाम, मंत्रालय या लाभ खोजें...' : 'Search by scheme name, ministry, or benefit...'}
-            className="w-full bg-white border border-zinc-200 rounded-lg pl-11 pr-12 py-3 text-sm text-[#141417] placeholder:text-zinc-400 focus:outline-hidden focus:border-[#141417] shadow-2xs font-hindi"
+            placeholder="Search by scheme name, ministry, or benefit..."
+            className="w-full bg-white border border-zinc-200 rounded-xl pl-11 pr-12 py-3 text-sm text-[#111111] placeholder:text-zinc-400 focus:outline-hidden focus:border-[#111111] shadow-2xs"
           />
           <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
             <span className="keycap-badge">/</span>
@@ -83,22 +82,23 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
         </div>
 
         {/* Category Segmented Recessed Well */}
-        <div className="flex items-center gap-1.5 bg-[#F2F2F4] border border-[#E4E4E7] p-1 rounded-lg w-fit max-w-full overflow-x-auto shadow-2xs text-xs font-medium">
+        <div className="flex items-center gap-1.5 bg-[#F2F2F4] border border-[#E4E4E7] p-1.5 rounded-xl w-fit max-w-full overflow-x-auto shadow-2xs text-xs font-semibold">
           {categories.map(cat => {
             const Icon = cat.icon;
+            const isSelected = selectedCategory === cat.id;
             return (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
-                  selectedCategory === cat.id
-                    ? 'bg-[#111111] text-white shadow-2xs font-semibold'
-                    : 'text-zinc-600 hover:text-zinc-900'
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                  isSelected
+                    ? 'bg-[#111111] text-white shadow-2xs font-bold'
+                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-white/60'
                 }`}
               >
                 {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
-                <span>{language === 'hi' ? cat.labelHindi : cat.labelEnglish}</span>
+                <span>{cat.label}</span>
               </button>
             );
           })}
@@ -107,17 +107,24 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
       </div>
 
       {/* Schemes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {filteredSchemes.map(scheme => {
+          const isKisan = scheme.id.includes('kisan');
+          const isHousing = scheme.id.includes('awas');
+          const isHealth = scheme.id.includes('jay');
+
           return (
             <div
               key={scheme.id}
-              className="tactile-card rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between"
+              className="tactile-card rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col justify-between border border-zinc-200 hover:border-zinc-300 shadow-2xs hover:shadow-md transition-all duration-200"
             >
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium text-zinc-700 bg-zinc-100 border border-zinc-200 px-2.5 py-0.5 rounded-md text-[11px]">
-                    {scheme.tag || scheme.scope}
+                  <span className="inline-flex items-center gap-1.5 bg-white border border-zinc-200 shadow-2xs text-zinc-900 px-2.5 py-1 rounded-md text-[11px] font-bold">
+                    {isKisan && <Sprout className="w-3.5 h-3.5 text-emerald-600" />}
+                    {isHousing && <HomeIcon className="w-3.5 h-3.5 text-amber-600" />}
+                    {isHealth && <ShieldPlus className="w-3.5 h-3.5 text-sky-600" />}
+                    <span>{scheme.tag}</span>
                   </span>
                   <span className="font-mono text-[11px] text-zinc-400">
                     {scheme.lastVerified}
@@ -125,26 +132,26 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
                 </div>
 
                 <div className="space-y-1">
-                  <div className="text-2xl font-bold text-[#141417] metric-tabular">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-[#111111] metric-tabular tracking-tight">
                     {scheme.highlightAmount}
                   </div>
-                  <h3 className="font-semibold text-[#141417] text-base font-hindi leading-snug">
-                    {language === 'hi' ? scheme.name : scheme.englishName}
+                  <h3 className="font-bold text-[#111111] text-base leading-snug">
+                    {scheme.name}
                   </h3>
                 </div>
 
-                <p className="text-xs text-zinc-600 leading-relaxed hindi-body line-clamp-3">
-                  {language === 'hi' ? scheme.benefitSummary : scheme.englishBenefitSummary}
+                <p className="text-xs text-zinc-600 leading-relaxed line-clamp-3">
+                  {scheme.benefitSummary}
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-zinc-100 flex items-center justify-between">
+              <div className="pt-3.5 border-t border-zinc-100 flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => onSelectScheme(scheme)}
-                  className="text-xs font-semibold text-[#141417] hover:underline flex items-center gap-1"
+                  className="text-xs font-bold text-[#111111] hover:underline flex items-center gap-1"
                 >
-                  <span>{language === 'hi' ? 'कागजात व आवेदन देखें' : 'View details'}</span>
+                  <span>View checklist & steps</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 

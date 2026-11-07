@@ -13,19 +13,11 @@ import { evaluateEligibilityLocally, playSuccessChime } from './services/api';
 
 export default function App() {
   const [screen, setScreen] = useState('home'); // 'home' | 'interview' | 'review' | 'results' | 'guide' | 'slip' | 'explorer'
-  const [language, setLanguage] = useState('hi'); // 'hi' | 'en'
+  const language = 'en'; // Strict English Only
   const [mode, setMode] = useState('citizen'); // 'citizen' | 'operator'
-  const [fontSizeDelta, setFontSizeDelta] = useState(0); // -1, 0, 1
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState([]);
   const [selectedScheme, setSelectedScheme] = useState(null);
-
-  const getFontSizeStyle = () => {
-    let base = 16;
-    if (fontSizeDelta === 1) base = 18;
-    if (fontSizeDelta === -1) base = 15;
-    return { fontSize: `${base}px` };
-  };
 
   const handleStartInterview = () => {
     setScreen('interview');
@@ -69,23 +61,16 @@ export default function App() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#141417] transition-all font-sans selection:bg-[#141417] selection:text-white"
-      style={getFontSizeStyle()}
-    >
+    <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#141417] transition-all font-sans selection:bg-[#141417] selection:text-white">
       {/* 1. Subtle Trust Top Tag */}
-      <DisclaimerBanner language={language} />
+      <DisclaimerBanner />
 
       {/* 2. Sleek Sticky Header */}
       <Navbar
         currentScreen={screen}
         setScreen={setScreen}
-        language={language}
-        setLanguage={setLanguage}
         mode={mode}
         setMode={setMode}
-        fontSizeDelta={fontSizeDelta}
-        setFontSizeDelta={setFontSizeDelta}
       />
 
       {/* 3. Main Viewport */}

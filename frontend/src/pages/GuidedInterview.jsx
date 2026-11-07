@@ -7,7 +7,6 @@ export default function GuidedInterview({
   answers,
   setAnswers,
   onComplete,
-  language,
   mode = 'citizen',
   initialStep = 0
 }) {
@@ -56,15 +55,13 @@ export default function GuidedInterview({
       
       {/* Top Step Counter & Progress Bar */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs font-medium text-zinc-500">
+        <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
           <div className="flex items-center gap-2.5">
-            <span className="font-mono text-zinc-700 font-semibold bg-zinc-100 border border-zinc-200/80 px-2 py-0.5 rounded text-[11px]">
+            <span className="font-mono text-zinc-800 font-bold bg-zinc-100 border border-zinc-200/80 px-2 py-0.5 rounded text-[11px]">
               0{currentStep + 1} / 0{QUESTION_REGISTRY.length}
             </span>
-            <span className="font-hindi text-zinc-600">
-              {language === 'hi'
-                ? `सवाल ${currentStep + 1}`
-                : `Question ${currentStep + 1}`}
+            <span className="text-zinc-700">
+              Question {currentStep + 1} of {QUESTION_REGISTRY.length}
             </span>
             {mode === 'operator' && (
               <span className="keycap-badge text-[10px] h-5 tracking-tight">
@@ -77,10 +74,10 @@ export default function GuidedInterview({
             <button
               type="button"
               onClick={handleBack}
-              className="text-zinc-600 hover:text-[#141417] flex items-center gap-1 font-medium transition-colors"
+              className="text-zinc-600 hover:text-[#111111] flex items-center gap-1 font-semibold transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>{language === 'hi' ? 'पिछला सवाल' : 'Back'}</span>
+              <span>Back</span>
             </button>
           )}
         </div>
@@ -88,7 +85,7 @@ export default function GuidedInterview({
         {/* Minimal Hairline Progress Track */}
         <div className="w-full bg-zinc-200 rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-[#141417] h-full rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            className="bg-[#111111] h-full rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -98,7 +95,6 @@ export default function GuidedInterview({
       <QuestionCard
         question={currentQuestion}
         onSelectOption={handleSelectOption}
-        language={language}
         mode={mode}
       />
 

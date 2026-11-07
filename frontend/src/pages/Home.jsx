@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, ExternalLink } from 'lucide-react';
+import {
+  ArrowRight,
+  ExternalLink,
+  Sprout,
+  Home as HomeIcon,
+  ShieldPlus,
+  Sliders,
+  FileCheck,
+  ReceiptText,
+  Clock,
+  FileText,
+  CreditCard,
+  CheckCircle2,
+  Volume2
+} from 'lucide-react';
 import CountUp from '../components/common/CountUp';
 import { speakAudio, stopAudio } from '../services/api';
-import {
-  AgricultureIcon,
-  HousingIcon,
-  HealthShieldIcon,
-  TimerIcon,
-  VerifiedRosetteIcon,
-  BankTransferIcon,
-  DocumentSlipIcon
-} from '../components/common/CivicIcons';
 
-export default function Home({ onStart, onBrowse, language }) {
+export default function Home({ onStart, onBrowse }) {
   const [hoveredOption, setHoveredOption] = useState(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
-  const audioIntro = language === 'hi'
-    ? 'नमस्ते! योजना साथी में आपका स्वागत है। आप बिना किसी फॉर्म या लॉगिन के केवल चार आसान सवालों के जवाब देकर अपनी सरकारी योजना पात्रता जांच सकते हैं। शुरू करने के लिए नीचे दिए गए बटन को दबाएं।'
-    : 'Welcome to SchemeSathi. Discover verified government welfare schemes you qualify for by answering just four simple questions. No forms or login required. Tap the start button below to begin.';
+  const audioIntro =
+    'Welcome to SchemeSathi. Discover verified government welfare schemes you qualify for by answering just four simple questions. No forms or login required. Click the button below to begin.';
 
   useEffect(() => {
     return () => {
@@ -32,7 +36,7 @@ export default function Home({ onStart, onBrowse, language }) {
       setIsAudioPlaying(false);
     } else {
       setIsAudioPlaying(true);
-      speakAudio(audioIntro, language, {
+      speakAudio(audioIntro, 'en', {
         onStart: () => setIsAudioPlaying(true),
         onEnd: () => setIsAudioPlaying(false),
         onError: () => setIsAudioPlaying(false)
@@ -48,7 +52,7 @@ export default function Home({ onStart, onBrowse, language }) {
           ─────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-[#F7F6F2] text-[#0C0A09] border-y border-[#E5E3DC] -mx-4 sm:-mx-6 lg:-mx-8">
         
-        {/* 1. Architectural Background Grid & Atmospheric Radial Orbs */}
+        {/* Architectural Background Grid & Atmospheric Radial Orbs */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#E5E3DC_1px,transparent_1px),linear-gradient(to_bottom,#E5E3DC_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,#000_40%,transparent_100%)] opacity-45"
@@ -65,56 +69,36 @@ export default function Home({ onStart, onBrowse, language }) {
             {/* LEFT 6 COLUMNS: Editorial Pitch & Tactile Controls */}
             <div className="lg:col-span-6 space-y-6">
               
-              {/* Verified Audit Badge with Solid Rosette Icon (No AI Ping Dots) */}
+              {/* Verified Audit Badge with Solid Check Icon */}
               <div className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-[#111111] shadow-[0_2px_6px_rgba(12,10,9,0.05),0_0_0_1px_rgba(12,10,9,0.08)]">
-                <VerifiedRosetteIcon className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="font-hindi font-bold">
-                  {language === 'hi' ? '3 मुख्य केंद्रीय योजनाएं सत्यापित' : '3 Verified Central Schemes'}
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="font-bold">
+                  3 Verified Central Welfare Schemes
                 </span>
                 <span className="text-[#D6D3D1]">|</span>
                 <span className="font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
-                  {language === 'hi' ? 'राजपत्र ऑडिट: 2026' : 'GAZETTE AUDIT: 2026'}
+                  GAZETTE AUDIT: 2026
                 </span>
               </div>
 
-              {/* Headline with Warm Mint Highlight Accent */}
-              <h1 className="text-3xl sm:text-5xl lg:text-[48px] font-bold tracking-[-0.03em] leading-[1.18] text-[#0C0A09] font-hindi">
-                {language === 'hi' ? (
-                  <>
-                    सरकारी योजनाओं की सही जानकारी,{' '}
-                    <span className="relative inline-block whitespace-nowrap">
-                      <span className="relative z-10">अब एक-एक आसान सवाल में।</span>
-                      <span className="absolute bottom-1.5 left-0 -z-0 h-3 w-full bg-[#A7E5D3]/60 rounded-xs" />
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    Find Government Schemes You Qualify For—{' '}
-                    <span className="relative inline-block">
-                      <span className="relative z-10">One Simple Question at a Time.</span>
-                      <span className="absolute bottom-1.5 left-0 -z-0 h-3 w-full bg-[#A7E5D3]/60 rounded-xs" />
-                    </span>
-                  </>
-                )}
+              {/* Headline (Clean, Bold, Solid — No AI Highlighter Clichés) */}
+              <h1 className="text-3xl sm:text-5xl lg:text-[48px] font-extrabold tracking-[-0.035em] leading-[1.14] text-[#111111]">
+                Find Government Schemes You Qualify For — One Simple Question at a Time.
               </h1>
 
               {/* Plain Language Subtitle */}
-              <p className="max-w-xl text-base sm:text-lg leading-relaxed text-[#57534E] font-hindi">
-                {language === 'hi'
-                  ? 'कोई लंबा फॉर्म नहीं, कोई लॉगिन नहीं। हम आपसे एक समय में सिर्फ एक सवाल पूछते हैं — आप बोलकर या छूकर तुरंत अपनी पात्रता और आवश्यक कागजात की पर्ची प्राप्त कर सकते हैं।'
-                  : 'No bureaucratic forms, no login needed. Answer simple prompts one by one with voice or tap, verified against official rules.'}
+              <p className="max-w-xl text-base sm:text-lg leading-relaxed text-[#57534E]">
+                No bureaucratic forms, no login needed. Answer simple prompts one by one with voice or tap, verified against official central ministry guidelines.
               </p>
 
-              {/* High-Impact Action Row (Nike-style Bold Pill Buttons) */}
+              {/* High-Impact Action Row (Nike-Style Pill Buttons) */}
               <div className="flex flex-wrap items-center gap-3.5 pt-1">
                 <button
                   type="button"
                   onClick={onStart}
                   className="group relative inline-flex items-center gap-3 rounded-full bg-[#111111] px-7 py-3.5 text-sm sm:text-[15px] font-bold text-white shadow-[0_8px_20px_-4px_rgba(17,17,17,0.3)] transition-all duration-150 hover:bg-[#262626] active:scale-[0.985] focus:outline-hidden"
                 >
-                  <span className="font-hindi tracking-tight">
-                    {language === 'hi' ? 'पात्रता जांच शुरू करें' : 'Check Your Eligibility'}
-                  </span>
+                  <span className="tracking-tight">Check Your Eligibility</span>
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs transition-transform duration-150 group-hover:translate-x-1">
                     →
                   </span>
@@ -143,41 +127,37 @@ export default function Home({ onStart, onBrowse, language }) {
                       />
                     ))}
                   </span>
-                  <span className="font-hindi">
-                    {isAudioPlaying
-                      ? (language === 'hi' ? 'रोकें (Stop)' : 'Stop Audio')
-                      : (language === 'hi' ? 'बोलकर समझें' : 'Audio Guide')}
-                  </span>
+                  <span>{isAudioPlaying ? 'Stop Audio' : 'Audio Guide'}</span>
                 </button>
               </div>
 
-              {/* Trust Ledger Strip with Bespoke Icons (Zero Emoji Clutter) */}
+              {/* Trust Ledger Strip with Lucide Icons */}
               <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#E5E3DC]">
                 <div>
-                  <div className="flex items-center gap-1 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
-                    <TimerIcon className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                    <span>{language === 'hi' ? 'समय' : 'TIME'}</span>
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
+                    <Clock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                    <span>TIME</span>
                   </div>
                   <div className="mt-1 text-xs sm:text-sm font-bold text-[#0C0A09]">
-                    {language === 'hi' ? 'केवल 60 सेकंड' : '60 Seconds'}
+                    60 Seconds
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
-                    <DocumentSlipIcon className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                    <span>{language === 'hi' ? 'प्रक्रिया' : 'FLOW'}</span>
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
+                    <FileText className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                    <span>FLOW</span>
                   </div>
                   <div className="mt-1 text-xs sm:text-sm font-bold text-[#0C0A09]">
-                    {language === 'hi' ? '4 आसान सवाल' : '4 Questions'}
+                    4 Questions
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
-                    <BankTransferIcon className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>{language === 'hi' ? 'गोपनीयता' : 'PRIVACY'}</span>
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
+                    <CreditCard className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>PRIVACY</span>
                   </div>
                   <div className="mt-1 text-xs sm:text-sm font-bold text-[#16A34A]">
-                    {language === 'hi' ? 'कोई अपलोड नहीं' : 'Zero Uploads'}
+                    Zero Uploads
                   </div>
                 </div>
               </div>
@@ -195,9 +175,7 @@ export default function Home({ onStart, onBrowse, language }) {
                   <div className="flex items-center gap-2.5">
                     <span className="h-2 w-2 rounded-full bg-[#22C55E] shadow-[0_0_8px_#22C55E]" />
                     <span className="text-xs font-bold tracking-wider uppercase text-stone-200 font-mono">
-                      {language === 'hi'
-                        ? 'लाइव पात्रता पूर्वावलोकन · DIRECT BENEFIT SIMULATOR'
-                        : 'LIVE ELIGIBILITY SIMULATOR'}
+                      LIVE ELIGIBILITY SIMULATOR
                     </span>
                   </div>
                   
@@ -217,27 +195,19 @@ export default function Home({ onStart, onBrowse, language }) {
                 {/* Inner Crisp Surface Card */}
                 <div className="rounded-b-[18px] bg-white p-5 sm:p-7 border-x border-b border-white space-y-4">
                   
-                  {/* Category Tag with Bespoke SVG */}
-                  <div className="inline-flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200/60 font-hindi">
-                    <AgricultureIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                    <span>
-                      {language === 'hi'
-                        ? 'सवाल 1: भूमि एवं कृषि स्थिति (Land Ownership)'
-                        : 'Question 1: Agricultural Landholding'}
-                    </span>
+                  {/* Category Tag with Lucide Icon */}
+                  <div className="inline-flex items-center gap-2 rounded-md bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-800 border border-zinc-200">
+                    <Sprout className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>Question 1 of 4: Agricultural Landholding</span>
                   </div>
 
-                  {/* Bilingual Question Prompt */}
+                  {/* Question Prompt */}
                   <div className="space-y-1">
-                    <h2 className="text-lg sm:text-2xl font-semibold text-[#0C0A09] leading-snug font-hindi">
-                      {language === 'hi'
-                        ? 'क्या आपके या आपके परिवार के नाम पर खेती योग्य भूमि है?'
-                        : 'Do you or your family own cultivable agricultural land?'}
+                    <h2 className="text-lg sm:text-2xl font-bold text-[#0C0A09] leading-snug">
+                      Do you or your family own cultivable agricultural land?
                     </h2>
                     <p className="text-xs sm:text-sm text-[#777169]">
-                      {language === 'hi'
-                        ? 'Do you or your family own cultivable agricultural land?'
-                        : 'Select your landholding status'}
+                      Select your landholding status to evaluate land-linked central benefits.
                     </p>
                   </div>
 
@@ -255,11 +225,11 @@ export default function Home({ onStart, onBrowse, language }) {
                           1
                         </span>
                         <div>
-                          <div className="text-sm sm:text-[15px] font-semibold text-[#0C0A09] font-hindi">
-                            {language === 'hi' ? 'हाँ, खेती योग्य भूमि है' : 'Yes, family owns cultivable land'}
+                          <div className="text-sm sm:text-[15px] font-bold text-[#0C0A09]">
+                            Yes, family owns cultivable land
                           </div>
                           <div className="text-xs text-[#777169]">
-                            {language === 'hi' ? 'Yes, family owns agricultural land' : 'Qualifies for land-linked benefits'}
+                            Qualifies for land-linked central income support
                           </div>
                         </div>
                       </div>
@@ -280,11 +250,11 @@ export default function Home({ onStart, onBrowse, language }) {
                           2
                         </span>
                         <div>
-                          <div className="text-sm sm:text-[15px] font-semibold text-[#0C0A09] font-hindi">
-                            {language === 'hi' ? 'नहीं, भूमि नहीं है' : 'No, do not own land'}
+                          <div className="text-sm sm:text-[15px] font-bold text-[#0C0A09]">
+                            No agricultural land owned
                           </div>
                           <div className="text-xs text-[#777169]">
-                            {language === 'hi' ? 'No agricultural land owned' : 'Non-landholding household'}
+                            Non-landholding household
                           </div>
                         </div>
                       </div>
@@ -297,13 +267,9 @@ export default function Home({ onStart, onBrowse, language }) {
                   {/* Live Scheme Match Dock (Dynamic Rule Reaction) */}
                   <div className="rounded-xl bg-[#F4F3EE] p-3 sm:p-3.5 border border-[#E5E3DC]">
                     <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[#777169] mb-2">
-                      <span className="font-bold">
-                        {language === 'hi' ? 'सत्यापित लाभ विश्लेषण (BENEFIT MATRIX)' : 'LIVE BENEFIT EVALUATION'}
-                      </span>
+                      <span className="font-bold">LIVE BENEFIT MATRIX</span>
                       <span className="text-[#16A34A] font-bold">
-                        {hoveredOption === 2
-                          ? (language === 'hi' ? '● 2/3 योजनाएं सक्रिय' : '● 2/3 Schemes Active')
-                          : (language === 'hi' ? '● 3/3 योजनाएं सक्रिय' : '● 3/3 Schemes Active')}
+                        {hoveredOption === 2 ? '● 2/3 Schemes Active' : '● 3/3 Schemes Active'}
                       </span>
                     </div>
 
@@ -320,7 +286,7 @@ export default function Home({ onStart, onBrowse, language }) {
                       >
                         <div className="font-semibold truncate">PM-KISAN</div>
                         <div className="font-mono text-[11px] text-[#16A34A] font-bold">
-                          {hoveredOption === 2 ? 'अपात्र' : '₹6,000/वर्ष'}
+                          {hoveredOption === 2 ? 'Excluded' : '₹6,000/yr'}
                         </div>
                       </div>
 
@@ -328,7 +294,7 @@ export default function Home({ onStart, onBrowse, language }) {
                       <div className="rounded-lg bg-white px-2.5 py-2 border border-[#E5E3DC] text-xs text-[#141413]">
                         <div className="font-semibold truncate">PMAY-G</div>
                         <div className="font-mono text-[11px] text-amber-700 font-bold">
-                          ₹1.30 लाख
+                          ₹1.30 Lakh
                         </div>
                       </div>
 
@@ -353,17 +319,17 @@ export default function Home({ onStart, onBrowse, language }) {
       </section>
 
       {/* ───────────────────────────────────────────────────────────
-          2. FEATURED SCHEMES: 3 Tinted Passbook Cards
+          2. FEATURED SCHEMES: Crisp Passbook Cards with Lucide Icons
           ─────────────────────────────────────────────────────────── */}
       <section className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
           <div>
-            <h2 className="text-xl sm:text-2xl font-semibold text-[#0C0A09] font-hindi">
-              {language === 'hi' ? 'आज जांची जाने वाली योजनाएं' : 'Featured Verified Schemes'}
+            <h2 className="text-xl sm:text-2xl font-bold text-[#0C0A09]">
+              Featured Verified Schemes
             </h2>
             <p className="text-xs sm:text-sm text-zinc-500 mt-0.5">
-              {language === 'hi' ? 'आधिकारिक सरकारी पोर्टलों से सीधे सत्यापित नियम' : 'Deterministic rules grounded in official central guidelines'}
+              Deterministic rules grounded directly in official central ministry guidelines
             </p>
           </div>
 
@@ -372,20 +338,20 @@ export default function Home({ onStart, onBrowse, language }) {
             onClick={onBrowse}
             className="text-xs sm:text-sm font-semibold text-[#0C0A09] hover:underline"
           >
-            {language === 'hi' ? 'विस्तार से देखें →' : 'View all →'}
+            View all schemes →
           </button>
         </div>
 
-        {/* 3 Tinted Passbook Cards with Color-Coded Header Bands */}
+        {/* 3 Crisp Passbook Cards with Lucide Icons (Zero AI Pastel Clichés) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          {/* Card 1: PM-KISAN (Mint / Emerald) */}
-          <div className="tactile-card rounded-2xl overflow-hidden border border-emerald-200/80 flex flex-col justify-between shadow-[0_8px_24px_-8px_rgba(22,163,74,0.08)]">
-            <div className="bg-gradient-to-b from-emerald-50/90 via-emerald-50/30 to-white p-5 sm:p-6 space-y-4">
+          {/* Card 1: PM-KISAN (Farmer Support) */}
+          <div className="tactile-card rounded-2xl overflow-hidden border border-zinc-200 hover:border-zinc-300 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all duration-200">
+            <div className="p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 bg-emerald-100/80 text-emerald-900 border border-emerald-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
-                  <AgricultureIcon className="w-3.5 h-3.5 text-emerald-800" />
-                  <span>{language === 'hi' ? 'किसान कल्याण' : 'Farmer Support'}</span>
+                <span className="inline-flex items-center gap-1.5 bg-white border border-zinc-200 shadow-2xs text-zinc-900 px-2.5 py-1 rounded-md text-[11px] font-bold tracking-tight">
+                  <Sprout className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Farmer Support</span>
                 </span>
                 <a
                   href="https://pmkisan.gov.in"
@@ -399,44 +365,42 @@ export default function Home({ onStart, onBrowse, language }) {
               </div>
 
               <div className="space-y-1">
-                <div className="text-3xl sm:text-4xl font-bold text-[#0C0A09] metric-tabular tracking-tight">
+                <div className="text-3xl sm:text-4xl font-extrabold text-[#0C0A09] metric-tabular tracking-tight">
                   <CountUp end={6000} prefix="₹" duration={650} />{' '}
                   <span className="text-xs font-medium text-zinc-500 font-sans">
-                    {language === 'hi' ? '/ प्रति वर्ष' : '/ year'}
+                    / year
                   </span>
                 </div>
-                <h3 className="text-base font-semibold text-[#0C0A09] font-hindi leading-snug">
-                  {language === 'hi' ? 'प्रधानमंत्री किसान सम्मान निधि (PM-KISAN)' : 'PM Kisan Samman Nidhi'}
+                <h3 className="text-base font-bold text-[#0C0A09] leading-snug">
+                  PM Kisan Samman Nidhi
                 </h3>
               </div>
 
-              <p className="text-xs text-zinc-600 leading-relaxed hindi-body">
-                {language === 'hi'
-                  ? 'खेती योग्य भूमि वाले पात्र किसान परिवारों को हर वर्ष ₹6,000 की सीधी आर्थिक सहायता, ₹2,000 की 3 समान किस्तों में DBT द्वारा।'
-                  : 'Direct income support of ₹6,000 per year transferred in 3 equal installments to landholding farmer families.'}
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                Direct income support of ₹6,000 per year transferred in 3 equal installments of ₹2,000 directly via DBT to eligible landholding farmer families.
               </p>
             </div>
 
-            <div className="p-4 sm:p-5 pt-3 border-t border-emerald-100/70 bg-white space-y-1.5 text-[11px] font-mono text-zinc-500">
-              <div className="flex items-center gap-1.5 text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                <span className="font-sans font-medium">
-                  {language === 'hi' ? 'DBT सीधे बैंक खाते में हस्तांतरण' : 'Direct DBT Bank Transfer'}
+            <div className="p-4 sm:p-5 pt-3 border-t border-zinc-100 bg-zinc-50/50 space-y-2 text-[11px] font-mono text-zinc-500">
+              <div className="flex items-center gap-2 text-zinc-800 bg-white border border-zinc-200 shadow-2xs px-2.5 py-1 rounded-md text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
+                <span className="font-sans">
+                  Direct DBT Bank Transfer
                 </span>
               </div>
               <div className="text-zinc-400 text-[10px] pl-0.5">
-                कृषि एवं किसान कल्याण मंत्रालय
+                Ministry of Agriculture & Farmers Welfare
               </div>
             </div>
           </div>
 
-          {/* Card 2: PMAY-G (Amber / Terracotta) */}
-          <div className="tactile-card rounded-2xl overflow-hidden border border-amber-200/80 flex flex-col justify-between shadow-[0_8px_24px_-8px_rgba(217,119,6,0.08)]">
-            <div className="bg-gradient-to-b from-amber-50/90 via-amber-50/30 to-white p-5 sm:p-6 space-y-4">
+          {/* Card 2: PMAY-G (Rural Housing) */}
+          <div className="tactile-card rounded-2xl overflow-hidden border border-zinc-200 hover:border-zinc-300 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all duration-200">
+            <div className="p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 bg-amber-100/80 text-amber-900 border border-amber-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
-                  <HousingIcon className="w-3.5 h-3.5 text-amber-800" />
-                  <span>{language === 'hi' ? 'ग्रामीण आवास' : 'Rural Housing'}</span>
+                <span className="inline-flex items-center gap-1.5 bg-white border border-zinc-200 shadow-2xs text-zinc-900 px-2.5 py-1 rounded-md text-[11px] font-bold tracking-tight">
+                  <HomeIcon className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Rural Housing</span>
                 </span>
                 <a
                   href="https://pmayg.nic.in"
@@ -450,44 +414,42 @@ export default function Home({ onStart, onBrowse, language }) {
               </div>
 
               <div className="space-y-1">
-                <div className="text-3xl sm:text-4xl font-bold text-[#0C0A09] metric-tabular tracking-tight">
+                <div className="text-3xl sm:text-4xl font-extrabold text-[#0C0A09] metric-tabular tracking-tight">
                   ₹1.20–1.30{' '}
                   <span className="text-xs font-medium text-zinc-500 font-sans">
-                    {language === 'hi' ? 'लाख अनुदान' : 'Lakh Grant'}
+                    Lakh Grant
                   </span>
                 </div>
-                <h3 className="text-base font-semibold text-[#0C0A09] font-hindi leading-snug">
-                  {language === 'hi' ? 'प्रधानमंत्री आवास योजना - ग्रामीण (PMAY-G)' : 'PM Awas Yojana (Gramin)'}
+                <h3 className="text-base font-bold text-[#0C0A09] leading-snug">
+                  PM Awas Yojana (Gramin)
                 </h3>
               </div>
 
-              <p className="text-xs text-zinc-600 leading-relaxed hindi-body">
-                {language === 'hi'
-                  ? 'कच्चे मकानों या बेघर ग्रामीण परिवारों को पक्का मकान निर्माण हेतु ₹1.20 से ₹1.30 लाख की वित्तीय सहायता + 90 दिन मनरेगा मजदूरी।'
-                  : 'Grant of ₹1.20 to ₹1.30 Lakh + 90 days MGNREGA wages for building a pucca house for homeless or kutcha households.'}
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                Financial assistance of ₹1.20 to ₹1.30 Lakh for construction of a permanent pucca house + 90 days of dedicated MGNREGA unskilled labour wages.
               </p>
             </div>
 
-            <div className="p-4 sm:p-5 pt-3 border-t border-amber-100/70 bg-white space-y-1.5 text-[11px] font-mono text-zinc-500">
-              <div className="flex items-center gap-1.5 text-amber-900 bg-amber-50 border border-amber-200 px-2 py-1 rounded">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0" />
-                <span className="font-sans font-medium">
-                  {language === 'hi' ? 'पक्का मकान + 90 दिन मनरेगा मजदूरी' : 'Pucca House + 90 Days MGNREGA'}
+            <div className="p-4 sm:p-5 pt-3 border-t border-zinc-100 bg-zinc-50/50 space-y-2 text-[11px] font-mono text-zinc-500">
+              <div className="flex items-center gap-2 text-zinc-800 bg-white border border-zinc-200 shadow-2xs px-2.5 py-1 rounded-md text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 shadow-[0_0_6px_rgba(245,158,11,0.5)]" />
+                <span className="font-sans">
+                  Pucca House + 90 Days MGNREGA
                 </span>
               </div>
               <div className="text-zinc-400 text-[10px] pl-0.5">
-                ग्रामीण विकास मंत्रालय
+                Ministry of Rural Development
               </div>
             </div>
           </div>
 
-          {/* Card 3: PM-JAY (Sky / Indigo) */}
-          <div className="tactile-card rounded-2xl overflow-hidden border border-sky-200/80 flex flex-col justify-between shadow-[0_8px_24px_-8px_rgba(2,132,199,0.08)]">
-            <div className="bg-gradient-to-b from-sky-50/90 via-sky-50/30 to-white p-5 sm:p-6 space-y-4">
+          {/* Card 3: PM-JAY (Free Healthcare) */}
+          <div className="tactile-card rounded-2xl overflow-hidden border border-zinc-200 hover:border-zinc-300 flex flex-col justify-between shadow-2xs hover:shadow-md transition-all duration-200">
+            <div className="p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 bg-sky-100/80 text-sky-900 border border-sky-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
-                  <HealthShieldIcon className="w-3.5 h-3.5 text-sky-800" />
-                  <span>{language === 'hi' ? 'स्वास्थ्य सुरक्षा' : 'Free Healthcare'}</span>
+                <span className="inline-flex items-center gap-1.5 bg-white border border-zinc-200 shadow-2xs text-zinc-900 px-2.5 py-1 rounded-md text-[11px] font-bold tracking-tight">
+                  <ShieldPlus className="w-3.5 h-3.5 text-sky-600" />
+                  <span>Free Healthcare</span>
                 </span>
                 <a
                   href="https://pmjay.gov.in"
@@ -501,29 +463,27 @@ export default function Home({ onStart, onBrowse, language }) {
               </div>
 
               <div className="space-y-1">
-                <div className="text-3xl sm:text-4xl font-bold text-[#0C0A09] metric-tabular tracking-tight">
+                <div className="text-3xl sm:text-4xl font-extrabold text-[#0C0A09] metric-tabular tracking-tight">
                   <CountUp end={500000} prefix="₹" duration={750} />{' '}
                   <span className="text-xs font-medium text-zinc-500 font-sans">
-                    {language === 'hi' ? '/ परिवार / वर्ष' : '/ family / yr'}
+                    / family / year
                   </span>
                 </div>
-                <h3 className="text-base font-semibold text-[#0C0A09] font-hindi leading-snug">
-                  {language === 'hi' ? 'आयुष्मान भारत (PM-JAY)' : 'Ayushman Bharat PM-JAY'}
+                <h3 className="text-base font-bold text-[#0C0A09] leading-snug">
+                  Ayushman Bharat PM-JAY
                 </h3>
               </div>
 
-              <p className="text-xs text-zinc-600 leading-relaxed hindi-body">
-                {language === 'hi'
-                  ? 'देश भर के 27,000+ अस्पतालों में गंभीर बीमारियों के उपचार हेतु ₹5 लाख तक का पूर्णतः कैशलेस और निशुल्क इलाज।'
-                  : 'Cashless hospital treatment up to ₹5 Lakh per family per year in over 27,000 empanelled hospitals across India.'}
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                Comprehensive secondary and tertiary care hospitalization coverage up to ₹5 Lakh per family per year, completely cashless across 27,000+ empanelled hospitals.
               </p>
             </div>
 
-            <div className="p-4 sm:p-5 pt-3 border-t border-sky-100/70 bg-white space-y-1.5 text-[11px] font-mono text-zinc-500">
-              <div className="flex items-center gap-1.5 text-sky-900 bg-sky-50 border border-sky-200 px-2 py-1 rounded">
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-600 shrink-0" />
-                <span className="font-sans font-medium">
-                  {language === 'hi' ? '27,000+ अस्पतालों में कैशलेस' : '27,000+ Empanelled Hospitals'}
+            <div className="p-4 sm:p-5 pt-3 border-t border-zinc-100 bg-zinc-50/50 space-y-2 text-[11px] font-mono text-zinc-500">
+              <div className="flex items-center gap-2 text-zinc-800 bg-white border border-zinc-200 shadow-2xs px-2.5 py-1 rounded-md text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0 shadow-[0_0_6px_rgba(14,165,233,0.5)]" />
+                <span className="font-sans">
+                  27,000+ Cashless Hospitals
                 </span>
               </div>
               <div className="text-zinc-400 text-[10px] pl-0.5">
@@ -537,127 +497,118 @@ export default function Home({ onStart, onBrowse, language }) {
       </section>
 
       {/* ───────────────────────────────────────────────────────────
-          3. HOW IT WORKS: Unified Swiss Architectural Container with Visual Artifacts
+          3. HOW IT WORKS: High-Craft Animated 3-Step Pipeline (No Raw Crosshairs)
           ─────────────────────────────────────────────────────────── */}
-      <section className="space-y-5 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="space-y-0.5">
-          <h3 className="font-semibold text-lg sm:text-xl text-[#0C0A09] font-hindi">
-            {language === 'hi' ? 'यह कैसे काम करता है?' : 'How It Works'}
+      <section className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="space-y-1">
+          <h3 className="font-extrabold text-xl sm:text-2xl text-[#111111]">
+            How It Works
           </h3>
           <p className="text-xs sm:text-sm text-zinc-500">
-            {language === 'hi'
-              ? 'नागरिकों और ग्राम स्तर के संचालकों के लिए 3 चरणों की पारदर्शी प्रक्रिया'
-              : 'A calm, 3-step deterministic process for citizens and kiosk operators'}
+            A 3-step deterministic process designed for both individual citizens and CSC kiosk operators
           </p>
         </div>
 
-        {/* Single Architectural Container with Clean Dividers & Corner Crosshairs */}
-        <div className="relative">
-          <span className="absolute -top-2 -left-2 text-zinc-400 font-mono text-sm select-none leading-none z-10" aria-hidden="true">+</span>
-          <span className="absolute -top-2 -right-2 text-zinc-400 font-mono text-sm select-none leading-none z-10" aria-hidden="true">+</span>
-          <span className="absolute -bottom-2 -left-2 text-zinc-400 font-mono text-sm select-none leading-none z-10" aria-hidden="true">+</span>
-          <span className="absolute -bottom-2 -right-2 text-zinc-400 font-mono text-sm select-none leading-none z-10" aria-hidden="true">+</span>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border border-zinc-200 rounded-2xl bg-white overflow-hidden shadow-2xs">
-            
-            {/* Step 1 */}
-            <div className="p-6 sm:p-7 space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-zinc-400 tracking-wider">
-                    01
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200/60">
-                    VOICE / TAP
-                  </span>
+        {/* 3 Interconnected Step Cards with Smooth Hover Elevation & Clean Theme */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          {/* Step 01 */}
+          <div className="group rounded-2xl bg-white border border-zinc-200/90 p-6 sm:p-7 space-y-5 shadow-2xs hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300 transition-all duration-200 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-lg bg-[#111111] text-white flex items-center justify-center font-mono text-xs font-bold shadow-xs">
+                  01
                 </div>
-                <h4 className="font-semibold text-[#0C0A09] text-base font-hindi">
-                  {language === 'hi' ? '1-1 सवाल का जवाब दें' : 'One Question at a Time'}
-                </h4>
-                <p className="text-xs text-zinc-600 leading-relaxed hindi-body">
-                  {language === 'hi'
-                    ? 'बोलकर या छूकर आसान सवालों के जवाब दें। कोई भ्रम नहीं, कोई कठिन फॉर्म या दस्तावेज अपलोड नहीं।'
-                    : 'Answer simple prompts one by one with voice or tap without complicated bureaucratic jargon.'}
-                </p>
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200/60 font-semibold">
+                  VOICE / TAP
+                </span>
               </div>
 
-              {/* Visual Artifact 1: Voice Wave Micro-Preview */}
-              <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-[11px] font-mono text-zinc-500">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 inline-block" />
-                  <span>{language === 'hi' ? 'आवाज या स्पर्श इनपुट' : 'Voice or Touch'}</span>
-                </span>
-                <span className="flex items-end gap-0.5 h-3">
-                  <span className="w-1 h-2 bg-zinc-300 rounded-full" />
-                  <span className="w-1 h-3 bg-zinc-400 rounded-full" />
-                  <span className="w-1 h-1.5 bg-zinc-300 rounded-full" />
-                </span>
-              </div>
+              <h4 className="font-bold text-[#111111] text-lg flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-zinc-600" />
+                <span>One Question at a Time</span>
+              </h4>
+
+              <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
+                Answer simple, jargon-free prompts one by one using voice input or touch. No complicated forms or initial document uploads.
+              </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="p-6 sm:p-7 space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-emerald-600 tracking-wider">
-                    02
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">
-                    100% AUDITED
-                  </span>
-                </div>
-                <h4 className="font-semibold text-[#0C0A09] text-base font-hindi">
-                  {language === 'hi' ? 'सटीक नियम मिलान' : 'Deterministic Rule Match'}
-                </h4>
-                <p className="text-xs text-zinc-600 leading-relaxed hindi-body">
-                  {language === 'hi'
-                    ? 'हमारा सत्यापन प्रोटोकॉल सरकारी राजपत्र की शर्तों का शत-प्रतिशत सटीक मिलान करता है — बिना किसी बिचौलियों या अस्पष्टता के सीधा आधिकारिक मिलान।'
-                    : 'Exact policy verification against official government criteria without guessing or intermediaries.'}
-                </p>
-              </div>
-
-              {/* Visual Artifact 2: Rule Engine Check */}
-              <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-[11px] font-mono text-emerald-800">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
-                  <span>{language === 'hi' ? '100% नियम आधारित' : '100% Policy Grounded'}</span>
-                </span>
-                <span className="font-bold">✓ 100% राजपत्र नियम</span>
-              </div>
+            <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-500">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 inline-block" />
+                <span>Voice or Touch Input</span>
+              </span>
+              <span className="flex items-end gap-0.5 h-3">
+                <span className="w-1 h-2 bg-zinc-300 rounded-full" />
+                <span className="w-1 h-3 bg-zinc-500 rounded-full" />
+                <span className="w-1 h-1.5 bg-zinc-300 rounded-full" />
+              </span>
             </div>
-
-            {/* Step 3 */}
-            <div className="p-6 sm:p-7 space-y-4 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-zinc-400 tracking-wider">
-                    03
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200/60">
-                    PRINT SLIP
-                  </span>
-                </div>
-                <h4 className="font-semibold text-[#0C0A09] text-base font-hindi">
-                  {language === 'hi' ? 'CSC पर्ची प्राप्त करें' : 'Print Your Kiosk Slip'}
-                </h4>
-                <p className="text-xs text-zinc-600 leading-relaxed hindi-body">
-                  {language === 'hi'
-                    ? 'कागजात की सूची वाली 1-पेज पर्ची प्रिंट करें और सीधे अपने नजदीकी जन सेवा केंद्र ले जाएं।'
-                    : 'Get a clean 1-page paper slip with matched schemes and required documents.'}
-                </p>
-              </div>
-
-              {/* Visual Artifact 3: Thermal Slip Reference */}
-              <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-[11px] font-mono text-zinc-500">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 inline-block" />
-                  <span>{language === 'hi' ? 'कागजात चेकलिस्ट रसीद' : '1-Page Document Slip'}</span>
-                </span>
-                <span className="text-zinc-400 font-bold">#SS-2026</span>
-              </div>
-            </div>
-
           </div>
+
+          {/* Step 02 */}
+          <div className="group rounded-2xl bg-white border border-zinc-200/90 p-6 sm:p-7 space-y-5 shadow-2xs hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300 transition-all duration-200 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-lg bg-[#111111] text-white flex items-center justify-center font-mono text-xs font-bold shadow-xs">
+                  02
+                </div>
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold">
+                  100% AUDITED
+                </span>
+              </div>
+
+              <h4 className="font-bold text-[#111111] text-lg flex items-center gap-2">
+                <FileCheck className="w-4 h-4 text-emerald-600" />
+                <span>Deterministic Rule Match</span>
+              </h4>
+
+              <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
+                Instant deterministic verification strictly grounded in official central ministry gazette criteria without guesswork or intermediaries.
+              </p>
+            </div>
+
+            <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-emerald-800">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
+                <span>Official Policy Grounded</span>
+              </span>
+              <span className="font-bold text-[11px]">✓ 100% Gazette Rules</span>
+            </div>
+          </div>
+
+          {/* Step 03 */}
+          <div className="group rounded-2xl bg-white border border-zinc-200/90 p-6 sm:p-7 space-y-5 shadow-2xs hover:shadow-lg hover:-translate-y-1 hover:border-zinc-300 transition-all duration-200 flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-lg bg-[#111111] text-white flex items-center justify-center font-mono text-xs font-bold shadow-xs">
+                  03
+                </div>
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200/60 font-semibold">
+                  PRINT SLIP
+                </span>
+              </div>
+
+              <h4 className="font-bold text-[#111111] text-lg flex items-center gap-2">
+                <ReceiptText className="w-4 h-4 text-zinc-600" />
+                <span>Instant Kiosk Print Slip</span>
+              </h4>
+
+              <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
+                Generate a clean 1-page document checklist receipt to take directly to your nearest Common Service Centre (CSC) for physical application.
+              </p>
+            </div>
+
+            <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-xs font-mono text-zinc-500">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 inline-block" />
+                <span>Document Checklist Slip</span>
+              </span>
+              <span className="text-zinc-600 font-bold">#SS-2026</span>
+            </div>
+          </div>
+
         </div>
       </section>
 
