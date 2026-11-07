@@ -56,14 +56,16 @@ export default function GuidedInterview({
       
       {/* Top Step Counter & Progress Bar */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-          <span>
-            {language === 'hi'
-              ? `सवाल ${currentStep + 1} / ${QUESTION_REGISTRY.length}`
-              : `Question ${currentStep + 1} of ${QUESTION_REGISTRY.length}`}
+        <div className="flex items-center justify-between text-xs font-medium text-zinc-500">
+          <span className="flex items-center gap-2">
+            <span>
+              {language === 'hi'
+                ? `सवाल ${currentStep + 1} / ${QUESTION_REGISTRY.length}`
+                : `Question ${currentStep + 1} of ${QUESTION_REGISTRY.length}`}
+            </span>
             {mode === 'operator' && (
-              <span className="ml-2 px-1.5 py-0.5 rounded-sm bg-blue-100 text-[#004B87] font-mono text-[10px]">
-                KEYBOARD NUMPAD ENABLED
+              <span className="px-1.5 py-0.5 rounded bg-zinc-100 border border-zinc-200 text-zinc-700 font-mono text-[10px] font-bold">
+                NUMPAD [1-9] ACTIVE
               </span>
             )}
           </span>
@@ -72,7 +74,7 @@ export default function GuidedInterview({
             <button
               type="button"
               onClick={handleBack}
-              className="text-[#004B87] hover:underline flex items-center gap-1 font-semibold"
+              className="text-zinc-600 hover:text-[#141417] flex items-center gap-1 font-medium transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>{language === 'hi' ? 'पिछला सवाल' : 'Back'}</span>
@@ -80,10 +82,10 @@ export default function GuidedInterview({
           )}
         </div>
 
-        {/* 1px sleek progress track with smooth transition */}
-        <div className="w-full bg-slate-200/90 rounded-full h-2 overflow-hidden">
+        {/* Minimal Hairline Progress Track */}
+        <div className="w-full bg-zinc-200 rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-[#004B87] h-full rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            className="bg-[#141417] h-full rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

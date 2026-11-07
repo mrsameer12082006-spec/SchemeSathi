@@ -70,7 +70,7 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-slate-50 text-slate-900 transition-all font-sans selection:bg-[#004B87] selection:text-white"
+      className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#141417] transition-all font-sans selection:bg-[#141417] selection:text-white"
       style={getFontSizeStyle()}
     >
       {/* 1. Subtle Trust Top Tag */}

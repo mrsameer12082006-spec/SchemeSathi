@@ -1,5 +1,6 @@
 import React from 'react';
 import { Landmark } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function Navbar({
   currentScreen,
@@ -12,75 +13,78 @@ export default function Navbar({
   setFontSizeDelta
 }) {
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         
-        {/* Brand identity */}
+        {/* Brand identity: Clean Mercury/Cal style */}
         <button
           onClick={() => setScreen('home')}
           className="flex items-center gap-2.5 text-left group focus:outline-hidden"
         >
-          <div className="w-9 h-9 rounded-xl bg-[#004B87] text-white flex items-center justify-center font-bold shadow-xs transition-transform group-hover:scale-105">
-            <Landmark className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-[#141417] text-white flex items-center justify-center font-bold shadow-xs transition-transform group-hover:scale-105">
+            <Landmark className="w-4 h-4 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight font-hindi">
+              <span className="font-semibold text-base sm:text-lg text-[#141417] tracking-tight font-hindi">
                 योजना साथी
               </span>
-              <span className="text-xs text-slate-400 font-medium hidden sm:inline">
+              <span className="text-[11px] font-mono text-zinc-400 font-medium hidden sm:inline">
                 SchemeSathi
               </span>
             </div>
           </div>
         </button>
 
-        {/* Center/Right Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Unified 36px-tall Utility Bar separated by subtle 1px vertical dividers */}
+        <div className="flex items-center bg-[#F2F2F4] border border-[#E4E4E7] p-1 rounded-lg h-9 shadow-2xs">
           
-          {/* Mode Pill: Citizen vs Kiosk (Linear Segmented Control) */}
-          <div 
-            role="group" 
-            aria-label="User Mode"
-            className="bg-slate-100 border border-slate-200/80 p-1 rounded-xl flex items-center text-xs font-semibold shadow-2xs"
-          >
+          {/* Mode Pill: Citizen vs Kiosk (Framer Motion sliding layoutId tab) */}
+          <div role="group" aria-label="Mode" className="relative flex items-center h-full">
             <button
               type="button"
               onClick={() => setMode('citizen')}
-              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                mode === 'citizen'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
+              className={`relative z-10 px-2.5 sm:px-3 h-7 flex items-center rounded-md text-xs font-medium transition-colors ${
+                mode === 'citizen' ? 'text-white' : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
+              {mode === 'citizen' && (
+                <motion.div
+                  layoutId="activeModeTab"
+                  className="absolute inset-0 bg-[#141417] rounded-md shadow-2xs -z-10"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
               {language === 'hi' ? 'नागरिक' : 'Citizen'}
             </button>
             <button
               type="button"
               onClick={() => setMode('operator')}
-              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                mode === 'operator'
-                  ? 'bg-[#004B87] text-white shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
+              className={`relative z-10 px-2.5 sm:px-3 h-7 flex items-center rounded-md text-xs font-medium transition-colors ${
+                mode === 'operator' ? 'text-white' : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
+              {mode === 'operator' && (
+                <motion.div
+                  layoutId="activeModeTab"
+                  className="absolute inset-0 bg-[#141417] rounded-md shadow-2xs -z-10"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
               {language === 'hi' ? 'CSC केंद्र' : 'Kiosk'}
             </button>
           </div>
 
-          {/* Accessible Font Resizer (A- / A / A+) */}
-          <div 
-            role="group" 
-            aria-label="Text sizing"
-            className="hidden sm:flex items-center bg-slate-100 border border-slate-200/80 p-1 rounded-xl text-xs font-semibold shadow-2xs"
-          >
+          {/* Divider */}
+          <div className="h-4 w-[1px] bg-zinc-300 mx-1.5 hidden sm:block" aria-hidden="true" />
+
+          {/* Font Resizer */}
+          <div role="group" aria-label="Text sizing" className="hidden sm:flex items-center h-full">
             <button
               type="button"
               onClick={() => setFontSizeDelta(-1)}
-              className={`px-2.5 py-1.5 rounded-lg transition-all duration-200 ${
-                fontSizeDelta === -1 
-                  ? 'bg-white text-slate-900 shadow-xs font-bold' 
-                  : 'text-slate-500 hover:text-slate-900'
+              className={`px-2 h-7 flex items-center justify-center rounded-md text-xs font-medium transition-colors ${
+                fontSizeDelta === -1 ? 'bg-white text-[#141417] shadow-2xs font-semibold' : 'text-zinc-500 hover:text-zinc-900'
               }`}
               title={language === 'hi' ? 'अक्षर छोटे करें' : 'Smaller text'}
             >
@@ -89,10 +93,8 @@ export default function Navbar({
             <button
               type="button"
               onClick={() => setFontSizeDelta(0)}
-              className={`px-2.5 py-1.5 rounded-lg transition-all duration-200 ${
-                fontSizeDelta === 0 
-                  ? 'bg-white text-slate-900 shadow-xs font-bold' 
-                  : 'text-slate-500 hover:text-slate-900'
+              className={`px-2 h-7 flex items-center justify-center rounded-md text-xs font-medium transition-colors ${
+                fontSizeDelta === 0 ? 'bg-white text-[#141417] shadow-2xs font-semibold' : 'text-zinc-500 hover:text-zinc-900'
               }`}
               title={language === 'hi' ? 'सामान्य आकार' : 'Default text size'}
             >
@@ -101,10 +103,8 @@ export default function Navbar({
             <button
               type="button"
               onClick={() => setFontSizeDelta(1)}
-              className={`px-2.5 py-1.5 rounded-lg transition-all duration-200 ${
-                fontSizeDelta === 1 
-                  ? 'bg-white text-slate-900 shadow-xs font-bold' 
-                  : 'text-slate-500 hover:text-slate-900'
+              className={`px-2 h-7 flex items-center justify-center rounded-md text-xs font-medium transition-colors ${
+                fontSizeDelta === 1 ? 'bg-white text-[#141417] shadow-2xs font-semibold' : 'text-zinc-500 hover:text-zinc-900'
               }`}
               title={language === 'hi' ? 'अक्षर बड़े करें' : 'Larger text'}
             >
@@ -112,32 +112,41 @@ export default function Navbar({
             </button>
           </div>
 
+          {/* Divider */}
+          <div className="h-4 w-[1px] bg-zinc-300 mx-1.5" aria-hidden="true" />
+
           {/* Language Switcher */}
-          <div 
-            role="group" 
-            aria-label="Language selection"
-            className="bg-slate-100 border border-slate-200/80 p-1 rounded-xl flex items-center text-xs font-semibold shadow-2xs"
-          >
+          <div role="group" aria-label="Language" className="relative flex items-center h-full">
             <button
               type="button"
               onClick={() => setLanguage('hi')}
-              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                language === 'hi'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold font-hindi'
-                  : 'text-slate-600 hover:text-slate-900'
+              className={`relative z-10 px-2.5 h-7 flex items-center rounded-md text-xs font-medium transition-colors ${
+                language === 'hi' ? 'text-white font-hindi font-semibold' : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
+              {language === 'hi' && (
+                <motion.div
+                  layoutId="activeLangTab"
+                  className="absolute inset-0 bg-[#141417] rounded-md shadow-2xs -z-10"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
               हिन्दी
             </button>
             <button
               type="button"
               onClick={() => setLanguage('en')}
-              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                language === 'en'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
+              className={`relative z-10 px-2.5 h-7 flex items-center rounded-md text-xs font-medium transition-colors ${
+                language === 'en' ? 'text-white font-semibold' : 'text-zinc-600 hover:text-zinc-900'
               }`}
             >
+              {language === 'en' && (
+                <motion.div
+                  layoutId="activeLangTab"
+                  className="absolute inset-0 bg-[#141417] rounded-md shadow-2xs -z-10"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )}
               EN
             </button>
           </div>

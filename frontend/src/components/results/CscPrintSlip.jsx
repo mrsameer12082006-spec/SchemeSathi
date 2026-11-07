@@ -36,7 +36,7 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
         <button
           type="button"
           onClick={onBack}
-          className="text-xs font-bold text-slate-500 hover:text-[#004B87] flex items-center gap-1.5 transition-colors"
+          className="text-xs font-medium text-zinc-600 hover:text-[#141417] flex items-center gap-1.5 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{language === 'hi' ? 'वापस जाएं' : 'Back'}</span>
@@ -46,7 +46,7 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
           <button
             type="button"
             onClick={handleShareWhatsApp}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.98]"
+            className="px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-medium text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-[0.985]"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>WhatsApp</span>
@@ -55,7 +55,7 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
           <button
             type="button"
             onClick={handlePrint}
-            className="px-4 py-2 rounded-xl bg-[#004B87] hover:bg-[#002D54] text-white font-bold text-xs flex items-center gap-1.5 shadow-cta transition-all active:scale-[0.98]"
+            className="px-4 py-2 rounded-lg bg-[#141417] hover:bg-[#27272D] text-white font-medium text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-[0.985]"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>{language === 'hi' ? 'पर्ची प्रिंट करें' : 'Print Slip'}</span>
@@ -65,23 +65,23 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
 
       {/* Thermal Printer Slot Bar Illusion */}
       <div className="no-print flex justify-center pb-1">
-        <div className="w-48 h-2 bg-slate-300 rounded-full opacity-60 shadow-inner" title="CSC Printer Slot" />
+        <div className="w-44 h-1.5 bg-zinc-300 rounded-full opacity-60 shadow-inner" title="CSC Printer Slot" />
       </div>
 
       {/* The Perforated Boarding Pass Receipt with Slot Emerge Animation */}
-      <div className="print-area csc-receipt animate-printer-emerge p-6 sm:p-10 shadow-card space-y-6 text-slate-900 bg-white">
+      <div className="print-area csc-receipt animate-printer-emerge p-6 sm:p-10 shadow-2xs space-y-6 text-[#141417] bg-white border-2 border-dashed border-zinc-300">
         
         {/* Slip Header with Emblem and Slip ID */}
-        <div className="border-b border-slate-200 pb-5 flex items-start justify-between gap-4">
+        <div className="border-b border-zinc-200 pb-5 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#004B87] text-white flex items-center justify-center font-bold shrink-0">
-              <Landmark className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-lg bg-[#141417] text-white flex items-center justify-center font-bold shrink-0">
+              <Landmark className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[10px] font-mono font-medium text-zinc-400 uppercase tracking-wider block">
                 CSC VLE Kiosk · ग्राम स्तरीय सेवा पर्ची
               </span>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-hindi tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-semibold text-[#141417] font-hindi tracking-tight">
                 योजना साथी नागरिक पर्ची
               </h2>
             </div>

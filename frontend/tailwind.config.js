@@ -7,14 +7,34 @@ export default {
   theme: {
     extend: {
       colors: {
+        obsidian: {
+          DEFAULT: '#141417',
+          hover: '#27272D',
+          muted: '#63636E',
+        },
+        mercury: {
+          canvas: '#FAFAFA',
+          well: '#F2F2F4',
+          card: '#FFFFFF',
+          border: '#E4E4E7',
+          subtle: '#EDEDF3',
+          periwinkle: '#9CB4E8',
+          lavender: '#AFB2CE',
+          dark: '#171721',
+        },
+        emeraldSignal: {
+          DEFAULT: '#059669',
+          light: '#ECFDF5',
+          border: '#A7F3D0',
+        },
         civic: {
           navy: '#004B87',
           navyHover: '#002D54',
           navyLight: '#E8F4FD',
-          canvas: '#F8FAFC',
+          canvas: '#FAFAFA',
           card: '#FFFFFF',
-          border: '#E2E8F0',
-          borderSubtle: 'rgba(15, 23, 42, 0.08)',
+          border: '#E4E4E7',
+          borderSubtle: 'rgba(20, 20, 23, 0.08)',
         }
       },
       fontFamily: {

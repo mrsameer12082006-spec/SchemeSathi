@@ -3,23 +3,28 @@
 @tailwind utilities;
 
 /* ============================================================
-   SchemeSathi (योजना साथी) — Global Design Engine
-   Linear + Apple + Wise + Bharat Inclusive Architecture
+   SchemeSathi (योजना साथी) — Swiss-Grid Minimalist Design Engine
+   Mercury + Ramp + Cal.com + 21st.dev + Cult UI Architecture
    ============================================================ */
 
 :root {
-  font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', 'Inter', -apple-system, system-ui, sans-serif;
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 
-  /* Global Brand Tokens */
-  --civic-navy: #004B87;
-  --civic-navy-hover: #002D54;
+  /* Mercury & Warm-Neutral Tokens */
+  --ink-primary: #141417;
+  --ink-secondary: #63636E;
+  --surface-canvas: #FAFAFA;
+  --surface-well: #F2F2F4;
+  --surface-card: #FFFFFF;
+  --border-subtle: #E4E4E7;
+  --signal-emerald: #059669;
 
-  /* Benchmark Snappy Easing (Linear & Apple HIG standard) */
+  /* Benchmark Snappy Easing */
   --ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -27,49 +32,69 @@
   scroll-behavior: smooth;
 }
 
-/* ── Accessible Minimum Touch Target: 48px ──────────── */
-.touch-target {
-  min-height: 48px;
-  min-width: 48px;
+body {
+  background-color: var(--surface-canvas);
+  color: var(--ink-primary);
 }
 
-/* ── Tactile Physical Feedback (Linear & Wise) ──────── */
+/* ── Accessible Minimum Touch Target: 44px-48px ────── */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ── Tactile Physical Feedback (Cal.com / Linear / Cult UI) ─ */
 .tactile-card {
-  transition: transform 200ms var(--ease-snappy), border-color 150ms ease, box-shadow 200ms var(--ease-snappy);
+  transition: transform 160ms var(--ease-snappy), border-color 150ms ease, box-shadow 160ms var(--ease-snappy);
 }
 .tactile-card:active {
-  transform: scale(0.985);
+  transform: scale(0.99);
 }
 
 .spring-press {
-  transition: transform 180ms var(--ease-snappy), background-color 150ms ease, box-shadow 180ms var(--ease-snappy);
+  transition: transform 140ms var(--ease-snappy), background-color 140ms ease, border-color 140ms ease;
 }
 .spring-press:active {
-  transform: scale(0.98);
+  transform: scale(0.985);
 }
 
-/* ── Hairline Border (Linear precision) ─────────────── */
+/* ── Swiss Hairline Borders ─────────────────────────── */
 .hairline-border {
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid #E4E4E7;
+}
+
+/* ── Recessed Well Outer Frame (Mercury Pattern) ─────── */
+.recessed-well {
+  background-color: #F2F2F4;
+  border: 1px solid #E4E4E7;
+  border-radius: 1rem; /* 16px */
+  padding: 0.375rem; /* 6px */
 }
 
 /* ── Typography Tokens (Display + Devanagari) ────────── */
 .display-heading {
   font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.hindi-headline {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  line-height: 1.32;
+  letter-spacing: -0.01em;
+  font-weight: 600; /* Clean editorial semi-bold, not heavy newspaper 800 */
 }
 
 .hindi-body {
   font-family: 'Noto Sans Devanagari', sans-serif;
-  line-height: 1.7;
-  font-weight: 500;
+  line-height: 1.65;
+  font-weight: 400;
 }
 
 .metric-tabular {
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   font-feature-settings: "tnum";
 }
 
