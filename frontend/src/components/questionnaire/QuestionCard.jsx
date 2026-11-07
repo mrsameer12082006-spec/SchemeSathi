@@ -68,7 +68,7 @@ export default function QuestionCard({
                   className="w-full text-left bg-white hover:bg-[#F4F4F6] active:bg-[#ECECED] border border-zinc-200 hover:border-[#141417] rounded-lg p-4 transition-all duration-150 active:scale-[0.99] flex items-center justify-between group focus:outline-hidden"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded bg-zinc-100 border border-zinc-200 text-zinc-600 font-mono text-xs font-bold flex items-center justify-center shrink-0">
+                    <span className="keycap-badge shrink-0">
                       {idx + 1}
                     </span>
                     <div className="space-y-0.5">

@@ -129,9 +129,7 @@ export default function Home({ onStart, onBrowse, language }) {
                   className="w-full text-left bg-white hover:bg-[#F4F4F6] border border-zinc-200 hover:border-[#141417] rounded-lg p-3.5 flex items-center justify-between group transition-all duration-150 active:scale-[0.99] focus:outline-hidden"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-5 h-5 rounded bg-zinc-100 border border-zinc-200/80 text-zinc-600 font-mono text-xs font-bold flex items-center justify-center shrink-0">
-                      1
-                    </span>
+                    <span className="keycap-badge shrink-0">1</span>
                     <span className="text-sm font-semibold text-[#141417] font-hindi">
                       {language === 'hi' ? 'हाँ, खेती योग्य भूमि है' : 'Yes, have cultivable land'}
                     </span>
@@ -147,9 +145,7 @@ export default function Home({ onStart, onBrowse, language }) {
                   className="w-full text-left bg-white hover:bg-[#F4F4F6] border border-zinc-200 hover:border-[#141417] rounded-lg p-3.5 flex items-center justify-between group transition-all duration-150 active:scale-[0.99] focus:outline-hidden"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-5 h-5 rounded bg-zinc-100 border border-zinc-200/80 text-zinc-600 font-mono text-xs font-bold flex items-center justify-center shrink-0">
-                      2
-                    </span>
+                    <span className="keycap-badge shrink-0">2</span>
                     <span className="text-sm font-semibold text-[#141417] font-hindi">
                       {language === 'hi' ? 'नहीं, भूमि नहीं है' : 'No cultivable land'}
                     </span>
@@ -201,7 +197,7 @@ export default function Home({ onStart, onBrowse, language }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           
           {/* Card 1: PM-KISAN */}
-          <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 sm:p-6 space-y-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:border-zinc-300 transition-all flex flex-col justify-between">
+          <div className="tactile-card rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
             <div className="space-y-4">
               
               {/* Top Metadata Row */}
@@ -255,7 +251,7 @@ export default function Home({ onStart, onBrowse, language }) {
           </div>
 
           {/* Card 2: PMAY-G */}
-          <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 sm:p-6 space-y-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:border-zinc-300 transition-all flex flex-col justify-between">
+          <div className="tactile-card rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
             <div className="space-y-4">
               
               {/* Top Metadata Row */}
@@ -309,7 +305,7 @@ export default function Home({ onStart, onBrowse, language }) {
           </div>
 
           {/* Card 3: PM-JAY */}
-          <div className="bg-white border border-[#E4E4E7] rounded-xl p-5 sm:p-6 space-y-4 shadow-[0_1px_2px_rgba(0,0,0,0.03)] hover:border-zinc-300 transition-all flex flex-col justify-between">
+          <div className="tactile-card rounded-xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
             <div className="space-y-4">
               
               {/* Top Metadata Row */}
@@ -380,8 +376,14 @@ export default function Home({ onStart, onBrowse, language }) {
           </p>
         </div>
 
-        {/* Single Architectural Container with Clean Dividers */}
-        <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border border-zinc-200 rounded-xl bg-white overflow-hidden shadow-2xs">
+        {/* Single Architectural Container with Swiss Grid Corner Crosshairs */}
+        <div className="relative">
+          <span className="absolute -top-1.5 -left-1.5 text-zinc-300 font-mono text-xs select-none leading-none z-10" aria-hidden="true">+</span>
+          <span className="absolute -top-1.5 -right-1.5 text-zinc-300 font-mono text-xs select-none leading-none z-10" aria-hidden="true">+</span>
+          <span className="absolute -bottom-1.5 -left-1.5 text-zinc-300 font-mono text-xs select-none leading-none z-10" aria-hidden="true">+</span>
+          <span className="absolute -bottom-1.5 -right-1.5 text-zinc-300 font-mono text-xs select-none leading-none z-10" aria-hidden="true">+</span>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-zinc-200 border border-zinc-200 rounded-xl bg-white overflow-hidden shadow-2xs">
           
           {/* Step 1 */}
           <div className="p-6 space-y-3 flex flex-col justify-between">
@@ -446,6 +448,7 @@ export default function Home({ onStart, onBrowse, language }) {
             </div>
           </div>
 
+        </div>
         </div>
       </section>
 
