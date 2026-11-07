@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Printer, Share2, ArrowLeft, QrCode, CheckCircle2, Landmark, CheckSquare, Square } from 'lucide-react';
+import { Printer, Share2, ArrowLeft, QrCode, CheckCircle2, CheckSquare, Square } from 'lucide-react';
+import { CivicCrestIcon } from '../common/CivicIcons';
 
 export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, language }) {
   const [checkedDocs, setCheckedDocs] = useState({});
@@ -74,8 +75,8 @@ export default function CscPrintSlip({ scheme, userAnswers = {}, onBack, languag
         {/* Slip Header with Emblem and Slip ID */}
         <div className="border-b border-zinc-200 pb-5 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#141417] text-white flex items-center justify-center font-bold shrink-0">
-              <Landmark className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-lg bg-[#111111] text-white flex items-center justify-center font-bold shrink-0">
+              <CivicCrestIcon className="w-5 h-5 text-white" />
             </div>
             <div>
               <span className="text-[10px] font-mono font-medium text-zinc-400 uppercase tracking-wider block">

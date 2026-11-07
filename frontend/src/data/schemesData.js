@@ -180,7 +180,7 @@ export const QUESTION_REGISTRY = [
     helperEnglish: "Required to verify eligibility for PM-KISAN agricultural support.",
     audioPromptHindi: "क्या आपके या आपके परिवार के नाम पर खेती योग्य जमीन है? नीचे दिए गए विकल्प में से हाँ या नहीं चुनें।",
     audioPromptEnglish: "Do you or your family own cultivable agricultural land? Please choose yes or no.",
-    icon: "🌱",
+    category: "land",
     options: [
       {
         labelHindi: "हाँ, जमीन मेरे या परिवार के नाम पर है",
@@ -214,7 +214,7 @@ export const QUESTION_REGISTRY = [
     helperEnglish: "Income-tax paying families are excluded under official central guidelines.",
     audioPromptHindi: "क्या आपके परिवार में कोई सदस्य इनकम टैक्स या आयकर भरता है? अगर नहीं भरते तो नहीं चुनें।",
     audioPromptEnglish: "Does anyone in your family pay Income Tax? Select No if you do not pay income tax.",
-    icon: "📜",
+    category: "tax",
     options: [
       {
         labelHindi: "नहीं, कोई इनकम टैक्स नहीं भरता",
@@ -248,7 +248,7 @@ export const QUESTION_REGISTRY = [
     helperEnglish: "Central exclusion applies to active/retired govt servants or pensioners with ₹10k+/mo.",
     audioPromptHindi: "क्या आपके परिवार में कोई सरकारी नौकरी में है या दस हजार रुपये से अधिक मासिक पेंशन पाता है?",
     audioPromptEnglish: "Is anyone in your family employed in a government job or receiving ten thousand rupees or more monthly pension?",
-    icon: "🏛️",
+    category: "employment",
     options: [
       {
         labelHindi: "नहीं, कोई सरकारी कर्मचारी या पेंशनर नहीं है",
@@ -282,7 +282,7 @@ export const QUESTION_REGISTRY = [
     helperEnglish: "PMAY-G grants are strictly targeted at kutcha houses and homeless households.",
     audioPromptHindi: "वर्तमान में आपका मकान कैसा है? कच्चा मकान है या पक्का मकान?",
     audioPromptEnglish: "What type of house do you currently live in? Kutcha, pucca, or rented?",
-    icon: "🏠",
+    category: "housing",
     options: [
       {
         labelHindi: "कच्चा मकान या बेघर (Kutcha / Homeless)",

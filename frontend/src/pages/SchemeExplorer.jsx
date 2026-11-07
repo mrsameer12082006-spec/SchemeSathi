@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Search, ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 import { VERIFIED_SCHEMES } from '../data/schemesData';
+import { AgricultureIcon, HousingIcon, HealthShieldIcon } from '../components/common/CivicIcons';
 
 export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, language }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const categories = [
-    { id: 'all', labelHindi: 'सभी योजनाएं', labelEnglish: 'All Schemes' },
-    { id: 'farmer', labelHindi: '🌾 किसान कल्याण', labelEnglish: '🌾 Farmers' },
-    { id: 'housing', labelHindi: '🏠 ग्रामीण आवास', labelEnglish: '🏠 Housing' },
-    { id: 'health', labelHindi: '🏥 स्वास्थ्य सुरक्षा', labelEnglish: '🏥 Healthcare' },
+    { id: 'all', labelHindi: 'सभी योजनाएं', labelEnglish: 'All Schemes', icon: null },
+    { id: 'farmer', labelHindi: 'किसान कल्याण', labelEnglish: 'Farmer Support', icon: AgricultureIcon },
+    { id: 'housing', labelHindi: 'ग्रामीण आवास', labelEnglish: 'Rural Housing', icon: HousingIcon },
+    { id: 'health', labelHindi: 'स्वास्थ्य सुरक्षा', labelEnglish: 'Healthcare', icon: HealthShieldIcon },
   ];
 
   const filteredSchemes = VERIFIED_SCHEMES.filter(scheme => {
@@ -82,21 +83,25 @@ export default function SchemeExplorer({ onBack, onStartCheck, onSelectScheme, l
         </div>
 
         {/* Category Segmented Recessed Well */}
-        <div className="flex items-center gap-1 bg-[#F2F2F4] border border-[#E4E4E7] p-1 rounded-lg w-fit max-w-full overflow-x-auto shadow-2xs text-xs font-medium">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
-                selectedCategory === cat.id
-                  ? 'bg-[#141417] text-white shadow-2xs font-semibold'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              {language === 'hi' ? cat.labelHindi : cat.labelEnglish}
-            </button>
-          ))}
+        <div className="flex items-center gap-1.5 bg-[#F2F2F4] border border-[#E4E4E7] p-1 rounded-lg w-fit max-w-full overflow-x-auto shadow-2xs text-xs font-medium">
+          {categories.map(cat => {
+            const Icon = cat.icon;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all whitespace-nowrap ${
+                  selectedCategory === cat.id
+                    ? 'bg-[#111111] text-white shadow-2xs font-semibold'
+                    : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+              >
+                {Icon && <Icon className="w-3.5 h-3.5 shrink-0" />}
+                <span>{language === 'hi' ? cat.labelHindi : cat.labelEnglish}</span>
+              </button>
+            );
+          })}
         </div>
 
       </div>

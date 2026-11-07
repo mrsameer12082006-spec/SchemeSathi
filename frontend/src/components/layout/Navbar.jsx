@@ -1,6 +1,6 @@
 import React from 'react';
-import { Landmark } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { CivicCrestIcon } from '../common/CivicIcons';
 
 export default function Navbar({
   currentScreen,
@@ -16,21 +16,21 @@ export default function Navbar({
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         
-        {/* Brand identity: Clean Mercury/Cal style */}
+        {/* Brand identity: High-impact Nike/Civic style */}
         <button
           onClick={() => setScreen('home')}
           className="flex items-center gap-2.5 text-left group focus:outline-hidden"
         >
-          <div className="w-8 h-8 rounded-lg bg-[#141417] text-white flex items-center justify-center font-bold shadow-xs transition-transform group-hover:scale-105">
-            <Landmark className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-[#111111] text-white flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
+            <CivicCrestIcon className="w-4 h-4 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-base sm:text-lg text-[#141417] tracking-tight font-hindi">
+              <span className="font-bold text-base sm:text-lg text-[#111111] tracking-tight font-hindi">
                 योजना साथी
               </span>
-              <span className="text-[11px] font-mono text-zinc-400 font-medium hidden sm:inline">
-                SchemeSathi
+              <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-zinc-400 hidden sm:inline">
+                SCHEMESATHI
               </span>
             </div>
           </div>

@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import CountUp from '../components/common/CountUp';
 import { speakAudio, stopAudio } from '../services/api';
+import {
+  AgricultureIcon,
+  HousingIcon,
+  HealthShieldIcon,
+  TimerIcon,
+  VerifiedRosetteIcon,
+  BankTransferIcon,
+  DocumentSlipIcon
+} from '../components/common/CivicIcons';
 
 export default function Home({ onStart, onBrowse, language }) {
   const [hoveredOption, setHoveredOption] = useState(null);
@@ -56,23 +65,20 @@ export default function Home({ onStart, onBrowse, language }) {
             {/* LEFT 6 COLUMNS: Editorial Pitch & Tactile Controls */}
             <div className="lg:col-span-6 space-y-6">
               
-              {/* Verified Audit Badge with Live Specular Ping Dot */}
-              <div className="inline-flex items-center gap-2.5 rounded-full bg-white px-3.5 py-1.5 text-xs font-medium text-[#292524] shadow-[0_2px_6px_rgba(12,10,9,0.05),0_0_0_1px_rgba(12,10,9,0.08)]">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[#16A34A]"></span>
-                </span>
-                <span className="font-hindi font-semibold text-zinc-800">
+              {/* Verified Audit Badge with Solid Rosette Icon (No AI Ping Dots) */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold text-[#111111] shadow-[0_2px_6px_rgba(12,10,9,0.05),0_0_0_1px_rgba(12,10,9,0.08)]">
+                <VerifiedRosetteIcon className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="font-hindi font-bold">
                   {language === 'hi' ? '3 मुख्य केंद्रीय योजनाएं सत्यापित' : '3 Verified Central Schemes'}
                 </span>
                 <span className="text-[#D6D3D1]">|</span>
-                <span className="font-mono text-[11px] tracking-wider text-[#777169]">
-                  {language === 'hi' ? 'ऑडिट: NOV 2026' : 'AUDIT: NOV 2026'}
+                <span className="font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
+                  {language === 'hi' ? 'राजपत्र ऑडिट: 2026' : 'GAZETTE AUDIT: 2026'}
                 </span>
               </div>
 
               {/* Headline with Warm Mint Highlight Accent */}
-              <h1 className="text-3xl sm:text-5xl lg:text-[46px] font-semibold tracking-[-0.025em] leading-[1.2] text-[#0C0A09] font-hindi">
+              <h1 className="text-3xl sm:text-5xl lg:text-[48px] font-bold tracking-[-0.03em] leading-[1.18] text-[#0C0A09] font-hindi">
                 {language === 'hi' ? (
                   <>
                     सरकारी योजनाओं की सही जानकारी,{' '}
@@ -99,17 +105,17 @@ export default function Home({ onStart, onBrowse, language }) {
                   : 'No bureaucratic forms, no login needed. Answer simple prompts one by one with voice or tap, verified against official rules.'}
               </p>
 
-              {/* Tactile Action Row */}
+              {/* High-Impact Action Row (Nike-style Bold Pill Buttons) */}
               <div className="flex flex-wrap items-center gap-3.5 pt-1">
                 <button
                   type="button"
                   onClick={onStart}
-                  className="group relative inline-flex items-center gap-3 rounded-xl bg-[#141413] px-6 py-3.5 text-sm sm:text-[15px] font-medium text-white shadow-[0_10px_20px_-5px_rgba(12,10,9,0.25),0_2px_0_0_#000000,inset_0_1px_0_0_rgba(255,255,255,0.18)] transition-all duration-150 hover:bg-[#292524] active:translate-y-[1px] focus:outline-hidden"
+                  className="group relative inline-flex items-center gap-3 rounded-full bg-[#111111] px-7 py-3.5 text-sm sm:text-[15px] font-bold text-white shadow-[0_8px_20px_-4px_rgba(17,17,17,0.3)] transition-all duration-150 hover:bg-[#262626] active:scale-[0.985] focus:outline-hidden"
                 >
-                  <span className="font-hindi font-semibold">
+                  <span className="font-hindi tracking-tight">
                     {language === 'hi' ? 'पात्रता जांच शुरू करें' : 'Check Your Eligibility'}
                   </span>
-                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-white/15 text-xs transition-transform duration-150 group-hover:translate-x-0.5">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-xs transition-transform duration-150 group-hover:translate-x-1">
                     →
                   </span>
                 </button>
@@ -117,10 +123,10 @@ export default function Home({ onStart, onBrowse, language }) {
                 <button
                   type="button"
                   onClick={handleToggleAudio}
-                  className={`inline-flex items-center gap-3 rounded-xl px-5 py-3.5 text-sm sm:text-[15px] font-medium transition-all duration-150 active:translate-y-[1px] focus:outline-hidden ${
+                  className={`inline-flex items-center gap-3 rounded-full px-6 py-3.5 text-sm sm:text-[15px] font-semibold transition-all duration-150 active:scale-[0.985] focus:outline-hidden ${
                     isAudioPlaying
-                      ? 'bg-[#141413] text-white shadow-[0_4px_12px_rgba(12,10,9,0.15),0_2px_0_0_#000000]'
-                      : 'bg-white text-[#141413] shadow-[0_4px_12px_rgba(12,10,9,0.05),0_2px_0_0_#E5E3DC,0_0_0_1px_#E5E3DC] hover:bg-[#FAF9F6]'
+                      ? 'bg-[#111111] text-white shadow-[0_4px_12px_rgba(17,17,17,0.2)]'
+                      : 'bg-white text-[#111111] border border-[#E5E3DC] hover:bg-[#FAF9F6] shadow-xs'
                   }`}
                 >
                   {/* Live Equalizer Bars */}
@@ -132,46 +138,46 @@ export default function Home({ onStart, onBrowse, language }) {
                         className={`w-[2.5px] rounded-full transition-all duration-200 ${
                           isAudioPlaying
                             ? 'bg-[#22C55E] animate-pulse'
-                            : 'bg-[#141413]'
+                            : 'bg-[#111111]'
                         }`}
                       />
                     ))}
                   </span>
-                  <span className="font-hindi font-medium">
+                  <span className="font-hindi">
                     {isAudioPlaying
                       ? (language === 'hi' ? 'रोकें (Stop)' : 'Stop Audio')
                       : (language === 'hi' ? 'बोलकर समझें' : 'Audio Guide')}
                   </span>
-                  <span className="rounded bg-[#F0EFED] px-1.5 py-0.5 font-mono text-[10px] text-[#777169]">
-                    HI / EN
-                  </span>
                 </button>
               </div>
 
-              {/* Trust Ledger Strip */}
+              {/* Trust Ledger Strip with Bespoke Icons (Zero Emoji Clutter) */}
               <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#E5E3DC]">
                 <div>
-                  <div className="font-mono text-[11px] uppercase tracking-wider text-[#777169]">
-                    {language === 'hi' ? 'समय (TIME)' : 'TIME'}
+                  <div className="flex items-center gap-1 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
+                    <TimerIcon className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                    <span>{language === 'hi' ? 'समय' : 'TIME'}</span>
                   </div>
-                  <div className="mt-0.5 text-xs sm:text-sm font-semibold text-[#0C0A09]">
-                    {language === 'hi' ? '⏱️ केवल 60 सेकंड' : '⏱️ 60 Seconds'}
+                  <div className="mt-1 text-xs sm:text-sm font-bold text-[#0C0A09]">
+                    {language === 'hi' ? 'केवल 60 सेकंड' : '60 Seconds'}
                   </div>
                 </div>
                 <div>
-                  <div className="font-mono text-[11px] uppercase tracking-wider text-[#777169]">
-                    {language === 'hi' ? 'प्रक्रिया (FLOW)' : 'FLOW'}
+                  <div className="flex items-center gap-1 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
+                    <DocumentSlipIcon className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+                    <span>{language === 'hi' ? 'प्रक्रिया' : 'FLOW'}</span>
                   </div>
-                  <div className="mt-0.5 text-xs sm:text-sm font-semibold text-[#0C0A09]">
+                  <div className="mt-1 text-xs sm:text-sm font-bold text-[#0C0A09]">
                     {language === 'hi' ? '4 आसान सवाल' : '4 Questions'}
                   </div>
                 </div>
                 <div>
-                  <div className="font-mono text-[11px] uppercase tracking-wider text-[#777169]">
-                    {language === 'hi' ? 'गोपनीयता (PRIVACY)' : 'PRIVACY'}
+                  <div className="flex items-center gap-1 font-mono text-[10px] tracking-widest uppercase font-bold text-[#777169]">
+                    <BankTransferIcon className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>{language === 'hi' ? 'गोपनीयता' : 'PRIVACY'}</span>
                   </div>
-                  <div className="mt-0.5 text-xs sm:text-sm font-semibold text-[#16A34A]">
-                    {language === 'hi' ? '✓ कोई दस्तावेज़ नहीं' : '✓ Zero Uploads'}
+                  <div className="mt-1 text-xs sm:text-sm font-bold text-[#16A34A]">
+                    {language === 'hi' ? 'कोई अपलोड नहीं' : 'Zero Uploads'}
                   </div>
                 </div>
               </div>
@@ -185,13 +191,13 @@ export default function Home({ onStart, onBrowse, language }) {
               <div className="rounded-[24px] bg-[#EAE8E1]/90 p-2 shadow-[0_32px_64px_-16px_rgba(12,10,9,0.14),0_8px_20px_-4px_rgba(12,10,9,0.06),0_0_0_1px_rgba(12,10,9,0.08)] backdrop-blur-md">
                 
                 {/* Top Dark Console Header Bar */}
-                <div className="flex items-center justify-between rounded-t-[18px] bg-[#141413] px-5 py-3.5 text-white">
+                <div className="flex items-center justify-between rounded-t-[18px] bg-[#111111] px-5 py-3.5 text-white">
                   <div className="flex items-center gap-2.5">
                     <span className="h-2 w-2 rounded-full bg-[#22C55E] shadow-[0_0_8px_#22C55E]" />
-                    <span className="text-xs font-medium tracking-wide text-stone-200">
+                    <span className="text-xs font-bold tracking-wider uppercase text-stone-200 font-mono">
                       {language === 'hi'
-                        ? 'लाइव पात्रता पूर्वावलोकन · INTERACTIVE CONSOLE'
-                        : 'LIVE ELIGIBILITY PREVIEW · INTERACTIVE'}
+                        ? 'लाइव पात्रता पूर्वावलोकन · DIRECT BENEFIT SIMULATOR'
+                        : 'LIVE ELIGIBILITY SIMULATOR'}
                     </span>
                   </div>
                   
@@ -211,9 +217,9 @@ export default function Home({ onStart, onBrowse, language }) {
                 {/* Inner Crisp Surface Card */}
                 <div className="rounded-b-[18px] bg-white p-5 sm:p-7 border-x border-b border-white space-y-4">
                   
-                  {/* Category Tag */}
-                  <div className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800 border border-emerald-200/60 font-hindi">
-                    <span>🌾</span>
+                  {/* Category Tag with Bespoke SVG */}
+                  <div className="inline-flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200/60 font-hindi">
+                    <AgricultureIcon className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                     <span>
                       {language === 'hi'
                         ? 'सवाल 1: भूमि एवं कृषि स्थिति (Land Ownership)'
@@ -291,8 +297,8 @@ export default function Home({ onStart, onBrowse, language }) {
                   {/* Live Scheme Match Dock (Dynamic Rule Reaction) */}
                   <div className="rounded-xl bg-[#F4F3EE] p-3 sm:p-3.5 border border-[#E5E3DC]">
                     <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[#777169] mb-2">
-                      <span className="font-semibold">
-                        {language === 'hi' ? 'लाइव नियम मिलान (LIVE RULE ENGINE)' : 'LIVE RULE EVALUATION'}
+                      <span className="font-bold">
+                        {language === 'hi' ? 'सत्यापित लाभ विश्लेषण (BENEFIT MATRIX)' : 'LIVE BENEFIT EVALUATION'}
                       </span>
                       <span className="text-[#16A34A] font-bold">
                         {hoveredOption === 2
@@ -377,8 +383,9 @@ export default function Home({ onStart, onBrowse, language }) {
           <div className="tactile-card rounded-2xl overflow-hidden border border-emerald-200/80 flex flex-col justify-between shadow-[0_8px_24px_-8px_rgba(22,163,74,0.08)]">
             <div className="bg-gradient-to-b from-emerald-50/90 via-emerald-50/30 to-white p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="bg-emerald-100/80 text-emerald-900 border border-emerald-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
-                  {language === 'hi' ? '🌾 किसान कल्याण' : '🌾 Farmer Support'}
+                <span className="inline-flex items-center gap-1.5 bg-emerald-100/80 text-emerald-900 border border-emerald-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
+                  <AgricultureIcon className="w-3.5 h-3.5 text-emerald-800" />
+                  <span>{language === 'hi' ? 'किसान कल्याण' : 'Farmer Support'}</span>
                 </span>
                 <a
                   href="https://pmkisan.gov.in"
@@ -427,8 +434,9 @@ export default function Home({ onStart, onBrowse, language }) {
           <div className="tactile-card rounded-2xl overflow-hidden border border-amber-200/80 flex flex-col justify-between shadow-[0_8px_24px_-8px_rgba(217,119,6,0.08)]">
             <div className="bg-gradient-to-b from-amber-50/90 via-amber-50/30 to-white p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="bg-amber-100/80 text-amber-900 border border-amber-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
-                  {language === 'hi' ? '🏠 ग्रामीण आवास' : '🏠 Rural Housing'}
+                <span className="inline-flex items-center gap-1.5 bg-amber-100/80 text-amber-900 border border-amber-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
+                  <HousingIcon className="w-3.5 h-3.5 text-amber-800" />
+                  <span>{language === 'hi' ? 'ग्रामीण आवास' : 'Rural Housing'}</span>
                 </span>
                 <a
                   href="https://pmayg.nic.in"
@@ -477,8 +485,9 @@ export default function Home({ onStart, onBrowse, language }) {
           <div className="tactile-card rounded-2xl overflow-hidden border border-sky-200/80 flex flex-col justify-between shadow-[0_8px_24px_-8px_rgba(2,132,199,0.08)]">
             <div className="bg-gradient-to-b from-sky-50/90 via-sky-50/30 to-white p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="bg-sky-100/80 text-sky-900 border border-sky-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
-                  {language === 'hi' ? '🏥 स्वास्थ्य सुरक्षा' : '🏥 Free Healthcare'}
+                <span className="inline-flex items-center gap-1.5 bg-sky-100/80 text-sky-900 border border-sky-300/60 px-2.5 py-0.5 rounded-md text-[11px] font-semibold font-hindi">
+                  <HealthShieldIcon className="w-3.5 h-3.5 text-sky-800" />
+                  <span>{language === 'hi' ? 'स्वास्थ्य सुरक्षा' : 'Free Healthcare'}</span>
                 </span>
                 <a
                   href="https://pmjay.gov.in"
@@ -602,8 +611,8 @@ export default function Home({ onStart, onBrowse, language }) {
                 </h4>
                 <p className="text-xs text-zinc-600 leading-relaxed hindi-body">
                   {language === 'hi'
-                    ? 'हमारा नियम इंजन सरकारी राजपत्र की शर्तों का 100% सटीक मिलान करता है, बिना किसी अनुमान या AI भ्रम के।'
-                    : 'Exact verification against official government criteria without probabilistic guessing.'}
+                    ? 'हमारा सत्यापन प्रोटोकॉल सरकारी राजपत्र की शर्तों का शत-प्रतिशत सटीक मिलान करता है — बिना किसी बिचौलियों या अस्पष्टता के सीधा आधिकारिक मिलान।'
+                    : 'Exact policy verification against official government criteria without guessing or intermediaries.'}
                 </p>
               </div>
 
@@ -611,9 +620,9 @@ export default function Home({ onStart, onBrowse, language }) {
               <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-[11px] font-mono text-emerald-800">
                 <span className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
-                  <span>{language === 'hi' ? '100% नियम आधारित' : '100% Rule Verified'}</span>
+                  <span>{language === 'hi' ? '100% नियम आधारित' : '100% Policy Grounded'}</span>
                 </span>
-                <span className="font-bold">✓ 0% AI Hallucination</span>
+                <span className="font-bold">✓ 100% राजपत्र नियम</span>
               </div>
             </div>
 

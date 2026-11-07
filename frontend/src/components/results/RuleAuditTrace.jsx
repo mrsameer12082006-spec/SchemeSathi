@@ -9,12 +9,12 @@ export default function RuleAuditTrace({ scheme, language }) {
           <Microscope className="w-3.5 h-3.5 text-zinc-700" />
           <span className="font-sans font-medium text-zinc-900">
             {language === 'hi'
-              ? 'तकनीकी नियम सत्यापन प्रमाण (Deterministic Rule Audit Trace)'
-              : 'Deterministic Rule Audit Trace'}
+              ? 'आधिकारिक नियम सत्यापन प्रमाण (Official Policy Verification Trace)'
+              : 'Official Policy Verification Trace'}
           </span>
         </span>
         <span className="text-zinc-500 text-xs font-mono flex items-center gap-1 hover:text-[#141417]">
-          <span>{language === 'hi' ? 'विवरण' : 'Trace'}</span>
+          <span>{language === 'hi' ? 'नियम विवरण' : 'Audit Trace'}</span>
           <ChevronDown className="w-3.5 h-3.5" />
         </span>
       </summary>
@@ -22,7 +22,7 @@ export default function RuleAuditTrace({ scheme, language }) {
       <div className="mt-3 pt-3 border-t border-zinc-200 space-y-2 text-[11px]">
         <div className="flex flex-wrap justify-between text-zinc-500 font-mono">
           <span>Scheme ID: {scheme.schemeId}</span>
-          <span>Engine: Local Deterministic Rule Engine</span>
+          <span>Protocol: Direct Official Gazette Rules</span>
         </div>
 
         <div className="bg-white p-3 rounded-md border border-zinc-200/80 space-y-1.5 overflow-x-auto shadow-2xs font-mono">
