@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root font scaling for Aa button */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+html.big {
+  font-size: 19px;
+}
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-sans antialiased min-h-screen selection:bg-saffron/30;
+    @apply dark:bg-night dark:text-mist;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+
+  /* Accessible visible focus ring (3px saffron) */
+  *:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 3px #F2A20C !important;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Flat style, thin borders, rounded-2xl */
+  .card {
+    @apply bg-white rounded-2xl border border-line p-5 transition-colors;
+    @apply dark:bg-nightcard dark:border-nightline;
+  }
+
+  /* Interactive button base: min 44x44px touch target, rounded-xl */
+  .btn {
+    @apply inline-flex items-center justify-center font-medium rounded-xl px-4 py-2.5 transition-colors min-h-[44px] min-w-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none;
+  }
+
+  /* Primary button: Saffron background, dark ink text, bold */
+  .btn-primary {
+    @apply inline-flex items-center justify-center font-bold bg-saffron text-ink rounded-xl px-5 py-2.5 hover:brightness-95 active:brightness-90 transition-all min-h-[44px] min-w-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-none select-none;
+  }
+
+  /* Ghost / outline button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center font-medium bg-transparent border border-line text-ink rounded-xl px-4 py-2.5 hover:bg-black/5 active:bg-black/10 transition-colors min-h-[44px] min-w-[44px] cursor-pointer select-none;
+    @apply dark:border-nightline dark:text-mist dark:hover:bg-white/5 dark:active:bg-white/10;
+  }
+
+  /* Chip: fully rounded, min 36px/44px target */
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border border-line bg-white text-ink transition-colors min-h-[36px] cursor-pointer select-none;
+    @apply dark:bg-nightcard dark:border-nightline dark:text-mist;
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "schemesathi",
+  "private": true,
+  "workspaces": [
+    "schemesathi-frontend"
+  ],
+  "scripts": {
+    "dev": "npm --prefix schemesathi-frontend run dev",
+    "build": "npm --prefix schemesathi-frontend run build",
+    "preview": "npm --prefix schemesathi-frontend run preview"
+  }
+}
