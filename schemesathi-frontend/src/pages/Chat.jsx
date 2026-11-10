@@ -68,9 +68,8 @@ export function Chat({
     return `${val}`;
   });
 
-  const questionNum = progress?.answered || 1;
-  const totalQuestions = progress?.total || 3;
-  const percent = Math.min(100, Math.round((questionNum / totalQuestions) * 100));
+  // Can go back if user has answered at least one question after starting
+  const canGoBack = messages.filter(m => m.sender === 'user').length > 1;
 
   // Find the latest bot message to check for quick replies / why / listen
   const latestBotMsgIndex = messages.map(m => m.sender).lastIndexOf('bot');
@@ -78,38 +77,19 @@ export function Chat({
 
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col h-[calc(100vh-4.5rem)] px-4 py-4">
-      {/* Top Header: Progress and Back */}
-      <div className="shrink-0 mb-3 space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-bold text-ink dark:text-mist">
-            {tCore.questionProgress} {questionNum} / {totalQuestions}
-          </span>
-
-          {questionNum > 1 && (
-            <button
-              type="button"
-              onClick={onGoBack}
-              disabled={loading}
-              className="text-sm font-semibold text-ink/80 dark:text-mist/80 hover:text-ink dark:hover:text-mist hover:underline focus:outline-none flex items-center gap-1 cursor-pointer"
-            >
-              <span aria-hidden="true">←</span> {tCore.back}
-            </button>
-          )}
+      {/* Top Header: Back navigation if previous answers exist */}
+      {canGoBack && (
+        <div className="shrink-0 mb-3 flex items-center justify-start">
+          <button
+            type="button"
+            onClick={onGoBack}
+            disabled={loading}
+            className="text-sm font-semibold text-ink/80 dark:text-mist/80 hover:text-ink dark:hover:text-mist hover:underline focus:outline-none flex items-center gap-1.5 cursor-pointer py-0.5"
+          >
+            <span aria-hidden="true">←</span> {tCore.back}
+          </button>
         </div>
-
-        {/* Thin saffron progress bar */}
-        <div className="w-full h-1.5 bg-line dark:bg-nightline rounded-full overflow-hidden">
-          <div
-            className="h-full bg-saffron transition-all duration-300 rounded-full"
-            style={{ width: `${percent}%` }}
-            role="progressbar"
-            aria-valuenow={questionNum}
-            aria-valuemin={1}
-            aria-valuemax={totalQuestions}
-            aria-label={`${tCore.questionProgress} ${questionNum} of ${totalQuestions}`}
-          />
-        </div>
-      </div>
+      )}
 
       {/* "What I understood" Card */}
       {profileChips.length > 0 && (

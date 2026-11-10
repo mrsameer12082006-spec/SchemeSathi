@@ -363,7 +363,7 @@ async function mockSendMessage(sessionId, message, language = 'en') {
         why: isHi
           ? "अधिकांश किसान योजनाओं में आपके नाम पर ज़मीन के रिकॉर्ड की आवश्यकता होती है।"
           : "Most farmer support schemes require verified landholding records in your name.",
-        progress: { answered: 1, total: 3 },
+        progress: { answered: 1 },
         profile: { ...session.profile },
         done: false,
         results: []
@@ -379,7 +379,7 @@ async function mockSendMessage(sessionId, message, language = 'en') {
         why: isHi
           ? "छात्रवृत्ति योजनाएँ स्कूल, कॉलेज और उच्च शिक्षा के स्तर पर निर्भर करती हैं।"
           : "Scholarship schemes differ between school, college, and post-matric courses.",
-        progress: { answered: 1, total: 3 },
+        progress: { answered: 1 },
         profile: { ...session.profile },
         done: false,
         results: []
@@ -395,7 +395,7 @@ async function mockSendMessage(sessionId, message, language = 'en') {
         why: isHi
           ? "कुछ कल्याणकारी योजनाएँ केवल ग्रामीण और कुछ केवल शहरी क्षेत्रों के लिए हैं।"
           : "Some social welfare schemes are specific to rural areas while others are urban.",
-        progress: { answered: 1, total: 3 },
+        progress: { answered: 1 },
         profile: { ...session.profile },
         done: false,
         results: []
@@ -434,7 +434,7 @@ async function mockSendMessage(sessionId, message, language = 'en') {
       why: isHi
         ? "सरकारी योजनाएँ आय सीमा तय करती हैं ताकि लाभ सही परिवारों तक पहुँचे।"
         : "Government schemes use income thresholds to ensure benefits reach low-income families.",
-      progress: { answered: 2, total: 3 },
+      progress: { answered: 2 },
       profile: { ...session.profile },
       done: false,
       results: []
@@ -532,7 +532,7 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     reply: isHi ? "धन्यवाद। हमने आपके सभी उत्तरों की जाँच कर ली है।" : "Thank you. We have completed checking your details against scheme rules.",
     quick_replies: [],
     why: "",
-    progress: { answered: 3, total: 3 },
+    progress: { answered: session.step },
     profile: { ...session.profile },
     done: true,
     results

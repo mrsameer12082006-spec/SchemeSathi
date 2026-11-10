@@ -30,7 +30,7 @@ export function App() {
   const [sessionId, setSessionId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [profile, setProfile] = useState({});
-  const [progress, setProgress] = useState({ answered: 1, total: 3 });
+  const [progress, setProgress] = useState({ answered: 1 });
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -108,7 +108,7 @@ export function App() {
 
     setMessages([userMsg]);
     setProfile(initialProfile);
-    setProgress({ answered: 1, total: 3 });
+    setProgress({ answered: 1 });
     setHistoryStack([]);
     setResults([]);
 
@@ -250,7 +250,7 @@ export function App() {
     setSessionId(null);
     setMessages([]);
     setProfile({});
-    setProgress({ answered: 1, total: 3 });
+    setProgress({ answered: 1 });
     setResults([]);
     setHistoryStack([]);
     setError(null);
