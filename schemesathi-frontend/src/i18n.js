@@ -183,10 +183,7 @@ const EN_TO_HI = {
   "Scheme B (demo)": "योजना B (डेमो)",
   "Crop insurance support": "प्राकृतिक आपदाओं के विरुद्ध रियायती फसल बीमा सहायता",
   "Engaged in seasonal crop cultivation": "मौसमी फसल खेती में संलग्न",
-  "Need crop sowing verification for current season": "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है",
-  "Scheme C (demo)": "योजना C (डेमो)",
-  "Housing support": "ग्रामीण पक्के मकान निर्माण के लिए वित्तीय सहायता",
-  "Already registered with an active pucca housing record": "सत्यापित सरकारी रिकॉर्ड में पहले से पक्का मकान दर्ज है"
+  "Need crop sowing verification for current season": "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है"
 };
 
 // Inverted map for Hindi to English
@@ -199,7 +196,6 @@ for (const [en, hi] of Object.entries(EN_TO_HI)) {
 HI_TO_EN["मैं हरियाणा से किसान हूँ"] = "I'm a farmer from Haryana";
 HI_TO_EN["मैं हरियाणा से एक किसान हूँ"] = "I'm a farmer from Haryana";
 HI_TO_EN["फसल बीमा सुरक्षा सहायता"] = "Crop insurance support";
-HI_TO_EN["आवास निर्माण सहायता"] = "Housing support";
 HI_TO_EN["वार्षिक आय"] = "Income";
 HI_TO_EN["पेशा"] = "Occupation";
 

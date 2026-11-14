@@ -59,27 +59,6 @@ const MOCK_SCHEMES_EN = [
     demo: true
   },
   {
-    id: "scheme-c",
-    name: "Scheme C (demo)",
-    summary: "Housing support",
-    category: "Housing",
-    benefits: "Direct financial assistance of ₹1.20 Lakh in plains (₹1.30 Lakh in hilly areas) for constructing a safe pucca house with toilet and clean cooking gas.",
-    documents: [
-      "Aadhaar card of all adult family members",
-      "MGNREGA job card number (if held)",
-      "Bank account details linked to Aadhaar",
-      "Current land or kutcha house photo"
-    ],
-    steps: [
-      "Verify that your name is included in the Gram Sabha priority housing list.",
-      "Local Panchayat Secretary inspects your existing house.",
-      "First installment is released upon geo-tagged foundation photograph."
-    ],
-    official_url: "https://example.gov.in/demo-scheme-c",
-    last_verified: null,
-    demo: true
-  },
-  {
     id: "scheme-d",
     name: "Scheme D (demo)",
     summary: "Post-matric student scholarship support",
@@ -182,27 +161,6 @@ const MOCK_SCHEMES_HI = [
       "किसान प्रीमियम हिस्सा जमा करें और रसीद संभाल कर रखें।"
     ],
     official_url: "https://example.gov.in/demo-scheme-b",
-    last_verified: null,
-    demo: true
-  },
-  {
-    id: "scheme-c",
-    name: "योजना C (डेमो)",
-    summary: "आवास निर्माण सहायता",
-    category: "आवास",
-    benefits: "शौचालय युक्त पक्का मकान बनाने के लिए ₹1.20 लाख (पहाड़ी क्षेत्रों में ₹1.30 लाख) की सीधी आर्थिक मदद।",
-    documents: [
-      "परिवार के सभी वयस्क सदस्यों का आधार कार्ड",
-      "मनरेगा जॉब कार्ड नंबर (यदि उपलब्ध हो)",
-      "आधार से जुड़ा बैंक खाता",
-      "वर्तमान कच्चे मकान या ज़मीन की फोटो"
-    ],
-    steps: [
-      "जाँच करें कि आपका नाम ग्राम सभा की प्राथमिकता सूची में है या नहीं।",
-      "पंचायत सचिव द्वारा वर्तमान कच्चे मकान का भौतिक सत्यापन किया जाता है।",
-      "नींव निर्माण की जियो-टैग फोटो के बाद पहली किस्त बैंक खाते में आती है।"
-    ],
-    official_url: "https://example.gov.in/demo-scheme-c",
     last_verified: null,
     demo: true
   },
@@ -578,17 +536,6 @@ async function mockSendMessage(sessionId, message, language = 'en') {
             missing: [
               "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है"
             ]
-          },
-          {
-            scheme_id: "scheme-c",
-            name: "योजना C (डेमो)",
-            summary: "ग्रामीण पक्के मकान निर्माण के लिए वित्तीय सहायता",
-            status: "not_eligible",
-            passed: [],
-            failed: [
-              "सत्यापित सरकारी रिकॉर्ड में पहले से पक्का मकान दर्ज है"
-            ],
-            missing: []
           }
         ]
       : [
@@ -616,17 +563,6 @@ async function mockSendMessage(sessionId, message, language = 'en') {
             missing: [
               "Need crop sowing verification for current season"
             ]
-          },
-          {
-            scheme_id: "scheme-c",
-            name: "Scheme C (demo)",
-            summary: "Housing support",
-            status: "not_eligible",
-            passed: [],
-            failed: [
-              "Already registered with an active pucca housing record"
-            ],
-            missing: []
           }
         ];
   }

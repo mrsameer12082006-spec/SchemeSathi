@@ -39,7 +39,6 @@ export function Schemes({ lang = 'en', navigate }) {
     { key: 'Seniors', label: t.categorySeniors || (lang === 'hi' ? 'वरिष्ठ नागरिक' : 'Senior citizens') },
     { key: 'Workers', label: t.categoryWorkers },
     { key: 'Business', label: t.categoryBusiness || (lang === 'hi' ? 'छोटा व्यापारी' : 'Small business') },
-    { key: 'Housing', label: t.categoryHousing },
   ];
 
   // Filter schemes
