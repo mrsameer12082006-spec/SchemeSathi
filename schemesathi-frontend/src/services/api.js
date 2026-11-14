@@ -1,6 +1,14 @@
 // API client for SchemeSathi
 // All network calls live in this one file.
-// If VITE_API_URL is empty, uses the built-in mock so the UI runs entirely standalone.
+// If VITE_API_URL is empty, uses Supabase PostgREST directly (or built-in mock fallback).
+
+import {
+  isSupabaseConfigured,
+  fetchSchemesFromSupabase,
+  fetchSchemeByIdFromSupabase,
+  fetchEligibilityCriteriaFromSupabase,
+  evaluateEligibilityAgainstCriteria
+} from './supabaseClient';
 
 const API_BASE = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '';
 
@@ -270,15 +278,15 @@ function parseProfileFromText(text, lang) {
 
   if (lower.includes('farmer') || lower.includes('किसान') || lower.includes('kisan') || lower.includes('farming') || lower.includes('खेती')) {
     profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'किसान' : 'Farmer';
-  } else if (lower.includes('student') || lower.includes('छात्र') || lower.includes('vidyarthi') || lower.includes('college') || lower.includes('school')) {
+  } else if (lower.includes('student') || lower.includes('छात्र') || lower.includes('विद्यार्थी') || lower.includes('vidyarthi') || lower.includes('college') || lower.includes('school')) {
     profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'छात्र' : 'Student';
-  } else if (lower.includes('widow') || lower.includes('विधवा') || lower.includes('woman') || lower.includes('महिला')) {
+  } else if (lower.includes('widow') || lower.includes('विधवा') || lower.includes('woman') || lower.includes('women') || lower.includes('महिला') || lower.includes('female')) {
     profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'महिला' : 'Woman';
-  } else if (lower.includes('senior') || lower.includes('वृद्ध') || lower.includes('बुजुर्ग') || lower.includes('वरिष्ठ')) {
+  } else if (lower.includes('senior') || lower.includes('वृद्ध') || lower.includes('बुजुर्ग') || lower.includes('वरिष्ठ') || lower.includes('pensioner') || lower.includes('pension')) {
     profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'वरिष्ठ नागरिक' : 'Senior citizen';
-  } else if (lower.includes('worker') || lower.includes('मज़दूर') || lower.includes('मजदूर') || lower.includes('labour')) {
+  } else if (lower.includes('worker') || lower.includes('मज़दूर') || lower.includes('मजदूर') || lower.includes('labour') || lower.includes('श्रमिक') || lower.includes('unorganized')) {
     profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'मज़दूर' : 'Worker';
-  } else if (lower.includes('business') || lower.includes('दुकान') || lower.includes('व्यापारी') || lower.includes('shop')) {
+  } else if (lower.includes('business') || lower.includes('दुकान') || lower.includes('व्यापारी') || lower.includes('shop') || lower.includes('vendor') || lower.includes('उद्यमी')) {
     profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'छोटा व्यापारी' : 'Small business';
   }
 
@@ -291,8 +299,13 @@ function parseProfileFromText(text, lang) {
     profile[isHi ? 'राज्य' : 'State'] = isHi ? 'बिहार' : 'Bihar';
   } else if (lower.includes('rajasthan') || lower.includes('राजस्थान')) {
     profile[isHi ? 'राज्य' : 'State'] = isHi ? 'राजस्थान' : 'Rajasthan';
-  } else if (lower.includes('village') || lower.includes('गाँव') || lower.includes('rural')) {
+  }
+
+  // Residence area
+  if (lower.includes('village') || lower.includes('गाँव') || lower.includes('गांव') || lower.includes('rural') || lower.includes('ग्रामीण')) {
     profile[isHi ? 'क्षेत्र' : 'Area'] = isHi ? 'ग्रामीण' : 'Rural';
+  } else if (lower.includes('city') || lower.includes('शहर') || lower.includes('urban') || lower.includes('शहरी')) {
+    profile[isHi ? 'क्षेत्र' : 'Area'] = isHi ? 'शहरी' : 'Urban';
   }
 
   // Income check
@@ -300,6 +313,8 @@ function parseProfileFromText(text, lang) {
     profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '1.5 लाख' : '1.5 Lakh';
   } else if (lower.includes('2 lakh') || lower.includes('2 लाख')) {
     profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '2 लाख से कम' : 'Under 2 Lakh';
+  } else if (lower.includes('below') || lower.includes('1 lakh से कम') || lower.includes('1 लाख से कम')) {
+    profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '1 लाख से कम' : 'Below 1 Lakh';
   }
 
   return profile;
@@ -351,6 +366,10 @@ async function mockSendMessage(sessionId, message, language = 'en') {
   if (session.step === 1) {
     const isFarmer = Object.values(session.profile).some(v => String(v).includes('Farmer') || String(v).includes('किसान'));
     const isStudent = Object.values(session.profile).some(v => String(v).includes('Student') || String(v).includes('छात्र'));
+    const isWoman = Object.values(session.profile).some(v => String(v).includes('Woman') || String(v).includes('महिला'));
+    const isSenior = Object.values(session.profile).some(v => String(v).includes('Senior') || String(v).includes('नागरिक'));
+    const isWorker = Object.values(session.profile).some(v => String(v).includes('Worker') || String(v).includes('मज़दूर') || String(v).includes('मजदूर'));
+    const isBusiness = Object.values(session.profile).some(v => String(v).includes('Business') || String(v).includes('व्यापारी'));
 
     if (isFarmer) {
       return {
@@ -384,6 +403,70 @@ async function mockSendMessage(sessionId, message, language = 'en') {
         done: false,
         results: []
       };
+    } else if (isWoman) {
+      return {
+        reply: isHi
+          ? "आपकी मुख्य आवश्यकता या वर्तमान स्थिति क्या है?"
+          : "What is your primary focus or category?",
+        quick_replies: isHi
+          ? ["गर्भवती / धात्री महिला", "स्वरोज़गार / छोटा व्यवसाय", "बालिका बचत योजना"]
+          : ["Pregnant / Lactating mother", "Self-employment / Enterprise", "Girl child savings"],
+        why: isHi
+          ? "मातृत्व पोषण, बालिका बचत और महिला उद्यम के लिए अलग-अलग योजनाएँ उपलब्ध हैं।"
+          : "Specialized schemes exist for maternity nutrition, girl child savings, and women enterprise.",
+        progress: { answered: 1 },
+        profile: { ...session.profile },
+        done: false,
+        results: []
+      };
+    } else if (isSenior) {
+      return {
+        reply: isHi
+          ? "आपकी वर्तमान आयु सीमा क्या है?"
+          : "What is your current age bracket?",
+        quick_replies: isHi
+          ? ["60 - 70 वर्ष", "70 - 80 वर्ष", "80 वर्ष से अधिक"]
+          : ["60 - 70 years", "70 - 80 years", "Above 80 years"],
+        why: isHi
+          ? "वरिष्ठ नागरिक पेंशन और स्वास्थ्य सुरक्षा योजनाएँ आयु सीमा के आधार पर लागू होती हैं।"
+          : "Senior citizen pension and welfare schemes have specific age brackets.",
+        progress: { answered: 1 },
+        profile: { ...session.profile },
+        done: false,
+        results: []
+      };
+    } else if (isBusiness) {
+      return {
+        reply: isHi
+          ? "आपका व्यवसाय किस प्रकार का है?"
+          : "What is the nature of your business?",
+        quick_replies: isHi
+          ? ["रेहड़ी-पटरी / स्ट्रीट वेंडर", "छोटी दुकान / माइक्रो उद्यम", "नया व्यवसाय शुरू करना"]
+          : ["Street vendor / Hawker", "Small retail / Micro unit", "New business setup"],
+        why: isHi
+          ? "पीएम स्वनिधि, मुद्रा और पीएमईजीपी अलग-अलग व्यापार आकारों के लिए हैं।"
+          : "PM SVANidhi, MUDRA, and PMEGP cater to specific business scales.",
+        progress: { answered: 1 },
+        profile: { ...session.profile },
+        done: false,
+        results: []
+      };
+    } else if (isWorker) {
+      return {
+        reply: isHi
+          ? "क्या आप असंगठित क्षेत्र (दैनिक मज़दूरी, निर्माण, घरेलू कार्य) में काम करते हैं?"
+          : "Do you work in the unorganized sector (daily wage, construction, informal)?",
+        quick_replies: isHi
+          ? ["दैनिक वेतन मज़दूर", "निर्माण श्रमिक", "घरेलू / अन्य कामगार"]
+          : ["Daily wage laborer", "Construction worker", "Domestic / Informal worker"],
+        why: isHi
+          ? "ई-श्रम और असंगठित कामगार सामाजिक सुरक्षा योजनाएँ विशेष रूप से श्रमिकों के लिए हैं।"
+          : "Social security and e-Shram welfare schemes target unorganized workers.",
+        progress: { answered: 1 },
+        profile: { ...session.profile },
+        done: false,
+        results: []
+      };
     } else {
       return {
         reply: isHi
@@ -408,7 +491,7 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     // Add answer detail to profile if chip selected
     if (message.includes('more than 2') || message.includes('2 हेक्टेयर से अधिक')) {
       session.profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? '2 हेक्टेयर से अधिक' : 'More than 2 hectares';
-    } else if (message.includes('Tenant') || message.includes('बटाईदार')) {
+    } else if (message.includes('Tenant') || message.includes('बटाईदार') || message.includes('भूमिहीन')) {
       session.profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? 'भूमिहीन / बटाईदार' : 'Tenant / Landless';
     } else if (message.includes('2 hectare') || message.includes('2 हेक्टेयर')) {
       session.profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? '2 हेक्टेयर तक' : 'Up to 2 hectares';
@@ -422,6 +505,10 @@ async function mockSendMessage(sessionId, message, language = 'en') {
       session.profile[isHi ? 'शिक्षा' : 'Education'] = isHi ? 'कक्षा 9 - 10' : 'Class 9 - 10';
     } else if (message.includes('Higher') || message.includes('उच्च शिक्षा') || message.includes('स्नातक')) {
       session.profile[isHi ? 'शिक्षा' : 'Education'] = isHi ? 'उच्च शिक्षा' : 'Higher Studies';
+    } else if (message.includes('Street vendor') || message.includes('रेहड़ी') || message.includes('वेंडर')) {
+      session.profile[isHi ? 'व्यवसाय' : 'Business Type'] = isHi ? 'स्ट्रीट वेंडर' : 'Street vendor';
+    } else if (message.includes('Lactating') || message.includes('गर्भवती')) {
+      session.profile[isHi ? 'श्रेणी' : 'Category'] = isHi ? 'गर्भवती / धात्री' : 'Maternity';
     }
 
     return {
@@ -450,83 +537,99 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     session.profile[isHi ? 'वार्षिक आय' : 'Annual Income'] = isHi ? '₹1 - ₹2.5 लाख' : '₹1 - ₹2.5 Lakh';
   }
 
-  const results = isHi
-    ? [
-        {
-          scheme_id: "scheme-a",
-          name: "योजना A (डेमो)",
-          summary: "छोटे और सीमांत किसान परिवारों के लिए वार्षिक आय सहायता",
-          status: "potentially_eligible",
-          passed: [
-            "खेती योग्य भूमि 2 हेक्टेयर सीमा के भीतर है",
-            "मुख्य व्यवसाय कृषि दर्ज है"
-          ],
-          failed: [],
-          missing: []
-        },
-        {
-          scheme_id: "scheme-b",
-          name: "योजना B (डेमो)",
-          summary: "प्राकृतिक आपदाओं के विरुद्ध रियायती फसल बीमा सहायता",
-          status: "needs_information",
-          passed: [
-            "मौसमी फसल खेती में संलग्न"
-          ],
-          failed: [],
-          missing: [
-            "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है"
-          ]
-        },
-        {
-          scheme_id: "scheme-c",
-          name: "योजना C (डेमो)",
-          summary: "ग्रामीण पक्के मकान निर्माण के लिए वित्तीय सहायता",
-          status: "not_eligible",
-          passed: [],
-          failed: [
-            "सत्यापित सरकारी रिकॉर्ड में पहले से पक्का मकान दर्ज है"
-          ],
-          missing: []
-        }
-      ]
-    : [
-        {
-          scheme_id: "scheme-a",
-          name: "Scheme A (demo)",
-          summary: "Yearly support for small farmers",
-          status: "potentially_eligible",
-          passed: [
-            "Landholding within 2 hectares limit",
-            "Primary occupation is farming"
-          ],
-          failed: [],
-          missing: []
-        },
-        {
-          scheme_id: "scheme-b",
-          name: "Scheme B (demo)",
-          summary: "Crop insurance support",
-          status: "needs_information",
-          passed: [
-            "Engaged in seasonal crop cultivation"
-          ],
-          failed: [],
-          missing: [
-            "Need crop sowing verification for current season"
-          ]
-        },
-        {
-          scheme_id: "scheme-c",
-          name: "Scheme C (demo)",
-          summary: "Housing support",
-          status: "not_eligible",
-          passed: [],
-          failed: [
-            "Already registered with an active pucca housing record"
-          ],
-          missing: []
-        }
-      ];
+  // Evaluate against Supabase criteria if configured
+  let results = [];
+  if (isSupabaseConfigured()) {
+    try {
+      const criteriaData = await fetchEligibilityCriteriaFromSupabase();
+      if (Array.isArray(criteriaData) && criteriaData.length > 0) {
+        results = evaluateEligibilityAgainstCriteria(session.profile, criteriaData, isHi ? 'hi' : 'en');
+      }
+    } catch (err) {
+      console.warn("Supabase criteria evaluation error, falling back to mock results", err);
+    }
+  }
+
+  // Fallback to mock results if Supabase is offline or yielded no matches
+  if (!results || results.length === 0) {
+    results = isHi
+      ? [
+          {
+            scheme_id: "scheme-a",
+            name: "योजना A (डेमो)",
+            summary: "छोटे और सीमांत किसान परिवारों के लिए वार्षिक आय सहायता",
+            status: "potentially_eligible",
+            passed: [
+              "खेती योग्य भूमि 2 हेक्टेयर सीमा के भीतर है",
+              "मुख्य व्यवसाय कृषि दर्ज है"
+            ],
+            failed: [],
+            missing: []
+          },
+          {
+            scheme_id: "scheme-b",
+            name: "योजना B (डेमो)",
+            summary: "प्राकृतिक आपदाओं के विरुद्ध रियायती फसल बीमा सहायता",
+            status: "needs_information",
+            passed: [
+              "मौसमी फसल खेती में संलग्न"
+            ],
+            failed: [],
+            missing: [
+              "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है"
+            ]
+          },
+          {
+            scheme_id: "scheme-c",
+            name: "योजना C (डेमो)",
+            summary: "ग्रामीण पक्के मकान निर्माण के लिए वित्तीय सहायता",
+            status: "not_eligible",
+            passed: [],
+            failed: [
+              "सत्यापित सरकारी रिकॉर्ड में पहले से पक्का मकान दर्ज है"
+            ],
+            missing: []
+          }
+        ]
+      : [
+          {
+            scheme_id: "scheme-a",
+            name: "Scheme A (demo)",
+            summary: "Yearly support for small farmers",
+            status: "potentially_eligible",
+            passed: [
+              "Landholding within 2 hectares limit",
+              "Primary occupation is farming"
+            ],
+            failed: [],
+            missing: []
+          },
+          {
+            scheme_id: "scheme-b",
+            name: "Scheme B (demo)",
+            summary: "Crop insurance support",
+            status: "needs_information",
+            passed: [
+              "Engaged in seasonal crop cultivation"
+            ],
+            failed: [],
+            missing: [
+              "Need crop sowing verification for current season"
+            ]
+          },
+          {
+            scheme_id: "scheme-c",
+            name: "Scheme C (demo)",
+            summary: "Housing support",
+            status: "not_eligible",
+            passed: [],
+            failed: [
+              "Already registered with an active pucca housing record"
+            ],
+            missing: []
+          }
+        ];
+  }
 
   return {
     reply: isHi ? "धन्यवाद। हमने आपके सभी उत्तरों की जाँच कर ली है।" : "Thank you. We have completed checking your details against scheme rules.",
@@ -610,33 +713,45 @@ export async function sendMessage({ sessionId, message, language = 'en' }) {
 }
 
 export async function getSchemes(language = 'en') {
-  if (!API_BASE) {
-    return mockGetSchemes(language);
+  if (API_BASE) {
+    try {
+      const res = await fetch(`${API_BASE}/api/schemes?language=${language}`);
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.warn("Backend API failed, checking Supabase/mock", err);
+    }
   }
 
-  try {
-    const res = await fetch(`${API_BASE}/api/schemes?language=${language}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.warn("Real API failed, falling back to mock getSchemes", err);
-    return mockGetSchemes(language);
+  if (isSupabaseConfigured()) {
+    try {
+      return await fetchSchemesFromSupabase(language);
+    } catch (err) {
+      console.warn("Supabase fetchSchemes failed, falling back to mock", err);
+    }
   }
+
+  return mockGetSchemes(language);
 }
 
 export async function getSchemeById(id, language = 'en') {
-  if (!API_BASE) {
-    return mockGetSchemeDetail(id, language);
+  if (API_BASE) {
+    try {
+      const res = await fetch(`${API_BASE}/api/schemes/${id}?language=${language}`);
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.warn("Backend API failed, checking Supabase/mock", err);
+    }
   }
 
-  try {
-    const res = await fetch(`${API_BASE}/api/schemes/${id}?language=${language}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.warn("Real API failed, falling back to mock getSchemeById", err);
-    return mockGetSchemeDetail(id, language);
+  if (isSupabaseConfigured()) {
+    try {
+      return await fetchSchemeByIdFromSupabase(id, language);
+    } catch (err) {
+      console.warn("Supabase fetchSchemeById failed, falling back to mock", err);
+    }
   }
+
+  return mockGetSchemeDetail(id, language);
 }
 
 // Allows rolling back step in mock mode for "Go Back"

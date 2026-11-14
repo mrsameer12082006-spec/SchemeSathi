@@ -46,3 +46,10 @@ desktop.ini
 coverage/
 *.tmp
 *.temp
+
+
+context.md 
+
+supabase_schema_and_seed.sql
+
+SchemeSathi_Supabase_Database_Guide.pdf

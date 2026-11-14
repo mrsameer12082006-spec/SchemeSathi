@@ -34,10 +34,12 @@ export function Schemes({ lang = 'en', navigate }) {
   const categories = [
     { key: 'All', label: t.categoryAll },
     { key: 'Farmers', label: t.categoryFarmers },
-    { key: 'Housing', label: t.categoryHousing },
     { key: 'Students', label: t.categoryStudents },
     { key: 'Women', label: t.categoryWomen },
+    { key: 'Seniors', label: t.categorySeniors || (lang === 'hi' ? 'वरिष्ठ नागरिक' : 'Senior citizens') },
     { key: 'Workers', label: t.categoryWorkers },
+    { key: 'Business', label: t.categoryBusiness || (lang === 'hi' ? 'छोटा व्यापारी' : 'Small business') },
+    { key: 'Housing', label: t.categoryHousing },
   ];
 
   // Filter schemes
@@ -45,23 +47,37 @@ export function Schemes({ lang = 'en', navigate }) {
     ? schemes
     : schemes.filter((s) => {
         if (!s.category) return false;
-        // Matches English category key or Hindi category label
+        const normCat = s.category.toLowerCase();
+        const normActive = activeCategory.toLowerCase();
         const catKey = categories.find(c => c.key === activeCategory);
-        return s.category.toLowerCase() === activeCategory.toLowerCase() ||
-               (catKey && s.category.toLowerCase() === catKey.label.toLowerCase());
+        const normLabel = catKey ? catKey.label.toLowerCase() : '';
+        const catCode = (s.category_code || '').toLowerCase();
+
+        return normCat.includes(normActive) ||
+               normActive.includes(normCat) ||
+               (normLabel && (normCat.includes(normLabel) || normLabel.includes(normCat))) ||
+               (catCode && catCode.includes(normActive));
       });
+
+  const hasLiveSupabaseData = schemes.some(s => !s.demo);
 
   return (
     <div className="w-full max-w-5xl mx-auto py-8 sm:py-12 px-4 space-y-8">
-      {/* Title & Demo List Tag */}
+      {/* Title & Status Tag */}
       <div className="space-y-3">
         <h1 className="text-3xl sm:text-4xl font-black text-ink dark:text-mist">
           {t.browseTitle}
         </h1>
 
-        <div className="inline-flex items-center px-3 py-1 rounded-md bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 text-xs font-semibold border border-amber-300 dark:border-amber-700/60 select-none">
-          {t.demoListTag}
-        </div>
+        {hasLiveSupabaseData ? (
+          <div className="inline-flex items-center px-3 py-1 rounded-md bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300 text-xs font-semibold border border-emerald-300 dark:border-emerald-700/60 select-none">
+            {lang === 'hi' ? '✓ 30 सत्यापित सरकारी योजनाएँ (Supabase)' : '✓ 30 Verified Government Schemes (Supabase)'}
+          </div>
+        ) : (
+          <div className="inline-flex items-center px-3 py-1 rounded-md bg-amber-100 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 text-xs font-semibold border border-amber-300 dark:border-amber-700/60 select-none">
+            {t.demoListTag}
+          </div>
+        )}
       </div>
 
       {/* Filter Chips */}
