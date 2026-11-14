@@ -274,6 +274,19 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
           passed.push(isHi ? "महिला लाभार्थी पात्रता" : "Eligible female beneficiary");
         }
       }
+
+      // Crop sowing verification for PMFBY
+      if (item.code === 'pmfby') {
+        const cropSown = profileString.includes('sown') || profileString.includes('बोई') || profileString.includes('cultivated') || profileString.includes('मौसमी फसल');
+        const landFallow = profileString.includes('fallow') || profileString.includes('खाली');
+        if (cropSown) {
+          passed.push(isHi ? "वर्तमान मौसम में फसल बुवाई सत्यापित" : "Seasonal crop cultivation verified");
+        } else if (landFallow) {
+          failed.push(isHi ? "फसल बीमा केवल बुवाई की गई भूमि के लिए लागू होता है" : "Crop insurance applies only to cultivated land");
+        } else {
+          missing.push(isHi ? "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है" : "Crop sowing verification needed for current season");
+        }
+      }
     }
 
     // Determine status
@@ -289,7 +302,11 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
     results.push({
       scheme_id: item.code,
       name: (isHi && item.name_hi) ? item.name_hi : item.name_en,
+      name_en: item.name_en,
+      name_hi: item.name_hi,
       summary: (isHi && item.summary_hi) ? item.summary_hi : item.summary_en,
+      summary_en: item.summary_en,
+      summary_hi: item.summary_hi,
       status,
       passed,
       failed,

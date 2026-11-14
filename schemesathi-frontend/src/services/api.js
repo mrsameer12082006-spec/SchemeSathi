@@ -266,13 +266,29 @@ function parseProfileFromText(text, lang) {
     profile[isHi ? 'क्षेत्र' : 'Area'] = isHi ? 'शहरी' : 'Urban';
   }
 
+  // Landholding check
+  if (lower.includes('up to 2') || lower.includes('2 hectare tak') || lower.includes('2 हेक्टेयर तक') || lower.includes('अपनी ज़मीन (2 हेक्टेयर तक)')) {
+    profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? '2 हेक्टेयर तक' : 'Up to 2 hectares';
+  } else if (lower.includes('more than 2') || lower.includes('2 hectare se adhik') || lower.includes('2 हेक्टेयर से अधिक')) {
+    profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? '2 हेक्टेयर से अधिक' : 'More than 2 hectares';
+  } else if (lower.includes('tenant') || lower.includes('बटाईदार') || lower.includes('भूमिहीन') || lower.includes('landless')) {
+    profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? 'भूमिहीन / बटाईदार' : 'Tenant / Landless';
+  }
+
+  // Crop sowing check
+  if (lower.includes('cultivated') || lower.includes('मौसमी फसल') || lower.includes('बोई') || lower.includes('sown')) {
+    profile[isHi ? 'फसल बुवाई' : 'Crop Cultivation'] = isHi ? 'मौसमी फसल बोई' : 'Seasonal crops sown';
+  } else if (lower.includes('fallow') || lower.includes('खाली')) {
+    profile[isHi ? 'फसल बुवाई' : 'Crop Cultivation'] = isHi ? 'खेत खाली रहा' : 'Land was fallow';
+  }
+
   // Income check
-  if (lower.includes('1.5') || lower.includes('1.5 lakh') || lower.includes('1.5 लाख')) {
-    profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '1.5 लाख' : '1.5 Lakh';
-  } else if (lower.includes('2 lakh') || lower.includes('2 लाख')) {
-    profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '2 लाख से कम' : 'Under 2 Lakh';
-  } else if (lower.includes('below') || lower.includes('1 lakh से कम') || lower.includes('1 लाख से कम')) {
-    profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '1 लाख से कम' : 'Below 1 Lakh';
+  if (lower.includes('below') || lower.includes('1 lakh se kam') || lower.includes('1 लाख से कम') || lower.includes('₹1 लाख से कम')) {
+    profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '₹1 लाख से कम' : 'Below ₹1 Lakh';
+  } else if (lower.includes('above') || lower.includes('अधिक') || lower.includes('2.5 lakh se adhik') || lower.includes('₹2.5 लाख से अधिक')) {
+    profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '₹2.5 लाख से अधिक' : 'Above ₹2.5 Lakh';
+  } else if (lower.includes('1 - 2.5') || lower.includes('1-2.5') || lower.includes('2.5 lakh') || lower.includes('2.5 लाख') || lower.includes('1.5') || lower.includes('2 lakh')) {
+    profile[isHi ? 'वार्षिक आय' : 'Income'] = isHi ? '₹1 - ₹2.5 लाख' : '₹1 Lakh - ₹2.5 Lakh';
   }
 
   return profile;
@@ -428,14 +444,14 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     } else {
       return {
         reply: isHi
-          ? "आप मुख्य रूप से किस क्षेत्र में रहते हैं?"
-          : "What is your primary area of residence?",
+          ? "आपकी मुख्य पहचान या पेशा क्या है?"
+          : "What best describes your current category or occupation?",
         quick_replies: isHi
-          ? ["ग्रामीण (गाँव / ग्राम पंचायत)", "शहरी (कस्बा / शहर)"]
-          : ["Rural (Village / Gram Panchayat)", "Urban (Town / City)"],
+          ? ["किसान", "छात्र", "महिला", "वरिष्ठ नागरिक", "मज़दूर", "छोटा व्यापारी"]
+          : ["Farmer", "Student", "Woman", "Senior citizen", "Worker", "Small business"],
         why: isHi
-          ? "कुछ कल्याणकारी योजनाएँ केवल ग्रामीण और कुछ केवल शहरी क्षेत्रों के लिए हैं।"
-          : "Some social welfare schemes are specific to rural areas while others are urban.",
+          ? "सरकारी योजनाएँ मुख्य रूप से आपके पेशे और सामाजिक श्रेणी के अनुसार लाभ देती हैं।"
+          : "Government schemes are primarily targeted based on your category and occupation.",
         progress: { answered: 1 },
         profile: { ...session.profile },
         done: false,
@@ -510,6 +526,24 @@ async function mockSendMessage(sessionId, message, language = 'en') {
 
   // Fallback to mock results if Supabase is offline or yielded no matches
   if (!results || results.length === 0) {
+    const isCropSown = session.profile['फसल बुवाई'] === 'मौसमी फसल बोई' || session.profile['Crop Cultivation'] === 'Seasonal crops sown';
+    const isLandFallow = session.profile['फसल बुवाई'] === 'खेत खाली रहा' || session.profile['Crop Cultivation'] === 'Land was fallow';
+
+    let schemeBStatus = "needs_information";
+    let schemeBPassed = isHi ? ["मौसमी फसल खेती में संलग्न"] : ["Engaged in seasonal crop cultivation"];
+    let schemeBFailed = [];
+    let schemeBMissing = isHi ? ["वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है"] : ["Need crop sowing verification for current season"];
+
+    if (isCropSown) {
+      schemeBStatus = "potentially_eligible";
+      schemeBPassed.push(isHi ? "वर्तमान मौसम में फसल बुवाई सत्यापित" : "Seasonal crop cultivation verified");
+      schemeBMissing = [];
+    } else if (isLandFallow) {
+      schemeBStatus = "not_eligible";
+      schemeBFailed.push(isHi ? "फसल बीमा केवल बुवाई की गई भूमि के लिए लागू होता है" : "Crop insurance applies only to cultivated land");
+      schemeBMissing = [];
+    }
+
     results = isHi
       ? [
           {
@@ -528,14 +562,10 @@ async function mockSendMessage(sessionId, message, language = 'en') {
             scheme_id: "scheme-b",
             name: "योजना B (डेमो)",
             summary: "प्राकृतिक आपदाओं के विरुद्ध रियायती फसल बीमा सहायता",
-            status: "needs_information",
-            passed: [
-              "मौसमी फसल खेती में संलग्न"
-            ],
-            failed: [],
-            missing: [
-              "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है"
-            ]
+            status: schemeBStatus,
+            passed: schemeBPassed,
+            failed: schemeBFailed,
+            missing: schemeBMissing
           }
         ]
       : [
@@ -555,14 +585,10 @@ async function mockSendMessage(sessionId, message, language = 'en') {
             scheme_id: "scheme-b",
             name: "Scheme B (demo)",
             summary: "Crop insurance support",
-            status: "needs_information",
-            passed: [
-              "Engaged in seasonal crop cultivation"
-            ],
-            failed: [],
-            missing: [
-              "Need crop sowing verification for current season"
-            ]
+            status: schemeBStatus,
+            passed: schemeBPassed,
+            failed: schemeBFailed,
+            missing: schemeBMissing
           }
         ];
   }

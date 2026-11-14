@@ -154,27 +154,41 @@ export function Chat({
 
               {/* Quick Replies below the latest bot message */}
               {isLatestBot && !loading && (
-                <div className="w-full mt-1 flex flex-col gap-2">
-                  <div className="flex flex-wrap gap-2">
-                    {(msg.quick_replies || []).map((qr, qrIdx) => (
+                <div className="w-full mt-2 flex flex-col gap-2">
+                  {msg.quick_replies && msg.quick_replies.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {msg.quick_replies.map((qr, qrIdx) => (
+                        <button
+                          key={`qr-${qrIdx}`}
+                          type="button"
+                          onClick={() => handleChipClick(qr)}
+                          className="chip text-sm font-semibold hover:border-saffron hover:bg-white dark:hover:bg-nightcard active:scale-95 transition-all"
+                        >
+                          {qr}
+                        </button>
+                      ))}
+                      {/* "Not sure" chip only present when answering active questions */}
                       <button
-                        key={`qr-${qrIdx}`}
                         type="button"
-                        onClick={() => handleChipClick(qr)}
-                        className="chip text-sm font-semibold hover:border-saffron hover:bg-white dark:hover:bg-nightcard active:scale-95 transition-all"
+                        onClick={() => handleChipClick(tCore.notSure)}
+                        className="chip text-sm font-semibold text-ink/70 dark:text-mist/70 hover:border-saffron hover:bg-white dark:hover:bg-nightcard active:scale-95 transition-all"
                       >
-                        {qr}
+                        {tCore.notSure}
                       </button>
-                    ))}
-                    {/* Always present "Not sure" chip */}
-                    <button
-                      type="button"
-                      onClick={() => handleChipClick(tCore.notSure)}
-                      className="chip text-sm font-semibold text-ink/70 dark:text-mist/70 hover:border-saffron hover:bg-white dark:hover:bg-nightcard active:scale-95 transition-all"
-                    >
-                      {tCore.notSure}
-                    </button>
-                  </div>
+                    </div>
+                  ) : (
+                    /* When conversation is completed, show button to navigate to results */
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={() => navigate('/results')}
+                        className="btn-primary inline-flex items-center gap-2 font-bold px-6 py-2.5 text-sm shadow-sm"
+                      >
+                        <span>{lang === 'hi' ? 'पात्रता परिणाम देखें' : 'View Eligible Schemes'}</span>
+                        <span aria-hidden="true">→</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

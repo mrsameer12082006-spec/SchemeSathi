@@ -49,10 +49,18 @@ export function App() {
     setMessages(prevMessages =>
       prevMessages.map(msg => ({
         ...msg,
-        text: translateText(msg.text, newLang),
-        why: msg.why ? translateText(msg.why, newLang) : msg.why,
+        text: newLang === 'hi'
+          ? (msg.text_hi || translateText(msg.text, 'hi'))
+          : (msg.text_en || translateText(msg.text, 'en')),
+        why: msg.why
+          ? (newLang === 'hi'
+              ? (msg.why_hi || translateText(msg.why, 'hi'))
+              : (msg.why_en || translateText(msg.why, 'en')))
+          : msg.why,
         quick_replies: Array.isArray(msg.quick_replies)
-          ? msg.quick_replies.map(qr => translateText(qr, newLang))
+          ? (newLang === 'hi'
+              ? (msg.quick_replies_hi || msg.quick_replies.map(qr => translateText(qr, 'hi')))
+              : (msg.quick_replies_en || msg.quick_replies.map(qr => translateText(qr, 'en'))))
           : msg.quick_replies
       }))
     );
@@ -264,9 +272,73 @@ export function App() {
   }, [navigate]);
 
   // Handle "Answer 1 question" from Results page
-  const handleAnswerMore = useCallback(() => {
+  const handleAnswerMore = useCallback((schemeId) => {
+    const target = results.find(r => r.scheme_id === schemeId) || results.find(r => r.status === 'needs_information');
+    if (!target) {
+      navigate('/chat');
+      return;
+    }
+
+    const isHi = lang === 'hi';
+    const missingItems = target.missing || [];
+    const missingStr = missingItems.join(' ').toLowerCase();
+
+    const schemeNameHi = target.name_hi || translateText(target.name, 'hi') || target.name;
+    const schemeNameEn = target.name_en || translateText(target.name, 'en') || target.name;
+
+    let questionHi = "";
+    let questionEn = "";
+    let quickRepliesHi = [];
+    let quickRepliesEn = [];
+
+    const whyHi = `यह प्रश्न ${schemeNameHi} के लिए आपकी पात्रता की पुष्टि करने हेतु आवश्यक है।`;
+    const whyEn = `This question is needed to verify your eligibility for ${schemeNameEn}.`;
+
+    if (missingStr.includes('फसल') || missingStr.includes('crop') || missingStr.includes('बुवाई') || missingStr.includes('sowing')) {
+      questionHi = `${schemeNameHi} के लिए: क्या आपने वर्तमान कृषि मौसम में फसल की बुवाई की है?`;
+      questionEn = `For ${schemeNameEn}: Did you sow crops in the current agricultural season?`;
+      quickRepliesHi = ["हाँ, मौसमी फसल बोई है", "नहीं, खेत खाली रहा"];
+      quickRepliesEn = ["Yes, cultivated seasonal crops", "No, land was fallow"];
+    } else if (missingStr.includes('भूमि') || missingStr.includes('land') || missingStr.includes('रकबे') || missingStr.includes('हेक्टेयर')) {
+      questionHi = `${schemeNameHi} के लिए: आपके पास कितनी खेती की ज़मीन है?`;
+      questionEn = `For ${schemeNameEn}: How much agricultural land do you own or cultivate?`;
+      quickRepliesHi = ["अपनी ज़मीन (2 हेक्टेयर तक)", "अपनी ज़मीन (2 हेक्टेयर से अधिक)", "बटाईदार / भूमिहीन"];
+      quickRepliesEn = ["Own land (up to 2 hectares)", "Own land (more than 2 hectares)", "Tenant farmer / Landless"];
+    } else if (missingStr.includes('आय') || missingStr.includes('income')) {
+      questionHi = `${schemeNameHi} के लिए: आपके परिवार की कुल अनुमानित वार्षिक आय कितनी है?`;
+      questionEn = `For ${schemeNameEn}: What is your approximate household annual income?`;
+      quickRepliesHi = ["₹1 लाख से कम", "₹1 लाख - ₹2.5 लाख", "₹2.5 लाख से अधिक"];
+      quickRepliesEn = ["Below ₹1 Lakh", "₹1 Lakh - ₹2.5 Lakh", "Above ₹2.5 Lakh"];
+    } else if (missingStr.includes('क्षेत्र') || missingStr.includes('area') || missingStr.includes('ग्रामीण') || missingStr.includes('rural')) {
+      questionHi = `${schemeNameHi} के लिए: क्या आप ग्रामीण (गाँव) क्षेत्र में रहते हैं या शहरी (शहर) में?`;
+      questionEn = `For ${schemeNameEn}: Do you reside in a rural (village) or urban (city) area?`;
+      quickRepliesHi = ["ग्रामीण क्षेत्र", "शहरी क्षेत्र"];
+      quickRepliesEn = ["Rural area", "Urban area"];
+    } else {
+      questionHi = `${schemeNameHi} के लिए अतिरिक्त विवरण: ${translateText(missingItems[0] || 'कृपया अपनी स्थिति बताएं', 'hi')}`;
+      questionEn = `Additional requirement for ${schemeNameEn}: ${translateText(missingItems[0] || 'Please confirm your status', 'en')}`;
+      quickRepliesHi = ["हाँ, मैं यह शर्त पूरी करता/करती हूँ", "नहीं, यह लागू नहीं होता"];
+      quickRepliesEn = ["Yes, I meet this condition", "No, does not apply"];
+    }
+
+    const followUpBotMsg = {
+      id: 'msg_bot_more_' + Date.now(),
+      sender: 'bot',
+      text: isHi ? questionHi : questionEn,
+      text_hi: questionHi,
+      text_en: questionEn,
+      why: isHi ? whyHi : whyEn,
+      why_hi: whyHi,
+      why_en: whyEn,
+      quick_replies: isHi ? quickRepliesHi : quickRepliesEn,
+      quick_replies_hi: quickRepliesHi,
+      quick_replies_en: quickRepliesEn,
+      resolvingSchemeId: target.scheme_id
+    };
+
+    setMessages(prev => [...prev, followUpBotMsg]);
     navigate('/chat');
-  }, [navigate]);
+  }, [results, lang, navigate]);
 
   // Render current page based on hash route
   const renderPage = () => {

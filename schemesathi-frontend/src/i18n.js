@@ -175,7 +175,7 @@ const EN_TO_HI = {
   "Urban (Town / City)": "शहरी (कस्बा / शहर)",
   "Not sure": "पता नहीं",
 
-  // Scheme results
+  // Scheme results (Demo)
   "Scheme A (demo)": "योजना A (डेमो)",
   "Yearly support for small farmers": "छोटे और सीमांत किसान परिवारों के लिए वार्षिक आय सहायता",
   "Landholding within 2 hectares limit": "खेती योग्य भूमि 2 हेक्टेयर सीमा के भीतर है",
@@ -183,7 +183,61 @@ const EN_TO_HI = {
   "Scheme B (demo)": "योजना B (डेमो)",
   "Crop insurance support": "प्राकृतिक आपदाओं के विरुद्ध रियायती फसल बीमा सहायता",
   "Engaged in seasonal crop cultivation": "मौसमी फसल खेती में संलग्न",
-  "Need crop sowing verification for current season": "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है"
+  "Need crop sowing verification for current season": "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है",
+
+  // All 30 Schemes
+  "PM Kisan Samman Nidhi": "प्रधानमंत्री किसान सम्मान निधि",
+  "Pradhan Mantri Fasal Bima Yojana (PMFBY)": "प्रधानमंत्री फसल बीमा योजना (PMFBY)",
+  "Pradhan Mantri Fasal Bima Yojana": "प्रधानमंत्री फसल बीमा योजना",
+  "Kisan Credit Card (KCC)": "किसान क्रेडिट कार्ड (KCC)",
+  "PM Krishi Sinchayee Yojana (Per Drop More Crop)": "प्रधानमंत्री कृषि सिंचाई योजना",
+  "PM Kisan Maandhan Yojana": "प्रधानमंत्री किसान मान-धन योजना",
+  "Pre-Matric Scholarship for Minorities": "अल्पसंख्यकों के लिए प्री-मैट्रिक छात्रवृत्ति",
+  "Post-Matric Scholarship for SC Students": "अनुसूचित जाति के छात्रों के लिए पोस्ट-मैट्रिक छात्रवृत्ति",
+  "National Means-cum-Merit Scholarship": "राष्ट्रीय मीन्स-कम-मेरिट छात्रवृत्ति",
+  "Central Sector Scheme of Scholarship for College Students": "कॉलेज छात्रों के लिए केंद्रीय छात्रवृत्ति योजना",
+  "Pragati Scholarship for Girl Students (Technical)": "बालिकाओं के लिए प्रगति छात्रवृत्ति (तकनीकी)",
+  "Pradhan Mantri Matru Vandana Yojana (PMMVY)": "प्रधानमंत्री मातृ वंदना योजना (PMMVY)",
+  "Sukanya Samriddhi Yojana": "सुकन्या समृद्धि योजना",
+  "Lakhpati Didi Scheme": "लखपति दीदी योजना",
+  "Mahila Coir Yojana": "महिला कॉयर योजना",
+  "Working Women Hostel Scheme": "कामकाजी महिला छात्रावास योजना",
+  "Indira Gandhi National Old Age Pension Scheme (IGNOAPS)": "इंदिरा गांधी राष्ट्रीय वृद्धावस्था पेंशन योजना",
+  "Pradhan Mantri Vaya Vandana Yojana": "प्रधानमंत्री वय वंदना योजना",
+  "Rashtriya Vayoshri Yojana": "राष्ट्रीय वयोश्री योजना",
+  "Varishtha Pension Bima Yojana": "वरिष्ठ पेंशन बीमा योजना",
+  "Senior Citizens Welfare Fund Support": "वरिष्ठ नागरिक कल्याण निधि सहायता",
+  "e-Shram Universal Card & Social Security": "ई-श्रम सार्वभौमिक कार्ड और सामाजिक सुरक्षा",
+  "Pradhan Mantri Shram Yogi Maandhan (PM-SYM)": "प्रधानमंत्री श्रम योगी मान-धन (PM-SYM)",
+  "Pradhan Mantri Suraksha Bima Yojana (PMSBY)": "प्रधानमंत्री सुरक्षा बीमा योजना (PMSBY)",
+  "Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)": "प्रधानमंत्री जीवन ज्योति बीमा योजना (PMJJBY)",
+  "Atal Pension Yojana (APY)": "अटल पेंशन योजना (APY)",
+  "PM SVANidhi (Micro-credit for Street Vendors)": "पीएम स्वनिधि (स्ट्रीट वेंडरों के लिए सूक्ष्म ऋण)",
+  "Pradhan Mantri Mudra Yojana (PMMY)": "प्रधानमंत्री मुद्रा योजना (PMMY)",
+  "Prime Minister Employment Generation Programme (PMEGP)": "प्रधानमंत्री रोजगार सृजन कार्यक्रम (PMEGP)",
+  "Stand-Up India Scheme": "स्टैंड-अप इंडिया योजना",
+  "Credit Guarantee Scheme for Micro and Small Enterprises": "सूक्ष्म और लघु उद्यमों के लिए क्रेडिट गारंटी योजना",
+
+  // Criteria strings
+  "Crop sowing verification needed for current season": "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है",
+  "Landholding size details needed": "ज़मीन के रकबे (हेक्टेयर) की जानकारी की आवश्यकता है",
+  "Annual family income verification needed": "पारिवारिक वार्षिक आय के सत्यापन की आवश्यकता है",
+  "Residence area (rural or urban) verification needed": "निवासी क्षेत्र (ग्रामीण या शहरी) की पुष्टि आवश्यक है",
+  "Target occupation/category matches": "लक्षित श्रेणी/पेशा मेल खाता है",
+  "Seasonal crop cultivation verified": "वर्तमान मौसम में फसल बुवाई सत्यापित",
+  "Direct land ownership record required": "सरकारी रिकॉर्ड में स्वयं की ज़मीन का मालिकाना हक आवश्यक है",
+  "Eligible as tenant/cultivator": "बटाईदार/श्रमिक के रूप में आवेदन योग्य",
+  "Resident of rural area": "ग्रामीण क्षेत्र के निवासी",
+  "Resident of urban area": "शहरी क्षेत्र के निवासी",
+  "Eligible female beneficiary": "महिला लाभार्थी पात्रता",
+
+  // Quick reply options for follow-ups
+  "Yes, cultivated seasonal crops": "हाँ, मौसमी फसल बोई है",
+  "No, land was fallow": "नहीं, खेत खाली रहा",
+  "Yes, I meet this condition": "हाँ, मैं यह शर्त पूरी करता/करती हूँ",
+  "No, does not apply": "नहीं, यह लागू नहीं होता",
+  "Rural area": "ग्रामीण क्षेत्र",
+  "Urban area": "शहरी क्षेत्र"
 };
 
 // Inverted map for Hindi to English
@@ -202,12 +256,65 @@ HI_TO_EN["पेशा"] = "Occupation";
 export function translateText(text, targetLang) {
   if (!text || typeof text !== 'string') return text;
   const trimmed = text.trim();
+
   if (targetLang === 'hi') {
     if (EN_TO_HI[trimmed]) return EN_TO_HI[trimmed];
-    return EN_TO_HI[text] || text;
+    if (EN_TO_HI[text]) return EN_TO_HI[text];
+
+    // Dynamic pattern: "For <Scheme>: Did you sow crops in the current agricultural season?"
+    const cropMatch = text.match(/^For (.+?): Did you sow crops in the current agricultural season\??$/i);
+    if (cropMatch) {
+      const schemeName = cropMatch[1].trim();
+      const hiScheme = EN_TO_HI[schemeName] || schemeName;
+      return `${hiScheme} के लिए: क्या आपने वर्तमान कृषि मौसम में फसल की बुवाई की है?`;
+    }
+
+    // Dynamic pattern: "For <Scheme>: How much agricultural land do you own or cultivate?"
+    const landMatch = text.match(/^For (.+?): How much agricultural land do you own or cultivate\??$/i);
+    if (landMatch) {
+      const schemeName = landMatch[1].trim();
+      const hiScheme = EN_TO_HI[schemeName] || schemeName;
+      return `${hiScheme} के लिए: आपके पास कितनी खेती की ज़मीन है?`;
+    }
+
+    // Dynamic pattern: "For <Scheme>: What is your approximate household annual income?"
+    const incMatch = text.match(/^For (.+?): What is your approximate household annual income\??$/i);
+    if (incMatch) {
+      const schemeName = incMatch[1].trim();
+      const hiScheme = EN_TO_HI[schemeName] || schemeName;
+      return `${hiScheme} के लिए: आपके परिवार की कुल अनुमानित वार्षिक आय कितनी है?`;
+    }
+
+    // Dynamic pattern: "This question is needed to verify your eligibility for <Scheme>."
+    const whyMatch = text.match(/^This question is needed to verify your eligibility for (.+?)\.?$/i);
+    if (whyMatch) {
+      const schemeName = whyMatch[1].trim();
+      const hiScheme = EN_TO_HI[schemeName] || schemeName;
+      return `यह प्रश्न ${hiScheme} के लिए आपकी पात्रता की पुष्टि करने हेतु आवश्यक है।`;
+    }
+
+    return text;
   }
+
+  // targetLang === 'en'
   if (HI_TO_EN[trimmed]) return HI_TO_EN[trimmed];
-  return HI_TO_EN[text] || text;
+  if (HI_TO_EN[text]) return HI_TO_EN[text];
+
+  const cropMatchHi = text.match(/^(.+?) के लिए: क्या आपने वर्तमान कृषि मौसम में फसल की बुवाई की है\??$/);
+  if (cropMatchHi) {
+    const schemeHi = cropMatchHi[1].trim();
+    const enScheme = HI_TO_EN[schemeHi] || schemeHi;
+    return `For ${enScheme}: Did you sow crops in the current agricultural season?`;
+  }
+
+  const whyMatchHi = text.match(/^यह प्रश्न (.+?) के लिए आपकी पात्रता की पुष्टि करने हेतु आवश्यक है।?$/);
+  if (whyMatchHi) {
+    const schemeHi = whyMatchHi[1].trim();
+    const enScheme = HI_TO_EN[schemeHi] || schemeHi;
+    return `This question is needed to verify your eligibility for ${enScheme}.`;
+  }
+
+  return text;
 }
 
 export function translateProfile(profile, targetLang) {
@@ -223,10 +330,11 @@ export function translateProfile(profile, targetLang) {
 
 export function translateResults(results, targetLang) {
   if (!Array.isArray(results)) return results;
+  const isHi = targetLang === 'hi';
   return results.map(r => ({
     ...r,
-    name: translateText(r.name, targetLang),
-    summary: translateText(r.summary, targetLang),
+    name: isHi ? (r.name_hi || translateText(r.name, 'hi')) : (r.name_en || translateText(r.name, 'en')),
+    summary: isHi ? (r.summary_hi || translateText(r.summary, 'hi')) : (r.summary_en || translateText(r.summary, 'en')),
     passed: (r.passed || []).map(p => translateText(p, targetLang)),
     missing: (r.missing || []).map(m => translateText(m, targetLang)),
     failed: (r.failed || []).map(f => translateText(f, targetLang))
