@@ -113,6 +113,7 @@ class EligibilityEngine:
                 persona_matched = True
 
             # Universal social security schemes available to workers & general citizens
+<<<<<<< HEAD
             # CRITICAL SAFEGUARD: Do not match universal schemes if citizen profile is completely blank
             has_any_profile = bool(
                 attrs["is_worker"] or attrs["is_farmer"] or attrs["is_student"] or 
@@ -122,6 +123,9 @@ class EligibilityEngine:
             )
 
             is_universal = (cat_code == "workers" and scheme_code in ["pmsby", "pmjjby", "apy"] and has_any_profile)
+=======
+            is_universal = (cat_code == "workers" and scheme_code in ["pmsby", "pmjjby", "apy"])
+>>>>>>> origin/master
 
             if not persona_matched and not is_universal:
                 continue

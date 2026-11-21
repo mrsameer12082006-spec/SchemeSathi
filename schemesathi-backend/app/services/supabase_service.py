@@ -1,6 +1,9 @@
 import httpx
+<<<<<<< HEAD
 import json
 from pathlib import Path
+=======
+>>>>>>> origin/master
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Dict, Any
 from threading import Lock
@@ -29,11 +32,16 @@ class SupabaseService:
     async def _postgrest_get(self, endpoint: str) -> List[Dict[str, Any]]:
         clean_endpoint = endpoint.lstrip("/")
         url = f"{self.settings.SUPABASE_URL.rstrip('/')}/rest/v1/{clean_endpoint}"
+<<<<<<< HEAD
         async with httpx.AsyncClient(timeout=5.0) as client:
+=======
+        async with httpx.AsyncClient(timeout=10.0) as client:
+>>>>>>> origin/master
             res = await client.get(url, headers=self._get_headers())
             res.raise_for_status()
             return res.json()
 
+<<<<<<< HEAD
     def _load_local_fallback_schemes(self) -> List[Dict[str, Any]]:
         """
         Loads the top 40 schemes directly from local data/top_40_schemes.json.
@@ -83,6 +91,11 @@ class SupabaseService:
             logger.warning(f"Supabase get_all_schemes connection error ({e}). Using local fallback.")
             data = self._load_local_fallback_schemes()
 
+=======
+    async def get_all_schemes(self, language: str = "en") -> List[SchemeSummary]:
+        query = "schemes?select=id,code,name_en,name_hi,summary_en,summary_hi,nodal_ministry,is_active,categories(id,code,name_en,name_hi)&is_active=eq.true&order=created_at.asc"
+        data = await self._postgrest_get(query)
+>>>>>>> origin/master
         is_hi = language == "hi"
 
         summaries = []
@@ -163,7 +176,10 @@ class SupabaseService:
         """
         Fetches all active schemes with their criteria, documents, and steps for the Eligibility Engine.
         Uses cached data if within TTL for ultra-fast evaluations.
+<<<<<<< HEAD
         Falls back seamlessly to local top_40_schemes.json if Supabase is unreachable or times out.
+=======
+>>>>>>> origin/master
         """
         now = datetime.now(timezone.utc)
         with self._cache_lock:
@@ -172,6 +188,7 @@ class SupabaseService:
 
         logger.info("Refreshing schemes & criteria catalog from Supabase...")
         query = "schemes?select=*,categories(*),scheme_eligibility_criteria(*),scheme_documents(*),scheme_steps(*)&is_active=eq.true"
+<<<<<<< HEAD
         try:
             data = await self._postgrest_get(query)
             if not data:
@@ -179,6 +196,9 @@ class SupabaseService:
         except Exception as e:
             logger.warning(f"Supabase connection/timeout error: {e}. Falling back to local schemes catalog.")
             data = self._load_local_fallback_schemes()
+=======
+        data = await self._postgrest_get(query)
+>>>>>>> origin/master
 
         cache_ttl = self.settings.SCHEME_CACHE_TTL_MINUTES
         with self._cache_lock:

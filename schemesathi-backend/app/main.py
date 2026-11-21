@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 import asyncio
 import logging
@@ -12,6 +13,18 @@ from app.routers.session import router as session_router
 from app.routers.schemes import router as schemes_router
 from app.routers.eligibility import router as eligibility_router
 from app.routers.ai_chat import router as ai_chat_router
+=======
+import asyncio
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.config import get_settings
+from app.routers.session import router as session_router
+from app.routers.schemes import router as schemes_router
+from app.routers.eligibility import router as eligibility_router
+>>>>>>> origin/master
 from app.services.session_store import session_store
 from app.services.supabase_service import supabase_service
 
@@ -62,6 +75,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+<<<<<<< HEAD
 # ─── Layer 2: Application-Level Rate Limiter (SlowAPI) ──────────────────────
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, custom_rate_limit_exceeded_handler)
@@ -87,6 +101,12 @@ else:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+=======
+# Enable CORS for frontend applications & Voice LLM Agent
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+>>>>>>> origin/master
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -96,7 +116,10 @@ app.add_middleware(
 app.include_router(session_router)
 app.include_router(schemes_router)
 app.include_router(eligibility_router)
+<<<<<<< HEAD
 app.include_router(ai_chat_router)
+=======
+>>>>>>> origin/master
 
 @app.get("/", tags=["Health"])
 @app.get("/health", tags=["Health"])

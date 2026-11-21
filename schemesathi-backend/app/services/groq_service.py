@@ -432,7 +432,7 @@ class GroqService:
                     "   - * **फायदा:** Bold the key monetary benefit (e.g., '**₹6,000 सालाना**' or '**₹5 लाख का मुफ़्त इलाज**').\n"
                     "   - * **ध्यान रखें:** Mention that applications are 100% **फ्री** (निःशुल्क), किसी दलाल को पैसे न दें।\n"
                     "4. THE END (FRIENDLY QUESTION): Always end with ONE short, friendly follow-up question.\n"
-                    "5. LANGUAGE RULE: Reply in the user's exact language (Hindi -> Hindi, Hinglish -> Hinglish, English -> English).\n"
+                    "5. DEVANAGARI SCRIPT REQUIREMENT FOR HINDI: If the user query is in Hindi or Hinglish, you MUST reply in pure, clean Devanagari Hindi (e.g., 'नमस्ते! आपके लिए यह योजना सबसे उपयुक्त है।'). NEVER write Hindi phonetically in English Roman letters (e.g., 'aap eligible hain'), as this makes the neural Text-to-Speech voice engine sound robotic. If English, reply in English.\n"
                     "6. ZERO HALLUCINATION: Never invent fake schemes (like 'Scheme A' or 'Scheme B').\n"
                     "7. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response. Complete every sentence clearly."
                 )
@@ -454,8 +454,7 @@ class GroqService:
                             messages.append({"role": role, "content": content})
                 messages.append({"role": "user", "content": user_prompt})
 
-                response = self._client.chat.completions.create(
-                    model=self.model,
+                response = self._create_chat_completion(
                     messages=messages,
                     temperature=0.4,
                     max_tokens=220
@@ -519,7 +518,7 @@ class GroqService:
                     "5. SPECIFICITY & EMPATHY:\n"
                     "   - If talking about OBC scholarship: explicitly state 'चूंकि यह योजना अन्य पिछड़ा वर्ग (OBC) के छात्रों के लिए है...'.\n"
                     "   - If user is a farmer asking about education: 'चूंकि आप किसान हैं, यह स्कॉलरशिप आपके बच्चों के लिए है! 🎓'.\n"
-                    "6. LANGUAGE & SCRIPT CODE-MIXING: Reply in the user's exact language. For Hindi/Hinglish, write Hindi words in clean Devanagari script, but keep well-known English technical words and scheme names in Roman script (e.g. 'PM-KISAN', 'scholarship', 'form', 'college', 'OBC', 'percentage', 'free') so Indian neural voice TTS reads them cleanly.\n"
+                    "6. DEVANAGARI SCRIPT RULE FOR HINDI: If the user speaks Hindi or Hinglish, always write Hindi words in clean, natural Devanagari script (e.g. 'नमस्ते! आपके लिए यह योजना सबसे उपयुक्त है।'). NEVER write Hindi phonetically in English Roman letters (e.g. 'aapke paas', 'kisan bhai'), as this causes the neural text-to-speech engine to sound robotic. Keep only well-known scheme acronyms (e.g. 'PM-KISAN', 'scholarship', 'college', 'OBC', 'free') in English.\n"
                     "7. ZERO HALLUCINATION: Never invent fake schemes (like 'Scheme A' or 'Scheme B').\n"
                     "8. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response. Complete every sentence clearly."
                 )
@@ -540,8 +539,7 @@ class GroqService:
                             messages.append({"role": role, "content": content})
                 messages.append({"role": "user", "content": user_prompt})
 
-                response = self._client.chat.completions.create(
-                    model=self.model,
+                response = self._create_chat_completion(
                     messages=messages,
                     temperature=0.3,
                     max_tokens=220
