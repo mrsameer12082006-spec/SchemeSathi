@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import useRoute from './hooks/useRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -37,6 +37,9 @@ export function App() {
 
   // Stack of previous states for "Go back" support
   const [historyStack, setHistoryStack] = useState([]);
+
+  // Concurrency guard to prevent rapid duplicate message submissions
+  const isSendingRef = useRef(false);
 
   // Live language switcher that translates in-memory conversation, profile chips, and mock session
   const handleLanguageChange = useCallback((newLang) => {
@@ -80,10 +83,18 @@ export function App() {
         ...snapshot,
         messages: snapshot.messages.map(msg => ({
           ...msg,
-          text: translateText(msg.text, newLang),
-          why: msg.why ? translateText(msg.why, newLang) : msg.why,
+          text: newLang === 'hi'
+            ? (msg.text_hi || translateText(msg.text, 'hi'))
+            : (msg.text_en || translateText(msg.text, 'en')),
+          why: msg.why
+            ? (newLang === 'hi'
+                ? (msg.why_hi || translateText(msg.why, 'hi'))
+                : (msg.why_en || translateText(msg.why, 'en')))
+            : msg.why,
           quick_replies: Array.isArray(msg.quick_replies)
-            ? msg.quick_replies.map(qr => translateText(qr, newLang))
+            ? (newLang === 'hi'
+                ? (msg.quick_replies_hi || msg.quick_replies.map(qr => translateText(qr, 'hi')))
+                : (msg.quick_replies_en || msg.quick_replies.map(qr => translateText(qr, 'en'))))
             : msg.quick_replies
         })),
         profile: translateProfile(snapshot.profile, newLang)
@@ -100,6 +111,9 @@ export function App() {
 
   // Start chat from Home page
   const handleStartChat = useCallback(async (initialText, { initialChip } = {}) => {
+    const cleanText = (initialText || '').trim();
+    if (!cleanText || loading || isSendingRef.current) return;
+    isSendingRef.current = true;
     setLoading(true);
     setError(null);
 
@@ -107,7 +121,9 @@ export function App() {
     const userMsg = {
       id: 'msg_' + Date.now(),
       sender: 'user',
-      text: initialText
+      text: cleanText,
+      text_en: lang === 'en' ? initialText : translateText(initialText, 'en'),
+      text_hi: lang === 'hi' ? initialText : translateText(initialText, 'hi')
     };
 
     const initialProfile = initialChip
@@ -139,9 +155,15 @@ export function App() {
         id: 'msg_bot_' + Date.now(),
         sender: 'bot',
         text: response.reply,
+        text_en: response.reply_en || (lang === 'en' ? response.reply : translateText(response.reply, 'en')),
+        text_hi: response.reply_hi || (lang === 'hi' ? response.reply : translateText(response.reply, 'hi')),
         why: response.why,
+        why_en: response.why_en || (response.why ? (lang === 'en' ? response.why : translateText(response.why, 'en')) : ''),
+        why_hi: response.why_hi || (response.why ? (lang === 'hi' ? response.why : translateText(response.why, 'hi')) : ''),
         audio_base64: response.audio_base64 || null,
         quick_replies: response.quick_replies || [],
+        quick_replies_en: response.quick_replies_en,
+        quick_replies_hi: response.quick_replies_hi,
         show_results: response.show_results ?? (Array.isArray(response.results) && response.results.length > 0),
         results_url: response.results_url || '/results'
       };
@@ -163,12 +185,15 @@ export function App() {
       setError(lang === 'hi' ? "संपर्क नहीं हो सका। पुनः प्रयास करें।" : "Could not connect to the assistant. Please retry.");
     } finally {
       setLoading(false);
+      isSendingRef.current = false;
     }
   }, [lang, navigate]);
 
   // Send subsequent message in Chat
   const handleSendMessage = useCallback(async (text) => {
-    if (!text.trim() || loading) return;
+    const cleanText = (text || '').trim();
+    if (!cleanText || loading || isSendingRef.current) return;
+    isSendingRef.current = true;
 
     // Save snapshot of current state to stack for "Go back"
     setHistoryStack(prev => [
@@ -183,7 +208,9 @@ export function App() {
     const userMsg = {
       id: 'msg_' + Date.now(),
       sender: 'user',
-      text
+      text,
+      text_en: lang === 'en' ? text : translateText(text, 'en'),
+      text_hi: lang === 'hi' ? text : translateText(text, 'hi')
     };
 
     setMessages(prev => [...prev, userMsg]);
@@ -204,9 +231,15 @@ export function App() {
         id: 'msg_bot_' + Date.now(),
         sender: 'bot',
         text: response.reply,
+        text_en: response.reply_en || (lang === 'en' ? response.reply : translateText(response.reply, 'en')),
+        text_hi: response.reply_hi || (lang === 'hi' ? response.reply : translateText(response.reply, 'hi')),
         why: response.why,
+        why_en: response.why_en || (response.why ? (lang === 'en' ? response.why : translateText(response.why, 'en')) : ''),
+        why_hi: response.why_hi || (response.why ? (lang === 'hi' ? response.why : translateText(response.why, 'hi')) : ''),
         audio_base64: response.audio_base64 || null,
         quick_replies: response.quick_replies || [],
+        quick_replies_en: response.quick_replies_en,
+        quick_replies_hi: response.quick_replies_hi,
         show_results: response.show_results ?? (Array.isArray(response.results) && response.results.length > 0),
         results_url: response.results_url || '/results'
       };
@@ -229,6 +262,7 @@ export function App() {
       setError(lang === 'hi' ? "जवाब भेजने में त्रुटि हुई। कृपया पुनः प्रयास करें।" : "Error sending message. Please try again.");
     } finally {
       setLoading(false);
+      isSendingRef.current = false;
     }
   }, [loading, messages, profile, progress, sessionId, lang, navigate]);
 

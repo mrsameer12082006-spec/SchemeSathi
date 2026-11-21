@@ -2,6 +2,8 @@
 // Communicates with Supabase using native fetch (zero extra dependencies).
 // Completely stateless: no cookies, no localStorage, no persistent user tokens.
 
+import { translateText, translateStep, formatDisplayDate } from '../i18n';
+
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || '').trim().replace(/\/$/, '');
 const SUPABASE_KEY = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
@@ -54,13 +56,17 @@ export async function fetchSchemesFromSupabase(language = 'en') {
 
   return data.map(s => {
     const cat = s.categories || {};
+    const rawName = (isHi && s.name_hi) ? s.name_hi : s.name_en;
+    const rawSummary = (isHi && s.summary_hi) ? s.summary_hi : s.summary_en;
+    const rawCategory = (isHi && cat.name_hi) ? cat.name_hi : (cat.name_en || 'General');
+
     return {
       id: s.code, // Use code as slug for URLs (/scheme/pm-kisan)
       db_id: s.id,
       code: s.code,
-      name: (isHi && s.name_hi) ? s.name_hi : s.name_en,
-      summary: (isHi && s.summary_hi) ? s.summary_hi : s.summary_en,
-      category: (isHi && cat.name_hi) ? cat.name_hi : (cat.name_en || 'General'),
+      name: translateText(rawName, isHi ? 'hi' : 'en'),
+      summary: translateText(rawSummary, isHi ? 'hi' : 'en'),
+      category: translateText(rawCategory, isHi ? 'hi' : 'en'),
       category_code: cat.code || '',
       nodal_ministry: s.nodal_ministry || '',
       demo: false
@@ -94,40 +100,49 @@ export async function fetchSchemeByIdFromSupabase(idOrCode, language = 'en') {
   const documents = (s.scheme_documents || [])
     .slice()
     .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
-    .map(doc => (isHi && doc.document_name_hi) ? doc.document_name_hi : doc.document_name_en);
+    .map(doc => {
+      const rawDocName = (isHi && doc.document_name_hi) ? doc.document_name_hi : doc.document_name_en;
+      return translateText(rawDocName, isHi ? 'hi' : 'en');
+    });
 
   // Sort steps by step_number
   const steps = (s.scheme_steps || [])
     .slice()
     .sort((a, b) => (a.step_number || 0) - (b.step_number || 0))
     .map(st => {
-      const title = (isHi && st.title_hi) ? st.title_hi : st.title_en;
-      const desc = (isHi && st.description_hi) ? st.description_hi : st.description_en;
-      if (title && desc && title !== desc) {
-        return `${title}: ${desc}`;
+      let title = (isHi && st.title_hi) ? st.title_hi : st.title_en;
+      let desc = (isHi && st.description_hi) ? st.description_hi : st.description_en;
+      if (isHi) {
+        title = translateText(title, 'hi');
+        desc = translateText(desc, 'hi');
+      } else {
+        title = translateText(title, 'en');
+        desc = translateText(desc, 'en');
       }
-      return desc || title || '';
+      let combined = '';
+      if (title && desc && title !== desc) {
+        combined = `${title}: ${desc}`;
+      } else {
+        combined = desc || title || '';
+      }
+      return translateStep(combined, isHi ? 'hi' : 'en');
     });
 
   const lastVerifiedDate = s.updated_at || s.created_at;
   const formattedDate = lastVerifiedDate
-    ? new Date(lastVerifiedDate).toLocaleDateString(isHi ? 'hi-IN' : 'en-IN', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      })
+    ? formatDisplayDate(lastVerifiedDate, isHi ? 'hi' : 'en')
     : null;
 
   return {
     id: s.code,
     db_id: s.id,
     code: s.code,
-    name: (isHi && s.name_hi) ? s.name_hi : s.name_en,
-    summary: (isHi && s.summary_hi) ? s.summary_hi : s.summary_en,
-    category: (isHi && cat.name_hi) ? cat.name_hi : (cat.name_en || 'General'),
+    name: translateText((isHi && s.name_hi) ? s.name_hi : s.name_en, isHi ? 'hi' : 'en'),
+    summary: translateText((isHi && s.summary_hi) ? s.summary_hi : s.summary_en, isHi ? 'hi' : 'en'),
+    category: translateText((isHi && cat.name_hi) ? cat.name_hi : (cat.name_en || 'General'), isHi ? 'hi' : 'en'),
     category_code: cat.code || '',
     nodal_ministry: s.nodal_ministry || '',
-    benefits: (isHi && s.benefits_hi) ? s.benefits_hi : s.benefits_en,
+    benefits: translateText((isHi && s.benefits_hi) ? s.benefits_hi : s.benefits_en, isHi ? 'hi' : 'en'),
     official_url: s.official_url || '',
     documents,
     steps,
@@ -181,9 +196,12 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
   for (const item of schemesData) {
     const criteria = item.scheme_eligibility_criteria;
     const catCode = item.categories?.code || '';
-    const passed = [];
-    const failed = [];
-    const missing = [];
+    const passed_en = [];
+    const passed_hi = [];
+    const failed_en = [];
+    const failed_hi = [];
+    const missing_en = [];
+    const missing_hi = [];
 
     // 1. Occupation / Category Affinity check
     let personaMatch = false;
@@ -203,7 +221,8 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
     }
 
     if (personaMatch) {
-      passed.push(isHi ? "लक्षित श्रेणी/पेशा मेल खाता है" : "Target occupation/category matches");
+      passed_en.push("Target occupation/category matches");
+      passed_hi.push("लक्षित श्रेणी/पेशा मेल खाता है");
     }
 
     // 2. Specific criteria evaluations if criteria row exists
@@ -213,24 +232,31 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
         const maxLand = Number(criteria.max_landholding_hectares);
         if (landUpTo2) {
           if (2 <= maxLand) {
-            passed.push(isHi ? `खेती भूमि ${maxLand} हेक्टेयर की सीमा में है` : `Agricultural land within ${maxLand} hectare limit`);
+            passed_en.push(`Agricultural land within ${maxLand} hectare limit`);
+            passed_hi.push(`खेती योग्य भूमि ${maxLand} हेक्टेयर सीमा के भीतर है`);
           } else {
-            failed.push(isHi ? `भूमि ${maxLand} हेक्टेयर सीमा से अधिक है` : `Landholding exceeds ${maxLand} hectare limit`);
+            failed_en.push(`Landholding exceeds ${maxLand} hectare limit`);
+            failed_hi.push(`भूमि ${maxLand} हेक्टेयर सीमा से अधिक है`);
           }
         } else if (landMoreThan2) {
           if (maxLand >= 5) {
-            passed.push(isHi ? `भूमि सीमा नियम के अनुकूल है` : `Landholding fits scheme limit`);
+            passed_en.push(`Landholding fits scheme limit`);
+            passed_hi.push(`भूमि सीमा नियम के अनुकूल है`);
           } else {
-            failed.push(isHi ? `योजना केवल ${maxLand} हेक्टेयर तक के छोटे किसानों के लिए है` : `Scheme requires land up to ${maxLand} hectares`);
+            failed_en.push(`Scheme requires land up to ${maxLand} hectares`);
+            failed_hi.push(`योजना केवल ${maxLand} हेक्टेयर तक के छोटे किसानों के लिए है`);
           }
         } else if (landlessOrTenant) {
           if (item.code === 'pm-kisan') {
-            failed.push(isHi ? "सरकारी रिकॉर्ड में स्वयं की ज़मीन का मालिकाना हक आवश्यक है" : "Direct land ownership record required");
+            failed_en.push("Direct land ownership record required");
+            failed_hi.push("सरकारी रिकॉर्ड में स्वयं की ज़मीन का मालिकाना हक आवश्यक है");
           } else {
-            passed.push(isHi ? "बटाईदार/श्रमिक के रूप में आवेदन योग्य" : "Eligible as tenant/cultivator");
+            passed_en.push("Eligible as tenant/cultivator");
+            passed_hi.push("बटाईदार/काश्तकार के रूप में आवेदन योग्य");
           }
         } else if (catCode === 'farmers') {
-          missing.push(isHi ? "ज़मीन के रकबे (हेक्टेयर) की जानकारी की आवश्यकता है" : "Landholding size details needed");
+          missing_en.push("Landholding size details needed");
+          missing_hi.push("ज़मीन के रकबे (हेक्टेयर) की जानकारी की आवश्यकता है");
         }
       }
 
@@ -238,17 +264,22 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
       if (criteria.max_annual_income != null) {
         const maxIncome = Number(criteria.max_annual_income);
         if (incomeBelow1Lakh) {
-          passed.push(isHi ? `वार्षिक आय ₹${maxIncome.toLocaleString('en-IN')} की सीमा में है` : `Household annual income within ₹${maxIncome.toLocaleString('en-IN')} ceiling`);
+          passed_en.push(`Household annual income within ₹${maxIncome.toLocaleString('en-IN')} limit`);
+          passed_hi.push(`वार्षिक पारिवारिक आय ₹${maxIncome.toLocaleString('en-IN')} की सीमा के भीतर है`);
         } else if (income1to25Lakh) {
           if (maxIncome >= 250000) {
-            passed.push(isHi ? `आय सीमा पात्रता के अंतर्गत है` : `Annual income meets scheme eligibility`);
+            passed_en.push(`Annual income meets scheme eligibility`);
+            passed_hi.push(`वार्षिक पारिवारिक आय ₹${maxIncome.toLocaleString('en-IN')} की सीमा के भीतर है`);
           } else {
-            failed.push(isHi ? `वार्षिक आय ₹${maxIncome.toLocaleString('en-IN')} से कम होनी चाहिए` : `Annual income must be below ₹${maxIncome.toLocaleString('en-IN')}`);
+            failed_en.push(`Annual income must be below ₹${maxIncome.toLocaleString('en-IN')}`);
+            failed_hi.push(`वार्षिक आय ₹${maxIncome.toLocaleString('en-IN')} से कम होनी चाहिए`);
           }
         } else if (incomeAbove25Lakh) {
-          failed.push(isHi ? `वार्षिक आय ₹${maxIncome.toLocaleString('en-IN')} की पात्रता सीमा से अधिक है` : `Annual income exceeds ₹${maxIncome.toLocaleString('en-IN')} limit`);
+          failed_en.push(`Annual income exceeds ₹${maxIncome.toLocaleString('en-IN')} limit`);
+          failed_hi.push(`वार्षिक पारिवारिक आय ₹${maxIncome.toLocaleString('en-IN')} की पात्रता सीमा से अधिक है`);
         } else {
-          missing.push(isHi ? "पारिवारिक वार्षिक आय के सत्यापन की आवश्यकता है" : "Annual family income verification needed");
+          missing_en.push("Household annual income verification needed");
+          missing_hi.push("पारिवारिक वार्षिक आय के सत्यापन की आवश्यकता है");
         }
       }
 
@@ -257,13 +288,17 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
       if (allowedAreas.length === 1) {
         const reqArea = allowedAreas[0];
         if (reqArea === 'Rural' && isRural) {
-          passed.push(isHi ? "ग्रामीण क्षेत्र के निवासी" : "Resident of rural area");
+          passed_en.push("Resident of rural area");
+          passed_hi.push("ग्रामीण क्षेत्र के निवासी");
         } else if (reqArea === 'Rural' && isUrban) {
-          failed.push(isHi ? "यह योजना केवल ग्रामीण क्षेत्रों के लिए है" : "Scheme is restricted to rural areas only");
+          failed_en.push("Restricted to rural areas only");
+          failed_hi.push("यह योजना केवल ग्रामीण क्षेत्रों के लिए है");
         } else if (reqArea === 'Urban' && isUrban) {
-          passed.push(isHi ? "शहरी क्षेत्र के निवासी" : "Resident of urban area");
+          passed_en.push("Resident of urban area");
+          passed_hi.push("शहरी क्षेत्र के निवासी");
         } else if (reqArea === 'Urban' && isRural) {
-          failed.push(isHi ? "यह योजना केवल शहरी क्षेत्रों के लिए है" : "Scheme is restricted to urban areas only");
+          failed_en.push("Restricted to urban areas only");
+          failed_hi.push("यह योजना केवल शहरी क्षेत्रों के लिए है");
         }
       }
 
@@ -271,7 +306,8 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
       const allowedGenders = Array.isArray(criteria.allowed_genders) ? criteria.allowed_genders : [];
       if (allowedGenders.length === 1 && allowedGenders[0] === 'Female') {
         if (isWoman) {
-          passed.push(isHi ? "महिला लाभार्थी पात्रता" : "Eligible female beneficiary");
+          passed_en.push("Eligible female beneficiary");
+          passed_hi.push("महिला लाभार्थी पात्रता");
         }
       }
 
@@ -280,14 +316,21 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
         const cropSown = profileString.includes('sown') || profileString.includes('बोई') || profileString.includes('cultivated') || profileString.includes('मौसमी फसल');
         const landFallow = profileString.includes('fallow') || profileString.includes('खाली');
         if (cropSown) {
-          passed.push(isHi ? "वर्तमान मौसम में फसल बुवाई सत्यापित" : "Seasonal crop cultivation verified");
+          passed_en.push("Seasonal crop cultivation verified");
+          passed_hi.push("वर्तमान मौसम में फसल बुवाई सत्यापित");
         } else if (landFallow) {
-          failed.push(isHi ? "फसल बीमा केवल बुवाई की गई भूमि के लिए लागू होता है" : "Crop insurance applies only to cultivated land");
+          failed_en.push("Crop insurance applies only to cultivated land");
+          failed_hi.push("फसल बीमा केवल बुवाई की गई भूमि के लिए लागू होता है");
         } else {
-          missing.push(isHi ? "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है" : "Crop sowing verification needed for current season");
+          missing_en.push("Crop sowing verification needed for current season");
+          missing_hi.push("वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है");
         }
       }
     }
+
+    const passed = isHi ? passed_hi : passed_en;
+    const failed = isHi ? failed_hi : failed_en;
+    const missing = isHi ? missing_hi : missing_en;
 
     // Determine status
     let status = 'potentially_eligible';
@@ -307,10 +350,19 @@ export function evaluateEligibilityAgainstCriteria(profile = {}, schemesData = [
       summary: (isHi && item.summary_hi) ? item.summary_hi : item.summary_en,
       summary_en: item.summary_en,
       summary_hi: item.summary_hi,
+      benefits: (isHi && item.benefits_hi) ? item.benefits_hi : item.benefits_en,
+      benefits_en: item.benefits_en,
+      benefits_hi: item.benefits_hi,
       status,
       passed,
+      passed_en,
+      passed_hi,
       failed,
-      missing
+      failed_en,
+      failed_hi,
+      missing,
+      missing_en,
+      missing_hi
     });
   }
 

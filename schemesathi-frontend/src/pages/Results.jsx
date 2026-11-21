@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import ResultCard from '../components/ResultCard';
 import Chips from '../components/Chips';
-import { coreStrings } from '../i18n';
+import { coreStrings, translateText } from '../i18n';
 import { extraStrings } from '../i18n.extra';
 
 export function Results({
@@ -59,7 +59,7 @@ export function Results({
   }
 
   // Profile chips
-  const profileChips = Object.entries(profile).map(([, val]) => `${val}`);
+  const profileChips = Object.entries(profile).map(([, val]) => translateText(String(val), lang));
 
   return (
     <motion.div

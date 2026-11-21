@@ -70,8 +70,10 @@ export function Home({
       stopListening();
     } else {
       startListening((transcript) => {
-        setInputText(prev => (prev ? `${prev} ${transcript}` : transcript));
-        setInputError('');
+        if (transcript) {
+          setInputText(transcript.trim());
+          setInputError('');
+        }
       });
     }
   };

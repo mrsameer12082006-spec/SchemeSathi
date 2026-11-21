@@ -122,23 +122,44 @@ class SupabaseService:
             for doc in raw_docs
         ]
 
+        STEP_TRANSLATIONS_HI = {
+            "NSP Online Registration": "एनएसपी ऑनलाइन पंजीकरण",
+            "Submit application under Department of Higher Education on NSP.": "नेशनल स्कॉलरशिप पोर्टल (NSP) पर उच्च शिक्षा विभाग के तहत आवेदन जमा करें।",
+            "Direct PFMS Disbursement": "सीधे पीएफएमएस (PFMS) द्वारा बैंक खाते में भुगतान",
+            "Sanctioned funds transferred directly to Aadhaar-seeded bank account.": "स्वीकृत छात्रवृत्ति राशि सीधे आपके आधार से जुड़े बैंक खाते में अंतरित की जाती है।",
+            "Apply on NSP": "एनएसपी पर ऑनलाइन आवेदन",
+            "Submit application under Central Sector Scheme on scholarships.gov.in.": "scholarships.gov.in पर सेंट्रल सेक्टर स्कीम में आवेदन करें।",
+            "College & State Board Verification": "कॉलेज व बोर्ड सत्यापन",
+            "College verifies enrollment and 12th board verifies percentile ranking.": "कॉलेज और राज्य शिक्षा बोर्ड द्वारा अंकों की पुष्टि की जाती है।",
+        }
+
         # Sort steps by step_number
         raw_steps = sorted(s.get("scheme_steps") or [], key=lambda st: st.get("step_number", 0))
         steps = []
         for st in raw_steps:
             title = st.get("title_hi") if is_hi and st.get("title_hi") else st.get("title_en", "")
             desc = st.get("description_hi") if is_hi and st.get("description_hi") else st.get("description_en", "")
+            if is_hi:
+                title = STEP_TRANSLATIONS_HI.get(title, title)
+                desc = STEP_TRANSLATIONS_HI.get(desc, desc)
             if title and desc and title != desc:
                 steps.append(f"{title}: {desc}")
             else:
                 steps.append(desc or title or "")
 
+        HINDI_MONTHS = [
+            "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून",
+            "जुलाई", "अगस्त", "सितम्बर", "अक्टूबर", "नवम्बर", "दिसम्बर"
+        ]
         last_verified_str = s.get("updated_at") or s.get("created_at")
         last_verified = None
         if last_verified_str:
             try:
                 dt = datetime.fromisoformat(last_verified_str.replace("Z", "+00:00"))
-                last_verified = dt.strftime("%d %b %Y")
+                if is_hi:
+                    last_verified = f"{dt.day} {HINDI_MONTHS[dt.month - 1]} {dt.year}"
+                else:
+                    last_verified = dt.strftime("%d %b %Y")
             except Exception:
                 last_verified = last_verified_str[:10]
 

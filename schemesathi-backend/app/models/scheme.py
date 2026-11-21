@@ -74,6 +74,21 @@ class EvaluationResult(BaseModel):
     official_url: Optional[str] = None
     documents: Optional[List[str]] = None
     steps: Optional[List[str]] = None
+    # Bilingual fields for instant zero-loss language switching
+    name_en: Optional[str] = None
+    name_hi: Optional[str] = None
+    summary_en: Optional[str] = None
+    summary_hi: Optional[str] = None
+    category_en: Optional[str] = None
+    category_hi: Optional[str] = None
+    benefits_en: Optional[str] = None
+    benefits_hi: Optional[str] = None
+    passed_en: List[str] = Field(default_factory=list)
+    passed_hi: List[str] = Field(default_factory=list)
+    missing_en: List[str] = Field(default_factory=list)
+    missing_hi: List[str] = Field(default_factory=list)
+    failed_en: List[str] = Field(default_factory=list)
+    failed_hi: List[str] = Field(default_factory=list)
 
 class EvaluationResponse(BaseModel):
     session_id: Optional[str] = None

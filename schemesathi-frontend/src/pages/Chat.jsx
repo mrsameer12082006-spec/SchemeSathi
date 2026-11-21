@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Mic, Volume2, Square, ArrowRight, ArrowLeft } from 'lucide-react';
 import Chips from '../components/Chips';
-import { coreStrings } from '../i18n';
+import { coreStrings, translateText } from '../i18n';
 import { extraStrings } from '../i18n.extra';
 import { useVoice } from '../hooks/useVoice';
 
@@ -76,21 +76,27 @@ export function Chat({
     onSendMessage(replyText);
   };
 
+  const voiceDispatchedRef = useRef(false);
+
   const handleToggleVoice = () => {
     cancelSpeech();
     if (isListening) {
       stopListening();
     } else {
+      voiceDispatchedRef.current = false;
       startListening((transcript) => {
-        if (transcript) {
-          onSendMessage(transcript);
+        if (voiceDispatchedRef.current) return;
+        voiceDispatchedRef.current = true;
+        if (transcript && transcript.trim()) {
+          setInputText('');
+          onSendMessage(transcript.trim());
         }
       });
     }
   };
 
   // Convert profile object to chips array
-  const profileChips = Object.entries(profile).map(([, val]) => `${val}`);
+  const profileChips = Object.entries(profile).map(([, val]) => translateText(String(val), lang));
 
   // Can go back if user has answered at least one question after starting
   const canGoBack = messages.filter(m => m.sender === 'user').length > 1;

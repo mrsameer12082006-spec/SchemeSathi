@@ -48,6 +48,8 @@ class AIChatTurnResponse(BaseModel):
     session_id: str
     transcript: str
     reply: str
+    reply_en: Optional[str] = None
+    reply_hi: Optional[str] = None
     audio_base64: Optional[str] = None
     fallback_to_browser_tts: bool = False
     profile: Dict[str, Any]
@@ -172,141 +174,188 @@ def format_rag_cards(
 
         catalog_item = SCHEMES_CATALOG.get(code)
         if catalog_item:
-            name = catalog_item.get("name_hi" if is_hi else "name_en") or c.get("scheme_name_hi" if is_hi else "scheme_name_en")
-            summary = catalog_item.get("summary_hi" if is_hi else "summary_en") or ""
-            benefits = catalog_item.get("benefits_hi" if is_hi else "benefits_en") or ""
+            name_en = catalog_item.get("name_en") or c.get("scheme_name_en") or code
+            name_hi = catalog_item.get("name_hi") or c.get("scheme_name_hi") or name_en
+            summary_en = catalog_item.get("summary_en") or ""
+            summary_hi = catalog_item.get("summary_hi") or ""
+            benefits_en = catalog_item.get("benefits_en") or ""
+            benefits_hi = catalog_item.get("benefits_hi") or ""
             official_url = catalog_item.get("official_url", "")
             category = (catalog_item.get("category") or "General").capitalize()
         else:
-            name = c.get("scheme_name_hi" if is_hi else "scheme_name_en") or c.get("chunk_title", "")
-            summary = c.get("content", "")
-            benefits = c.get("content", "")
+            name_en = c.get("scheme_name_en") or c.get("chunk_title", "")
+            name_hi = c.get("scheme_name_hi") or name_en
+            summary_en = c.get("content", "")
+            summary_hi = c.get("content", "")
+            benefits_en = c.get("content", "")
+            benefits_hi = c.get("content", "")
             official_url = ""
             category = c.get("category", "General")
+
+        name = name_hi if is_hi else name_en
+        summary = summary_hi if is_hi else summary_en
+        benefits = benefits_hi if is_hi else benefits_en
 
         # Guarantee summary never shows ugly raw data dump
         if summary.startswith("Eligibility Criteria for") or "Target Category/Occupation" in summary or summary.startswith("Scheme:"):
             if "scholarship" in code or "higher" in code or "obc" in code or "matric" in code or "csss" in code:
-                summary = (
-                    "उच्च शिक्षा और अध्ययन के लिए पात्र छात्रों को प्रति वर्ष ₹12,000 से ₹20,000 तक की छात्रवृत्ति सहायता।"
-                    if is_hi else
-                    "Financial scholarship support of ₹12,000 to ₹20,000 per year for students pursuing higher education."
-                )
+                summary_en = "Financial scholarship support of ₹12,000 to ₹20,000 per year for students pursuing higher education."
+                summary_hi = "उच्च शिक्षा और अध्ययन के लिए पात्र छात्रों को प्रति वर्ष ₹12,000 से ₹20,000 तक की छात्रवृत्ति सहायता।"
             elif "pmfby" in code:
-                summary = (
-                    "प्राकृतिक आपदाओं, सूखा, बाढ़ और बेमौसम बारिश से फसल नुकसान के विरुद्ध रियायती फसल बीमा।"
-                    if is_hi else
-                    "Comprehensive subsidized crop loss insurance against drought, floods, and unseasonal rains."
-                )
+                summary_en = "Comprehensive subsidized crop loss insurance against drought, floods, and unseasonal rains."
+                summary_hi = "प्राकृतिक आपदाओं, सूखा, बाढ़ और बेमौसम बारिश से फसल नुकसान के विरुद्ध रियायती फसल बीमा।"
             elif "kisan" in code:
-                summary = (
-                    "भूमिधारक किसान परिवारों को ₹6,000 प्रति वर्ष 3 समान किस्तों में प्रत्यक्ष आर्थिक सहायता।"
-                    if is_hi else
-                    "Direct income support of ₹6,000 per year in 3 equal installments to landholding farmer families."
-                )
+                summary_en = "Direct income support of ₹6,000 per year in 3 equal installments to landholding farmer families."
+                summary_hi = "भूमिधारक किसान परिवारों को ₹6,000 प्रति वर्ष 3 समान किस्तों में प्रत्यक्ष आर्थिक सहायता।"
+            summary = summary_hi if is_hi else summary_en
 
         # Build 100% Scheme-Specific "Why" items (eliminating duplicate card text)
-        passed = []
-        missing = []
+        passed_en = []
+        passed_hi = []
+        missing_en = []
+        missing_hi = []
 
         # 1. Main Benefit & Context in passed
-        if benefits:
-            passed.append(f"मुख्य फायदा: {benefits}" if is_hi else f"Key Benefit: {benefits}")
-        elif summary:
-            passed.append(summary)
+        if benefits_en or benefits_hi:
+            passed_en.append(f"Key Benefit: {benefits_en or benefits}")
+            passed_hi.append(f"मुख्य फायदा: {benefits_hi or benefits}")
+        elif summary_en or summary_hi:
+            passed_en.append(summary_en or summary)
+            passed_hi.append(summary_hi or summary)
 
         if is_farmer_asking_edu:
-            passed.append(
-                "आपके बच्चों या परिवार के छात्रों के लिए लागू"
-                if is_hi else
-                "Applies to students / children in your family"
-            )
+            passed_en.append("Applies to students / children in your family")
+            passed_hi.append("आपके बच्चों या परिवार के छात्रों के लिए लागू")
         elif domain_intent and domain_intent.startswith("health"):
-            passed.append(
-                "आपके पूरे परिवार के लिए ₹5 लाख तक का कैशलेस इलाज"
-                if is_hi else
-                "Up to ₹5 Lakh cashless hospital care for your entire family"
-            )
+            passed_en.append("Up to ₹5 Lakh cashless hospital care for your entire family")
+            passed_hi.append("आपके पूरे परिवार के लिए ₹5 लाख तक का कैशलेस इलाज")
 
         # 2. Scheme-Specific Criteria in missing (Each card gets its own unique requirements)
         if code == "post-matric-obc":
-            missing = [
-                "केवल अन्य पिछड़ा वर्ग (OBC) के छात्रों के लिए" if is_hi else "Strictly for Other Backward Class (OBC) students",
-                "कक्षा 11वीं, 12वीं या कॉलेज/डिग्री कोर्स में अध्ययनरत" if is_hi else "Enrolled in class 11, 12, or college degree",
-                "पारिवारिक वार्षिक आय ₹2.5 लाख से कम होनी चाहिए" if is_hi else "Family annual income must be below ₹2.5 Lakh"
+            missing_en = [
+                "Strictly for Other Backward Class (OBC) students",
+                "Enrolled in class 11, 12, or college degree",
+                "Family annual income must be below ₹2.5 Lakh"
+            ]
+            missing_hi = [
+                "केवल अन्य पिछड़ा वर्ग (OBC) के छात्रों के लिए",
+                "कक्षा 11वीं, 12वीं या कॉलेज/डिग्री कोर्स में अध्ययनरत",
+                "पारिवारिक वार्षिक आय ₹2.5 लाख से कम होनी चाहिए"
             ]
         elif code == "csss-higher":
-            missing = [
-                "12वीं बोर्ड परीक्षा में शीर्ष 80 पर्सेंटाइल से अधिक अंक" if is_hi else "Class 12 board score above 80th percentile",
-                "कॉलेज या विश्वविद्यालय में नियमित (Regular) एडमिशन" if is_hi else "Regular admission in college or university",
-                "पारिवारिक वार्षिक आय ₹4.5 लाख से कम होनी चाहिए" if is_hi else "Family annual income must be below ₹4.5 Lakh"
+            missing_en = [
+                "Class 12 board score above 80th percentile",
+                "Regular admission in college or university",
+                "Family annual income must be below ₹4.5 Lakh"
+            ]
+            missing_hi = [
+                "12वीं बोर्ड परीक्षा में शीर्ष 80 पर्सेंटाइल से अधिक अंक",
+                "कॉलेज या विश्वविद्यालय में नियमित (Regular) एडमिशन",
+                "पारिवारिक वार्षिक आय ₹4.5 लाख से कम होनी चाहिए"
             ]
         elif code == "pm-yasasvi":
-            missing = [
-                "ओबीसी (OBC), ईबीसी (EBC) या डीएनटी (DNT) वर्ग के छात्र" if is_hi else "For OBC, EBC, or DNT category students",
-                "कक्षा 9वीं या 11वीं में पढ़ाई और छात्रवृत्ति परीक्षा" if is_hi else "Studying in Class 9 or 11 with scholarship exam",
-                "पारिवारिक वार्षिक आय ₹2.5 लाख से कम" if is_hi else "Family annual income below ₹2.5 Lakh"
+            missing_en = [
+                "For OBC, EBC, or DNT category students",
+                "Studying in Class 9 or 11 with scholarship exam",
+                "Family annual income below ₹2.5 Lakh"
+            ]
+            missing_hi = [
+                "ओबीसी (OBC), ईबीसी (EBC) या डीएनटी (DNT) वर्ग के छात्र",
+                "कक्षा 9वीं या 11वीं में पढ़ाई और छात्रवृत्ति परीक्षा",
+                "पारिवारिक वार्षिक आय ₹2.5 लाख से कम"
             ]
         elif code == "nmmss":
-            missing = [
-                "कक्षा 8वीं उत्तीर्ण छात्र (कक्षा 9 से 12 के अध्ययन हेतु)" if is_hi else "Class 8 pass students for classes 9 to 12",
-                "सरकारी या सहायता प्राप्त स्कूल के नियमित छात्र" if is_hi else "Regular student in Govt / Aided school",
-                "पारिवारिक वार्षिक आय ₹3.5 लाख से कम" if is_hi else "Family annual income below ₹3.5 Lakh"
+            missing_en = [
+                "Class 8 pass students for classes 9 to 12",
+                "Regular student in Govt / Aided school",
+                "Family annual income below ₹3.5 Lakh"
+            ]
+            missing_hi = [
+                "कक्षा 8वीं उत्तीर्ण छात्र (कक्षा 9 से 12 के अध्ययन हेतु)",
+                "सरकारी या सहायता प्राप्त स्कूल के नियमित छात्र",
+                "पारिवारिक वार्षिक आय ₹3.5 लाख से कम"
             ]
         elif code == "pm-jay":
-            missing = [
-                "SECC 2011 या राशन कार्ड पात्रता सूची में नाम" if is_hi else "Family listed in SECC 2011 / ration card database",
-                "अस्पताल में भर्ती होने पर ₹5 लाख तक का कैशलेस इलाज" if is_hi else "Cashless treatment up to ₹5 Lakh on hospitalization"
+            missing_en = [
+                "Family listed in SECC 2011 / ration card database",
+                "Cashless treatment up to ₹5 Lakh on hospitalization"
+            ]
+            missing_hi = [
+                "SECC 2011 या राशन कार्ड पात्रता सूची में नाम",
+                "अस्पताल में भर्ती होने पर ₹5 लाख तक का कैशलेस इलाज"
             ]
         elif code == "pmjay-senior":
-            missing = [
-                "70 वर्ष या उससे अधिक आयु के सभी वरिष्ठ नागरिक" if is_hi else "All senior citizens aged 70 years and above",
-                "बिना किसी आय सीमा के ₹5 लाख का अलग स्वास्थ्य सुरक्षा कवर" if is_hi else "Dedicated ₹5 Lakh cover regardless of family income"
+            missing_en = [
+                "All senior citizens aged 70 years and above",
+                "Dedicated ₹5 Lakh cover regardless of family income"
+            ]
+            missing_hi = [
+                "70 वर्ष या उससे अधिक आयु के सभी वरिष्ठ नागरिक",
+                "बिना किसी आय सीमा के ₹5 लाख का अलग स्वास्थ्य सुरक्षा कवर"
             ]
         elif code == "pm-kisan":
-            missing = [
-                "भू-अभिलेखों में किसान परिवार के नाम खेती योग्य भूमि" if is_hi else "Cultivable land ownership in land records",
-                "प्रत्यक्ष लाभ अंतरण (DBT) हेतु बैंक खाता आधार से लिंक" if is_hi else "Bank account linked with Aadhaar for DBT"
+            missing_en = [
+                "Cultivable land ownership in land records",
+                "Bank account linked with Aadhaar for DBT"
+            ]
+            missing_hi = [
+                "भू-अभिलेखों में किसान परिवार के नाम खेती योग्य भूमि",
+                "प्रत्यक्ष लाभ अंतरण (DBT) हेतु बैंक खाता आधार से लिंक"
             ]
         elif code == "pmfby":
-            missing = [
-                "अधिसूचित क्षेत्र में अधिसूचित फसल बोने वाले किसान (बटाईदार भी)" if is_hi else "Cultivating notified crops in notified areas (tenants included)",
-                "प्राकृतिक आपदा या सूखे से फसल नुकसान का क्लेम" if is_hi else "Insurance claim on crop damage from natural disasters"
+            missing_en = [
+                "Cultivating notified crops in notified areas (tenants included)",
+                "Insurance claim on crop damage from natural disasters"
+            ]
+            missing_hi = [
+                "अधिसूचित क्षेत्र में अधिसूचित फसल बोने वाले किसान (बटाईदार भी)",
+                "प्राकृतिक आपदा या सूखे से फसल नुकसान का क्लेम"
             ]
         else:
             # Dynamic extraction from scheme catalog eligibility
             elig = catalog_item.get("eligibility", {}) if catalog_item else {}
             castes = elig.get("caste_categories")
             if castes and set(castes) < {"General", "OBC", "SC", "ST", "EWS"}:
-                missing.append(
-                    f"वर्ग: केवल {', '.join(castes)} वर्ग के लिए" if is_hi else f"Category: Strictly for {', '.join(castes)}"
-                )
+                missing_en.append(f"Category: Strictly for {', '.join(castes)}")
+                missing_hi.append(f"वर्ग: केवल {', '.join(castes)} वर्ग के लिए")
             if elig.get("max_annual_income"):
                 lakh = elig["max_annual_income"] / 100000.0
-                missing.append(
-                    f"पारिवारिक वार्षिक आय ₹{lakh:.1f} लाख से कम" if is_hi else f"Family annual income below ₹{lakh:.1f} Lakh"
-                )
+                missing_en.append(f"Family annual income below ₹{lakh:.1f} Lakh")
+                missing_hi.append(f"पारिवारिक वार्षिक आय ₹{lakh:.1f} लाख से कम")
             if elig.get("allowed_occupations") and len(elig["allowed_occupations"]) <= 2:
-                missing.append(
-                    f"लक्षित पेशा: {', '.join(elig['allowed_occupations'])}" if is_hi else f"Target: {', '.join(elig['allowed_occupations'])}"
-                )
-            if not missing:
-                missing.append(
-                    "सटीक पात्रता पुष्टि के लिए अपनी श्रेणी, शिक्षा या आय का विवरण साझा करें"
-                    if is_hi else
-                    "To confirm exact eligibility, please share your category, education, or income details"
-                )
+                missing_en.append(f"Target: {', '.join(elig['allowed_occupations'])}")
+                missing_hi.append(f"लक्षित पेशा: {', '.join(elig['allowed_occupations'])}")
+            if not missing_en:
+                missing_en.append("To confirm exact eligibility, please share your category, education, or income details")
+                missing_hi.append("सटीक पात्रता पुष्टि के लिए अपनी श्रेणी, शिक्षा या आय का विवरण साझा करें")
+
+        passed = passed_hi if is_hi else passed_en
+        missing = missing_hi if is_hi else missing_en
 
         deduped_results.append({
             "scheme_id": code,
             "name": name,
+            "name_en": name_en,
+            "name_hi": name_hi,
             "summary": summary,
+            "summary_en": summary_en,
+            "summary_hi": summary_hi,
             "category": category,
+            "category_en": category,
+            "category_hi": category,
             "status": "needs_information",
             "passed": passed,
+            "passed_en": passed_en,
+            "passed_hi": passed_hi,
             "failed": [],
+            "failed_en": [],
+            "failed_hi": [],
             "missing": missing,
+            "missing_en": missing_en,
+            "missing_hi": missing_hi,
             "benefits": benefits,
+            "benefits_en": benefits_en,
+            "benefits_hi": benefits_hi,
             "official_url": official_url
         })
     return deduped_results
@@ -458,7 +507,10 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
             logger.error(f"Failed to decode or transcribe audio: {e}")
 
     clean_text = user_text.strip()
-    active_lang = detect_user_language(clean_text, default_lang=req.language)
+    if req.language in ["en", "hi"]:
+        active_lang = req.language
+    else:
+        active_lang = detect_user_language(clean_text, default_lang="en")
     is_hi = active_lang == "hi"
 
     # Step 3: Conversational Greeting, Name Introduction, or Uncertainty Handler
@@ -468,11 +520,9 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
 
     # Guard against gibberish inputs
     if is_gibberish(clean_text):
-        gibberish_reply = (
-            "मैं इसे पूरी तरह समझ नहीं पाया। क्या आप मुझे आसान शब्दों में बता सकते हैं कि आपको किस तरह की योजना या सहायता चाहिए (जैसे खेती, छात्रवृत्ति, स्वास्थ्य या पेंशन)?"
-            if is_hi else
-            "I couldn't quite understand that. Could you please tell me in simple words what kind of help you need (e.g. farming, scholarships, health, or pensions)?"
-        )
+        gibberish_reply_hi = "मैं इसे पूरी तरह समझ नहीं पाया। क्या आप मुझे आसान शब्दों में बता सकते हैं कि आपको किस तरह की योजना या सहायता चाहिए (जैसे खेती, छात्रवृत्ति, स्वास्थ्य या पेंशन)?"
+        gibberish_reply_en = "I couldn't quite understand that. Could you please tell me in simple words what kind of help you need (e.g. farming, scholarships, health, or pensions)?"
+        gibberish_reply = gibberish_reply_hi if is_hi else gibberish_reply_en
         audio_b64 = None
         if req.synthesize_audio:
             tts_res = await voice_service.synthesize(gibberish_reply, language_code="hi-IN" if is_hi else "en-IN")
@@ -481,6 +531,8 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
             session_id=session_id,
             transcript=stt_transcript or user_text,
             reply=gibberish_reply,
+            reply_en=gibberish_reply_en,
+            reply_hi=gibberish_reply_hi,
             audio_base64=audio_b64,
             fallback_to_browser_tts=not bool(audio_b64),
             profile=record.profile.raw_attributes or {},
@@ -497,11 +549,9 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
     # Direct Free-Cost Query Check
     is_cost_query = any(k in lower_text for k in ["kitna paisa", "kitne paise", "kitna paise", "how much does it cost", "fees", "fee", "paisa lagta hai", "charges", "kitna kharcha", "kharcha kitna"])
     if is_cost_query and not any(k in lower_text for k in ["scholarship", "kisan", "pmfby", "loan", "hospital"]):
-        cost_reply = (
-            "सरकारी योजनाओं के लिए आवेदन करना पूरी तरह निःशुल्क (Free) है। इसके लिए किसी बिचौलिए या दलाल को कोई पैसे नहीं देने होते। बल्कि पात्र होने पर सरकार की तरफ से आपको वित्तीय सहायता और सब्सिडी सीधे बैंक खाते में मिलती है।"
-            if is_hi else
-            "Applying for government schemes is 100% free of cost with no application fee or intermediary charges. In fact, if eligible, the government provides financial benefits directly to your bank account."
-        )
+        cost_reply_hi = "सरकारी योजनाओं के लिए आवेदन करना पूरी तरह निःशुल्क है। इसके लिए किसी बिचौलिए या दलाल को कोई पैसे नहीं देने होते। बल्कि पात्र होने पर सरकार की तरफ से आपको वित्तीय सहायता और सब्सिडी सीधे बैंक खाते में मिलती है।"
+        cost_reply_en = "Applying for government schemes is 100% free of cost with no application fee or intermediary charges. In fact, if eligible, the government provides financial benefits directly to your bank account."
+        cost_reply = cost_reply_hi if is_hi else cost_reply_en
         audio_b64 = None
         if req.synthesize_audio:
             tts_res = await voice_service.synthesize(cost_reply, language_code="hi-IN" if is_hi else "en-IN")
@@ -510,6 +560,8 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
             session_id=session_id,
             transcript=stt_transcript or user_text,
             reply=cost_reply,
+            reply_en=cost_reply_en,
+            reply_hi=cost_reply_hi,
             audio_base64=audio_b64,
             fallback_to_browser_tts=not bool(audio_b64),
             profile=record.profile.raw_attributes or {},
@@ -562,11 +614,18 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
 
     if (is_pure_greeting and not has_scheme_question) or is_uncertain:
         conv_reply = groq_service.generate_conversational_reply(
-            user_query=clean_text or "Hello",
+            user_query=clean_text or ("नमस्ते" if is_hi else "Hello"),
             chat_history=getattr(record, "history", []),
             language=active_lang,
             detected_name=detected_name
         )
+
+        if is_hi:
+            reply_hi = conv_reply
+            reply_en = groq_service.translate_text(conv_reply, target_lang="en")
+        else:
+            reply_en = conv_reply
+            reply_hi = groq_service.translate_text(conv_reply, target_lang="hi")
 
         audio_b64 = None
         if req.synthesize_audio:
@@ -576,13 +635,15 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
         # Record in history
         if not hasattr(record, "history") or record.history is None:
             record.history = []
-        record.history.append({"role": "user", "content": clean_text or "Hello"})
+        record.history.append({"role": "user", "content": clean_text or ("नमस्ते" if is_hi else "Hello")})
         record.history.append({"role": "assistant", "content": conv_reply})
 
         return AIChatTurnResponse(
             session_id=session_id,
             transcript=stt_transcript or user_text,
             reply=conv_reply,
+            reply_en=reply_en,
+            reply_hi=reply_hi,
             audio_base64=audio_b64,
             fallback_to_browser_tts=not bool(audio_b64),
             profile=record.profile.raw_attributes or {},
@@ -688,13 +749,27 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
             {
                 "scheme_id": r.scheme_id,
                 "name": r.name,
+                "name_en": r.name_en or r.name,
+                "name_hi": r.name_hi or r.name,
                 "summary": r.summary,
+                "summary_en": r.summary_en or r.summary,
+                "summary_hi": r.summary_hi or r.summary,
                 "category": r.category,
+                "category_en": r.category_en or r.category,
+                "category_hi": r.category_hi or r.category,
                 "status": r.status,
                 "passed": r.passed,
+                "passed_en": r.passed_en or r.passed,
+                "passed_hi": r.passed_hi or r.passed,
                 "failed": r.failed,
+                "failed_en": r.failed_en or r.failed,
+                "failed_hi": r.failed_hi or r.failed,
                 "missing": r.missing,
+                "missing_en": r.missing_en or r.missing,
+                "missing_hi": r.missing_hi or r.missing,
                 "benefits": r.benefits,
+                "benefits_en": r.benefits_en or r.benefits,
+                "benefits_hi": r.benefits_hi or r.benefits,
                 "official_url": r.official_url
             }
             for r in eval_resp.results
@@ -770,10 +845,19 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
 
     show_results_flag = len(formatted_results) > 0
 
+    if is_hi:
+        reply_hi = spoken_reply
+        reply_en = groq_service.translate_text(spoken_reply, target_lang="en")
+    else:
+        reply_en = spoken_reply
+        reply_hi = groq_service.translate_text(spoken_reply, target_lang="hi")
+
     return AIChatTurnResponse(
         session_id=session_id,
         transcript=stt_transcript or user_text,
         reply=spoken_reply,
+        reply_en=reply_en,
+        reply_hi=reply_hi,
         audio_base64=audio_base64,
         fallback_to_browser_tts=fallback_browser_tts,
         profile=record.profile.raw_attributes or {},

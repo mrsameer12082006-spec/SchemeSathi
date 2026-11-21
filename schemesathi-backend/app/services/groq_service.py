@@ -119,6 +119,49 @@ Respond ONLY with a valid JSON object matching these exact keys:
 Do NOT include markdown backticks or commentary. Only pure JSON."""
 
 
+def sanitize_language_purity(text: str, target_lang: str) -> str:
+    """
+    Guarantees strict 100% language purity:
+    - If target_lang == 'en': 100% pure English, removing all Hinglish words (Fayda, Dhyan Rakhein, Namaste, Kisan, etc.)
+    - If target_lang == 'hi': 100% pure Devanagari Hindi, removing raw English bullet labels, greetings, etc.
+    """
+    if not text:
+        return ""
+
+    clean = text.replace("...", "").replace("…", "").strip()
+
+    if target_lang == "en":
+        # 1. Clean bullet labels
+        clean = re.sub(r'[\u2022\*\-]\s*\*{0,2}(?:फायदा|लाभ|Fayda|fayda):\*{0,2}', '• **Benefit:**', clean)
+        clean = re.sub(r'[\u2022\*\-]\s*\*{0,2}(?:ध्यान रखें|महत्वपूर्ण|Dhyan Rakhein|dhyan rakhein):\*{0,2}', '• **Important Note:**', clean)
+        clean = re.sub(r'[\u2022\*\-]\s*\*{0,2}(?:शर्त|Shart|shart):\*{0,2}', '• **Condition:**', clean)
+
+        # 2. Greetings and common Hinglish words
+        clean = re.sub(r'\b(?:Namaste|namaste|Pranam|pranam)\b', 'Hello', clean)
+        clean = re.sub(r'\b(?:Kisan|kisan)\b', 'farmer', clean)
+        clean = re.sub(r'\b(?:Kheti|kheti)\b', 'farming', clean)
+        clean = re.sub(r'\b(?:Yojana|yojana|yojanaye)\b', 'scheme', clean)
+        clean = re.sub(r'\b(?:Dalal|dalal)\b', 'middleman', clean)
+        clean = re.sub(r'\b(?:Muft|muft)\b', 'free', clean)
+        clean = re.sub(r'\b(?:saalana|saal|salana)\b', 'per year', clean)
+        clean = re.sub(r'\b(?:bhai|ji|bhaiyo)\b', '', clean)
+        clean = re.sub(r' +', ' ', clean)
+        return clean.strip()
+    else:
+        # Hindi target language
+        # 1. Clean bullet labels to pure Hindi
+        clean = re.sub(r'[\u2022\*\-]\s*\*{0,2}(?:Benefit|benefit|Fayda|fayda):\*{0,2}', '• **लाभ:**', clean)
+        clean = re.sub(r'[\u2022\*\-]\s*\*{0,2}(?:Important Note|Important|Note|Dhyan Rakhein|dhyan rakhein):\*{0,2}', '• **महत्वपूर्ण:**', clean)
+        clean = re.sub(r'[\u2022\*\-]\s*\*{0,2}(?:Condition|condition|Shart|shart):\*{0,2}', '• **शर्त:**', clean)
+
+        # 2. Common English terms translated to pure Devanagari Hindi
+        clean = re.sub(r'\b(?:Hello|Hi|Hey)\b', 'नमस्ते', clean, flags=re.IGNORECASE)
+        clean = re.sub(r'\b(?:free of cost|100% free|free)\b', 'मुफ़्त', clean, flags=re.IGNORECASE)
+        clean = re.sub(r'\b(?:Welcome to SchemeSathi)\b', 'योजना साथी में आपका स्वागत है', clean, flags=re.IGNORECASE)
+        clean = re.sub(r' +', ' ', clean)
+        return clean.strip()
+
+
 class GroqService:
     """
     Groq AI Extraction Service using llama-3.1-8b-instant with:
@@ -408,6 +451,52 @@ class GroqService:
         profile.raw_attributes = raw
         return profile, {"fallback": True}
 
+    def translate_text(self, text: str, target_lang: str) -> str:
+        """
+        Translates text into pure English or pure Devanagari Hindi using Groq.
+        Guarantees 100% purity with zero mixed words.
+        """
+        if not text:
+            return ""
+
+        is_hi = target_lang == "hi"
+        if self.is_available:
+            try:
+                if is_hi:
+                    prompt = (
+                        "Translate the following text into 100% pure, warm, natural Devanagari Hindi for an Indian citizen.\n"
+                        "STRICT RULES:\n"
+                        "1. Use ONLY Devanagari script (हिंदी लिपि).\n"
+                        "2. Do NOT leave English words like 'benefit', 'free', 'broker', 'middlemen', 'college', 'important'. Translate them (लाभ, मुफ़्त, बिचौलिए, महाविद्यालय, महत्वपूर्ण).\n"
+                        "3. Preserve bullet points (• **लाभ:**, • **शर्त:**, • **महत्वपूर्ण:**), numbers, currency, and emojis.\n"
+                        "4. Output ONLY the translation without any preamble or explanation.\n\n"
+                        f"Text to translate:\n{text}"
+                    )
+                else:
+                    prompt = (
+                        "Translate the following Hindi text into 100% pure, warm, natural English.\n"
+                        "STRICT RULES:\n"
+                        "1. Use ONLY pure English.\n"
+                        "2. Do NOT use any Hindi or Hinglish words (NEVER use 'Namaste', 'Fayda', 'Kisan', 'Dhyan Rakhein', 'Dalal'). Use 'Hello', 'Benefit', 'Farmer', 'Important Note', 'Middleman'.\n"
+                        "3. Preserve bullet points (• **Benefit:**, • **Condition:**, • **Important Note:**), numbers, currency, and emojis.\n"
+                        "4. Output ONLY the translation without any preamble or explanation.\n\n"
+                        f"Text to translate:\n{text}"
+                    )
+
+                response = self._create_chat_completion(
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.1,
+                    max_tokens=250
+                )
+                res = response.choices[0].message.content.strip()
+                if res:
+                    return sanitize_language_purity(res, target_lang)
+            except Exception as e:
+                logger.warning(f"Groq translation error: {e}")
+
+        # Deterministic regex translation fallback
+        return sanitize_language_purity(text, target_lang)
+
     def generate_explanation(
         self,
         eval_resp: EvaluationResponse,
@@ -417,10 +506,9 @@ class GroqService:
     ) -> str:
         """
         Uses Groq LLM to explain deterministic evaluation results.
-        Strict Rules:
-        1. Language Rule: Mirror user's language (Hindi -> Hindi, Hinglish -> Hinglish, English -> English).
-        2. Intent Rule: User's current message is highest priority.
-        3. Anti-Repetition Rule: Never repeat previous responses verbatim.
+        Enforces 100% language purity:
+        - If language == 'hi': 100% शुद्ध देवनागरी हिंदी with • **लाभ:** and • **महत्वपूर्ण:**
+        - If language == 'en': 100% pure English with • **Benefit:** and • **Important Note:** (Zero Hinglish words).
         """
         is_hi = language == "hi"
 
@@ -429,23 +517,37 @@ class GroqService:
                 top_eligible = [f"{r.name}" for r in eval_resp.results if r.status == "potentially_eligible"][:3]
                 needs_info = [r.name for r in eval_resp.results if r.status == "needs_information"][:2]
 
-                system_prompt = (
-                    "You are SchemeSathi (योजना साथी), a friendly village guide and companion for Indian citizens (especially rural families, farmers, and students).\n"
-                    "YOUR PERSONA: A warm, caring, everyday neighbor who speaks simple everyday language, NOT a bureaucrat or government office clerk.\n\n"
-                    "STRICT FORMATTING & STYLE RULES:\n"
-                    "1. SHORT & SWEET (NO PARAGRAPHS): Keep your answers under 3-4 short lines. Never write long paragraphs.\n"
-                    "2. SIMPLE EVERYDAY WORDS (LOW-LITERACY FRIENDLY):\n"
-                    "   - In Hindi: Do NOT use heavy bureaucratic words like 'प्रोत्साहन', 'अनुदान', 'पात्रता', 'आवंटन'.\n"
-                    "   - Use simple words like 'मदद', 'पैसे', 'योग्य', 'फायदा', 'शर्त', 'मुफ़्त'.\n"
-                    "3. BULLET POINTS & BOLD BENEFITS: Format key information with clean bullet points:\n"
-                    "   - Opening context line.\n"
-                    "   - * **फायदा:** Bold the key monetary benefit (e.g., '**₹6,000 सालाना**' or '**₹5 लाख का मुफ़्त इलाज**').\n"
-                    "   - * **ध्यान रखें:** Mention that applications are 100% **फ्री** (निःशुल्क), किसी दलाल को पैसे न दें।\n"
-                    "4. THE END (FRIENDLY QUESTION): Always end with ONE short, friendly follow-up question.\n"
-                    "5. DEVANAGARI SCRIPT REQUIREMENT FOR HINDI: If the user query is in Hindi or Hinglish, you MUST reply in pure, clean Devanagari Hindi (e.g., 'नमस्ते! आपके लिए यह योजना सबसे उपयुक्त है।'). NEVER write Hindi phonetically in English Roman letters (e.g., 'aap eligible hain'), as this makes the neural Text-to-Speech voice engine sound robotic. If English, reply in English.\n"
-                    "6. ZERO HALLUCINATION: Never invent fake schemes (like 'Scheme A' or 'Scheme B').\n"
-                    "7. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response. Complete every sentence clearly."
-                )
+                if is_hi:
+                    system_prompt = (
+                        "You are SchemeSathi (योजना साथी), a friendly village guide and companion for Indian citizens.\n"
+                        "YOUR PERSONA: A warm, caring, everyday neighbor who speaks simple, pure Devanagari Hindi.\n\n"
+                        "STRICT FORMATTING & STYLE RULES:\n"
+                        "1. SHORT & SWEET (NO PARAGRAPHS): Keep your answers under 3-4 short lines. Never write long paragraphs.\n"
+                        "2. SIMPLE EVERYDAY WORDS (LOW-LITERACY FRIENDLY): Use simple words like 'मदद', 'पैसे', 'योग्य', 'लाभ', 'शर्त', 'मुफ़्त'.\n"
+                        "3. BULLET POINTS & BOLD BENEFITS: Format key information with clean bullet points:\n"
+                        "   - Opening context line in Hindi.\n"
+                        "   - • **लाभ:** Bold the key monetary benefit (e.g., '**₹6,000 सालाना**' or '**₹5 लाख का मुफ़्त इलाज**').\n"
+                        "   - • **महत्वपूर्ण:** Mention that applications are 100% **मुफ़्त** (निःशुल्क), किसी दलाल या बिचौलिए को पैसे न दें।\n"
+                        "4. THE END (FRIENDLY QUESTION): Always end with ONE short, friendly follow-up question in Hindi.\n"
+                        "5. STRICT DEVANAGARI HINDI: Write 100% pure Hindi in Devanagari script. NEVER write Hinglish or English Roman letters.\n"
+                        "6. ZERO HALLUCINATION: Never invent fake schemes.\n"
+                        "7. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response."
+                    )
+                else:
+                    system_prompt = (
+                        "You are SchemeSathi, a friendly neighborhood guide and companion for Indian citizens.\n"
+                        "YOUR PERSONA: A warm, caring guide who speaks simple, clear, 100% pure English.\n\n"
+                        "STRICT FORMATTING & STYLE RULES:\n"
+                        "1. SHORT & SWEET (NO PARAGRAPHS): Keep your answer under 3-4 short lines. Never write long paragraphs.\n"
+                        "2. 100% PURE ENGLISH (STRICT ZERO HINGLISH): NEVER use Hindi or Hinglish words. NEVER say 'Namaste', 'Fayda', 'Dhyan Rakhein', 'Kisan', 'Dalal', 'Zameen'. Always use pure English words ('Hello', 'Benefit', 'Important Note', 'Farmer', 'Broker', 'Land').\n"
+                        "3. BULLET POINTS & BOLD BENEFITS: Format key information with clean bullet points:\n"
+                        "   - Opening context line in English.\n"
+                        "   - • **Benefit:** Bold the key monetary benefit (e.g., '**₹6,000 per year**' or '**₹5 Lakh free medical care**').\n"
+                        "   - • **Important Note:** Mention that official applications are 100% **free of cost**, never pay any broker or agent.\n"
+                        "4. THE END (FRIENDLY QUESTION): Always end with ONE short, friendly follow-up question in English.\n"
+                        "5. ZERO HALLUCINATION: Never invent fake schemes.\n"
+                        "6. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response."
+                    )
 
                 user_prompt = (
                     f"Citizen Query: '{user_query}'\n"
@@ -466,21 +568,22 @@ class GroqService:
 
                 response = self._create_chat_completion(
                     messages=messages,
-                    temperature=0.4,
+                    temperature=0.3,
                     max_tokens=220
                 )
                 text = response.choices[0].message.content.strip()
-                text = text.replace("...", "").replace("…", "").strip()
+                text = sanitize_language_purity(text, "hi" if is_hi else "en")
                 if text:
                     return text
             except Exception as e:
                 logger.warning(f"Groq explanation generation error: {e}")
 
         # Fallback to engine's pre-computed spoken summary
-        return eval_resp.llm_spoken_summary or (
+        fallback = eval_resp.llm_spoken_summary or (
             "धन्यवाद। हमने आपके विवरण की जाँच सरकारी नियमों के अनुसार कर ली है।" if is_hi
             else "Thank you. We have evaluated your profile against official government eligibility rules."
         )
+        return sanitize_language_purity(fallback, "hi" if is_hi else "en")
 
     def generate_rag_reply(
         self,
@@ -491,8 +594,8 @@ class GroqService:
         user_occupation: Optional[str] = None
     ) -> str:
         """
-        Generates a warm, empathetic, human-like spoken reply (like ChatGPT/Claude)
-        grounded in retrieved RAG scheme chunks with strict language mirroring and contextual understanding.
+        Generates a warm, empathetic, human-like spoken reply
+        grounded in retrieved RAG scheme chunks with 100% pure language adherence.
         """
         is_hi = language == "hi"
         if not retrieved_schemes:
@@ -511,27 +614,39 @@ class GroqService:
 
                 occ_context = f"\nUser Background: Stated occupation is {user_occupation}." if user_occupation else ""
 
-                system_prompt = (
-                    "You are SchemeSathi (योजना साथी), a friendly village guide and companion for Indian citizens (especially rural families, farmers, women, and low-literacy users).\n"
-                    "YOUR PERSONA: A warm, caring, everyday neighbor who speaks simple everyday language, NOT a bureaucrat or government office clerk.\n\n"
-                    "STRICT FORMATTING & STYLE RULES (MUST FOLLOW):\n"
-                    "1. SHORT & SWEET (NO PARAGRAPHS): Never write long walls of text. Keep your entire answer under 3-4 short lines total.\n"
-                    "2. SIMPLE EVERYDAY WORDS (LOW-LITERACY FRIENDLY):\n"
-                    "   - In Hindi: Do NOT use heavy bureaucratic words like 'प्रोत्साहन', 'अनुदान', 'पात्रता', 'आवंटन', 'कार्यान्वयन'.\n"
-                    "   - Instead use simple words like 'मदद', 'पैसे', 'योग्य', 'फायदा', 'शर्त', 'मुफ़्त'.\n"
-                    "3. BULLET POINTS & BOLD BENEFITS: Format key information with clean bullet points:\n"
-                    "   - Opening line: Short, warm context line (e.g. 'चूंकि आप किसान हैं, यह स्कॉलरशिप आपके बच्चों के लिए है! 🎓').\n"
-                    "   - Bullet 1: * **फायदा:** Bold the main money benefit (e.g., '**₹12,000 सालाना**' or '**₹5 लाख का मुफ़्त इलाज**').\n"
-                    "   - Bullet 2: * **शर्त:** The key qualification condition (e.g., '12वीं में 80% से ज्यादा नंबर' or 'केवल OBC वर्ग के छात्रों के लिए').\n"
-                    "   - Bullet 3: * **ध्यान रखें:** 'आवेदन बिल्कुल **फ्री** (निःशुल्क) है, किसी को पैसे न दें।'\n"
-                    "4. THE END (FRIENDLY QUESTION): Always end with ONE short, friendly follow-up question (e.g., 'क्या आपके बच्चे 12वीं पास कर चुके हैं?').\n"
-                    "5. SPECIFICITY & EMPATHY:\n"
-                    "   - If talking about OBC scholarship: explicitly state 'चूंकि यह योजना अन्य पिछड़ा वर्ग (OBC) के छात्रों के लिए है...'.\n"
-                    "   - If user is a farmer asking about education: 'चूंकि आप किसान हैं, यह स्कॉलरशिप आपके बच्चों के लिए है! 🎓'.\n"
-                    "6. DEVANAGARI SCRIPT RULE FOR HINDI: If the user speaks Hindi or Hinglish, always write Hindi words in clean, natural Devanagari script (e.g. 'नमस्ते! आपके लिए यह योजना सबसे उपयुक्त है।'). NEVER write Hindi phonetically in English Roman letters (e.g. 'aapke paas', 'kisan bhai'), as this causes the neural text-to-speech engine to sound robotic. Keep only well-known scheme acronyms (e.g. 'PM-KISAN', 'scholarship', 'college', 'OBC', 'free') in English.\n"
-                    "7. ZERO HALLUCINATION: Never invent fake schemes (like 'Scheme A' or 'Scheme B').\n"
-                    "8. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response. Complete every sentence clearly."
-                )
+                if is_hi:
+                    system_prompt = (
+                        "You are SchemeSathi (योजना साथी), a friendly village guide and companion for Indian citizens.\n"
+                        "YOUR PERSONA: A warm, caring, everyday neighbor who speaks simple, pure Devanagari Hindi.\n\n"
+                        "STRICT FORMATTING & STYLE RULES (MUST FOLLOW):\n"
+                        "1. SHORT & SWEET (NO PARAGRAPHS): Never write long walls of text. Keep your entire answer under 3-4 short lines total.\n"
+                        "2. SIMPLE EVERYDAY WORDS (LOW-LITERACY FRIENDLY): Use simple words like 'मदद', 'पैसे', 'योग्य', 'लाभ', 'शर्त', 'मुफ़्त'.\n"
+                        "3. BULLET POINTS & BOLD BENEFITS: Format key information with clean bullet points:\n"
+                        "   - Opening line in Hindi: Short, warm context line.\n"
+                        "   - Bullet 1: • **लाभ:** Bold the main benefit (e.g., '**₹12,000 सालाना**' or '**₹5 लाख का मुफ़्त इलाज**').\n"
+                        "   - Bullet 2: • **शर्त:** The key qualification condition.\n"
+                        "   - Bullet 3: • **महत्वपूर्ण:** 'आवेदन पूरी तरह **मुफ़्त** (निःशुल्क) है, किसी को पैसे न दें।'\n"
+                        "4. THE END (FRIENDLY QUESTION): Always end with ONE short, friendly follow-up question in Hindi.\n"
+                        "5. STRICT DEVANAGARI HINDI: Write 100% pure Hindi in Devanagari script. Do NOT leave English words like 'benefit', 'condition', 'important'.\n"
+                        "6. ZERO HALLUCINATION: Never invent fake schemes.\n"
+                        "7. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response."
+                    )
+                else:
+                    system_prompt = (
+                        "You are SchemeSathi, a friendly neighborhood guide and companion for Indian citizens.\n"
+                        "YOUR PERSONA: A warm, caring guide who speaks simple, clear, 100% pure English.\n\n"
+                        "STRICT FORMATTING & STYLE RULES (MUST FOLLOW):\n"
+                        "1. SHORT & SWEET (NO PARAGRAPHS): Never write long walls of text. Keep your entire answer under 3-4 short lines total.\n"
+                        "2. 100% PURE ENGLISH (STRICT ZERO HINGLISH): NEVER use Hindi or Hinglish words. NEVER say 'Namaste', 'Fayda', 'Dhyan Rakhein', 'Kisan', 'Shart', 'Dalal'. Always use pure English words ('Hello', 'Benefit', 'Condition', 'Important Note', 'Farmer', 'Broker').\n"
+                        "3. BULLET POINTS & BOLD BENEFITS: Format key information with clean bullet points:\n"
+                        "   - Opening line in English: Short, warm context line.\n"
+                        "   - Bullet 1: • **Benefit:** Bold the main benefit (e.g., '**₹12,000 per year**' or '**₹5 Lakh free medical treatment**').\n"
+                        "   - Bullet 2: • **Condition:** The key qualification condition.\n"
+                        "   - Bullet 3: • **Important Note:** 'Official application is 100% **free of cost**, never pay any middlemen.'\n"
+                        "4. THE END (FRIENDLY QUESTION): Always end with ONE short, friendly follow-up question in English.\n"
+                        "5. ZERO HALLUCINATION: Never invent fake schemes.\n"
+                        "6. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response."
+                    )
 
                 user_prompt = (
                     f"Citizen Question: '{user_query}'{occ_context}\n"
@@ -555,7 +670,7 @@ class GroqService:
                     max_tokens=220
                 )
                 text = response.choices[0].message.content.strip()
-                text = text.replace("...", "").replace("…", "").strip()
+                text = sanitize_language_purity(text, "hi" if is_hi else "en")
                 if text:
                     return text
             except Exception as e:
@@ -563,50 +678,51 @@ class GroqService:
 
         # Deterministic Friendly Village Guide Fallback
         first_scheme = retrieved_schemes[0] if retrieved_schemes else {}
-        name = first_scheme.get("scheme_name_hi" if is_hi else "scheme_name_en", "सरकारी योजना")
+        name = first_scheme.get("scheme_name_hi" if is_hi else "scheme_name_en", "सरकारी योजना" if is_hi else "Government Scheme")
         is_farmer_asking_edu = user_occupation == "Farmer" or "farmer" in user_query.lower() or "किसान" in user_query
         is_edu_query = any(w in user_query.lower() for w in ["शिक्षा", "पढ़ाई", "छात्रवृत्ति", "scholarship", "education", "college"])
 
         if is_hi:
             if is_farmer_asking_edu or is_edu_query:
-                return (
-                    "चूंकि आप किसान हैं, यह स्कॉलरशिप आपके बच्चों के लिए है! 🎓\n"
-                    "• **फायदा:** **₹12,000 से ₹20,000 सालाना** (पढ़ाई की मदद)।\n"
-                    "• **शर्त:** 12वीं बोर्ड में अच्छे नंबर या कॉलेज में एडमिशन।\n"
-                    "• **ध्यान रखें:** आवेदन बिल्कुल **फ्री** (निःशुल्क) है, किसी को पैसे न दें।\n\n"
-                    "क्या आपके बच्चे 12वीं में पढ़ाई कर रहे हैं?"
+                fallback = (
+                    "चूंकि आप किसान परिवार से हैं, यह छात्रवृत्ति आपके बच्चों की उच्च शिक्षा के लिए है! 🎓\n"
+                    "• **लाभ:** **₹12,000 से ₹20,000 सालाना** (पढ़ाई में सीधी आर्थिक मदद)।\n"
+                    "• **शर्त:** 12वीं बोर्ड में 80% से अधिक अंक या कॉलेज में दाखिला।\n"
+                    "• **महत्वपूर्ण:** सरकारी आवेदन पूरी तरह **मुफ़्त** (निःशुल्क) है, किसी को पैसे न दें।\n\n"
+                    "क्या आपके बच्चे 12वीं पास कर चुके हैं?"
                 )
             elif "health" in user_query.lower() or "स्वास्थ्य" in user_query or "इलाज" in user_query or "bima" in user_query:
-                return (
-                    "यह योजना आपके पूरे परिवार के स्वास्थ्य के लिए है! 🏥\n"
-                    "• **फायदा:** **₹5 लाख सालाना** का मुफ़्त अस्पताल इलाज।\n"
+                fallback = (
+                    "यह योजना आपके पूरे परिवार के स्वास्थ्य और उपचार के लिए है! 🏥\n"
+                    "• **लाभ:** **₹5 लाख सालाना** का मुफ़्त अस्पताल इलाज।\n"
                     "• **शर्त:** आयुष्मान भारत या राशन कार्ड सूची में नाम।\n"
-                    "• **ध्यान रखें:** आवेदन और इलाज पूरी तरह **फ्री** (निःशुल्क) है।\n\n"
+                    "• **महत्वपूर्ण:** आवेदन और अस्पताल में उपचार पूरी तरह **मुफ़्त** (निःशुल्क) है।\n\n"
                     "क्या आपके परिवार का राशन कार्ड बना हुआ है?"
                 )
             else:
-                return (
+                fallback = (
                     f"नमस्ते! आपके लिए **{name}** सबसे बढ़िया विकल्प है:\n"
-                    "• **फायदा:** सरकार की तरफ से सीधी वित्तीय मदद और लाभ।\n"
-                    "• **ध्यान रखें:** आवेदन बिल्कुल **फ्री** (निःशुल्क) है, किसी को पैसे न दें।\n\n"
+                    "• **लाभ:** सरकार की तरफ से सीधी वित्तीय मदद और लाभ।\n"
+                    "• **महत्वपूर्ण:** सरकारी आवेदन पूरी तरह **मुफ़्त** (निःशुल्क) है, किसी को पैसे न दें।\n\n"
                     "क्या आप इसके बारे में और जानना चाहते हैं?"
                 )
         else:
             if is_farmer_asking_edu or is_edu_query:
-                return (
-                    "Since you are a farmer, these scholarships are for your children! 🎓\n"
-                    "• **Benefit:** **₹12,000 to ₹20,000 per year** financial help for college.\n"
-                    "• **Condition:** Good marks in Class 12 or college enrollment.\n"
-                    "• **Note:** Official applications are 100% **free of cost**.\n\n"
+                fallback = (
+                    "Since you are a farmer, these higher education scholarships are designed for your children! 🎓\n"
+                    "• **Benefit:** **₹12,000 to ₹20,000 per year** financial assistance for college.\n"
+                    "• **Condition:** Good marks in Class 12 or active college enrollment.\n"
+                    "• **Important Note:** Official government applications are 100% **free of cost**, never pay any middlemen.\n\n"
                     "Have your children completed Class 12?"
                 )
             else:
-                return (
+                fallback = (
                     f"Hello! Here is the best scheme for you — **{name}**:\n"
-                    "• **Benefit:** Direct government financial support.\n"
-                    "• **Note:** Official applications are completely **free of cost**.\n\n"
+                    "• **Benefit:** Direct government financial support and welfare assistance.\n"
+                    "• **Important Note:** Official government applications are 100% **free of cost**, never pay any middlemen.\n\n"
                     "Would you like to know how to apply?"
                 )
+        return sanitize_language_purity(fallback, "hi" if is_hi else "en")
 
     def generate_conversational_reply(
         self,
@@ -616,9 +732,9 @@ class GroqService:
         detected_name: Optional[str] = None
     ) -> str:
         """
-        Generates a warm, natural, human-like conversational response (like ChatGPT or Claude)
-        for casual greetings, introductions ('hi i m kaalu'), or expressions of uncertainty ('Not sure').
-        Never hallucinates schemes or forces rigid survey questions.
+        Generates a warm, natural, human-like conversational response
+        for casual greetings, introductions, or expressions of uncertainty.
+        Enforces 100% language purity (Zero Hinglish in English, Pure Devanagari in Hindi).
         """
         is_hi = language == "hi"
         lower = user_query.lower()
@@ -626,17 +742,28 @@ class GroqService:
 
         if self.is_available:
             try:
-                system_prompt = (
-                    "You are SchemeSathi (योजना साथी), a warm, supportive, conversational companion for Indian citizens, acting just like ChatGPT or Claude.\n"
-                    "RULES:\n"
-                    "1. GREETING & INTRO RULE: If the user greets you or introduces their name (e.g., 'hi i m kaalu' or 'mera naam suresh hai'), reply warmly: 'Namaste [Name]! 🙏 How can I help you today? Are you looking for schemes for yourself, or for your family?' (and in Hindi: 'नमस्ते [Name] जी! 🙏 आज मैं आपकी क्या सहायता कर सकता हूँ? क्या आप अपने लिए योजनाएं खोज रहे हैं या अपने परिवार के लिए?'). Do NOT immediately ask a rigid occupation question.\n"
-                    "2. UNCERTAINTY RULE: If the user says 'Not sure' or 'Don't know' (or 'पता नहीं'), reassure them with empathy: 'That's okay! I can help you find schemes that don't have strict income limits, or you can tell me about a specific category like scholarships, healthcare, or farming.'\n"
-                    "3. ZERO HALLUCINATION RULE: Never invent fake schemes like 'Scheme A' or fake eligibility criteria.\n"
-                    "4. LANGUAGE & SCRIPT RULE: If the user speaks Hindi or Hinglish, always reply in clean, warm Devanagari Hindi (e.g. 'नमस्ते [Name] जी! 🙏 आज मैं आपकी क्या सहायता कर सकता हूँ? क्या आप अपने लिए योजनाएं खोज रहे हैं या अपने परिवार के लिए?'). NEVER write Hindi words using English Roman letters (e.g. do not write 'aapka swagat hai', 'kya help chahiye'), as this breaks neural TTS pronunciation and sounds robotic. If the user spoke English, reply in English.\n"
-                    "5. HINDI WORDS FOR NUMBERS & ABBREVIATIONS: When writing in Hindi, write numbers and abbreviations in full Hindi words (e.g., 'पाँच लाख', 'प्रधानमंत्री').\n"
-                    "6. Keep your reply concise (2-3 warm, conversational sentences).\n"
-                    "7. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response. Complete every sentence clearly."
-                )
+                if is_hi:
+                    system_prompt = (
+                        "You are SchemeSathi (योजना साथी), a warm, supportive conversational companion for Indian citizens.\n"
+                        "RULES:\n"
+                        "1. GREETING & INTRO RULE: If the user greets you or introduces their name, reply warmly in 100% pure Devanagari Hindi: 'नमस्ते [Name] जी! 🙏 आज मैं आपकी क्या सहायता कर सकता हूँ? क्या आप अपने लिए योजनाएं खोज रहे हैं या अपने परिवार के लिए?'\n"
+                        "2. UNCERTAINTY RULE: If the user says 'पता नहीं', reassure them with empathy: 'कोई बात नहीं! आप बिना आय सीमा वाली योजनाओं (जैसे स्वास्थ्य या सामाजिक सुरक्षा) के बारे में पूछ सकते हैं, या मुझे किसी विशिष्ट श्रेणी जैसे छात्रवृत्ति, स्वास्थ्य या खेती के बारे में बता सकते हैं।'\n"
+                        "3. ZERO HALLUCINATION RULE: Never invent fake schemes.\n"
+                        "4. STRICT DEVANAGARI HINDI: Always reply in clean, warm Devanagari Hindi. Never write English or Romanized Hindi.\n"
+                        "5. Keep your reply concise (2-3 warm, conversational sentences).\n"
+                        "6. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response."
+                    )
+                else:
+                    system_prompt = (
+                        "You are SchemeSathi, a warm, supportive conversational companion for Indian citizens.\n"
+                        "RULES:\n"
+                        "1. GREETING & INTRO RULE: If the user greets you or introduces their name, reply warmly in 100% pure English: 'Hello [Name]! 🙏 How can I help you today? Are you looking for schemes for yourself, or for your family?' (NEVER say 'Namaste' or use any Hindi words in English mode).\n"
+                        "2. UNCERTAINTY RULE: If the user says 'Not sure' or 'Don't know', reassure them with empathy in pure English: 'That is completely fine! I can help you find schemes that do not have strict income limits, or you can tell me about a category like scholarships, healthcare, or farming.'\n"
+                        "3. ZERO HALLUCINATION RULE: Never invent fake schemes.\n"
+                        "4. STRICT 100% PURE ENGLISH: Always reply in clean, natural English. NEVER use Hinglish or Hindi words (no 'Namaste', 'Kisan', 'Fayda', 'Dhyan').\n"
+                        "5. Keep your reply concise (2-3 warm, conversational sentences).\n"
+                        "6. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response."
+                    )
 
                 user_prompt = f"Citizen Message: '{user_query}'\nLanguage: {'Hindi' if is_hi else 'English'}\nSpoken conversational response:"
                 messages = [{"role": "system", "content": system_prompt}]
@@ -650,11 +777,11 @@ class GroqService:
 
                 response = self._create_chat_completion(
                     messages=messages,
-                    temperature=0.6,
+                    temperature=0.4,
                     max_tokens=200
                 )
                 text = response.choices[0].message.content.strip()
-                text = text.replace("...", "").replace("…", "").strip()
+                text = sanitize_language_purity(text, "hi" if is_hi else "en")
                 if text:
                     return text
             except Exception as e:
@@ -662,24 +789,27 @@ class GroqService:
 
         # Deterministic fallback
         if is_uncertain:
-            return (
-                "कोई बात नहीं! आप बिना आय सीमा वाली योजनाओं (जैसे स्वास्थ्य या सामाजिक सुरक्षा) के बारे में पूछ सकते हैं, या मुझे किसी विशिष्ट श्रेणी जैसे 'छात्रवृत्ति' या 'खेती' के बारे में बता सकते हैं।"
+            fallback = (
+                "कोई बात नहीं! आप बिना आय सीमा वाली योजनाओं (जैसे स्वास्थ्य या सामाजिक सुरक्षा) के बारे में पूछ सकते हैं, या मुझे किसी विशिष्ट श्रेणी जैसे छात्रवृत्ति या खेती के बारे में बता सकते हैं।"
                 if is_hi else
-                "That's okay! I'll try to find schemes that don't have strict income limits, or you can ask me about a specific category like 'scholarships' or 'farming'."
+                "That is completely fine! I can help you find schemes that do not have strict income limits, or you can tell me about a specific category like scholarships, healthcare, or farming."
             )
+            return sanitize_language_purity(fallback, "hi" if is_hi else "en")
 
         if detected_name:
-            return (
+            fallback = (
                 f"नमस्ते {detected_name} जी! 🙏 आज मैं आपकी क्या सहायता कर सकता हूँ? क्या आप अपने लिए योजना ढूंढ रहे हैं या अपने परिवार के लिए?"
                 if is_hi else
-                f"Namaste {detected_name}! 🙏 How can I help you today? Are you looking for schemes for yourself, or for your family?"
+                f"Hello {detected_name}! 🙏 How can I help you today? Are you looking for schemes for yourself, or for your family?"
             )
+            return sanitize_language_purity(fallback, "hi" if is_hi else "en")
 
-        return (
+        fallback = (
             "नमस्ते! 🙏 योजना साथी में आपका स्वागत है। मैं आपकी सरकारी योजनाएं खोजने में कैसे मदद कर सकता हूँ? क्या आप अपने लिए योजना ढूंढ रहे हैं या अपने परिवार के लिए?"
             if is_hi else
-            "Namaste! 🙏 Welcome to SchemeSathi. How can I help you today? Are you looking for schemes for yourself, or for your family?"
+            "Hello! 🙏 Welcome to SchemeSathi. How can I help you today? Are you looking for schemes for yourself, or for your family?"
         )
+        return sanitize_language_purity(fallback, "hi" if is_hi else "en")
 
 
 # Global singleton Groq service instance

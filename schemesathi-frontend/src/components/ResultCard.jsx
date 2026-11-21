@@ -2,18 +2,26 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, HelpCircle, XCircle } from 'lucide-react';
 import StatusBadge from './StatusBadge';
-import { coreStrings } from '../i18n';
+import { coreStrings, translateText } from '../i18n';
 
 export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) {
   const t = coreStrings[lang] || coreStrings.en;
   const status = (result.status || '').toLowerCase();
+  const isHi = lang === 'hi';
 
   const isEligible = status === 'potentially_eligible' || status === 'eligible';
   const isNeedsInfo = status === 'needs_information';
   const isNotEligible = status === 'not_eligible';
 
+  const displayName = isHi
+    ? (result.name_hi || translateText(result.name, 'hi'))
+    : (result.name_en || translateText(result.name, 'en'));
+
   // 1. Clean Summary and parse raw key criteria if present
-  let displaySummary = result.summary || '';
+  let rawSummary = isHi
+    ? (result.summary_hi || result.summary || '')
+    : (result.summary_en || result.summary || '');
+  let displaySummary = translateText(rawSummary, lang);
   const parsedCriteria = [];
 
   if (displaySummary.startsWith('Eligibility Criteria for') || displaySummary.includes('Target Category/Occupation')) {
@@ -33,7 +41,10 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
       }
     });
 
-    displaySummary = result.benefits || (lang === 'hi'
+    const rawBenefits = isHi
+      ? (result.benefits_hi || result.benefits)
+      : (result.benefits_en || result.benefits);
+    displaySummary = rawBenefits ? translateText(rawBenefits, lang) : (isHi
       ? 'पात्र नागरिकों के लिए सरकारी सहायता व कल्याणकारी योजना।'
       : 'Government welfare and financial assistance for eligible citizens.');
   } else if (displaySummary.startsWith('Scheme:')) {
@@ -44,9 +55,20 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
   }
 
   // 2. Card-Specific "Why / Eligibility" Items
-  const passed = result.passed || [];
-  const missing = result.missing || [];
-  const failed = result.failed || [];
+  const rawPassed = isHi
+    ? (result.passed_hi && result.passed_hi.length ? result.passed_hi : result.passed || [])
+    : (result.passed_en && result.passed_en.length ? result.passed_en : result.passed || []);
+  const passed = rawPassed.map(item => translateText(item, lang));
+
+  const rawMissing = isHi
+    ? (result.missing_hi && result.missing_hi.length ? result.missing_hi : result.missing || [])
+    : (result.missing_en && result.missing_en.length ? result.missing_en : result.missing || []);
+  const missing = rawMissing.map(item => translateText(item, lang));
+
+  const rawFailed = isHi
+    ? (result.failed_hi && result.failed_hi.length ? result.failed_hi : result.failed || [])
+    : (result.failed_en && result.failed_en.length ? result.failed_en : result.failed || []);
+  const failed = rawFailed.map(item => translateText(item, lang));
 
   const hasWhyItems = passed.length > 0 || missing.length > 0 || failed.length > 0;
 
@@ -58,7 +80,7 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
       {/* Top Header: Name and Status Badge */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-stone-200">
         <h3 className="font-serif text-xl font-bold text-[#1C1B1A]">
-          {result.name}
+          {displayName}
         </h3>
         <StatusBadge status={status} lang={lang} />
       </div>

@@ -391,19 +391,22 @@ async function mockSendMessage(sessionId, message, language = 'en') {
   const hasSpecificKeyword = /yojana|scheme|kisan|farmer|student|scholarship|chhatravritti|shiksha|padhai|income|pension|fasal|crop|loan|mudra/i.test(lowerMsg);
 
   if (isCasualGreeting && !hasSpecificKeyword) {
-    const replyText = detectedName
-      ? (isHi
-          ? `नमस्ते ${detectedName} जी! योजना साथी में आपका स्वागत है। मैं आपकी सरकारी योजनाएं खोजने में कैसे मदद कर सकता हूँ? आप मुझे अपना पेशा, शिक्षा या आवश्यकता बता सकते हैं, या किसी विशिष्ट योजना (जैसे छात्रवृत्ति, किसान सहायता) के बारे में पूछ सकते हैं।`
-          : `Hello ${detectedName}! Welcome to SchemeSathi. How can I help you find government schemes today? You can tell me your occupation, income, or ask about specific schemes.`)
-      : (isHi
-          ? "नमस्ते! योजना साथी में आपका स्वागत है। मैं आपकी सरकारी योजनाएं खोजने में कैसे मदद कर सकता हूँ? आप किस तरह की योजना के बारे में जानना चाहते हैं? (जैसे: छात्रवृत्ति, किसान योजना, स्वास्थ्य बीमा, महिला कल्याण, या पेंशन) या अपनी स्थिति बताएं।"
-          : "Hello! Welcome to SchemeSathi. How can I help you find government schemes today? You can tell me your occupation, income, or ask about specific categories like scholarships, farming, or healthcare.");
+    const reply_hi = detectedName
+      ? `नमस्ते ${detectedName} जी! योजना साथी में आपका स्वागत है। मैं आपकी सरकारी योजनाएं खोजने में कैसे मदद कर सकता हूँ? आप मुझे अपना पेशा, शिक्षा या आवश्यकता बता सकते हैं, या किसी विशिष्ट योजना (जैसे छात्रवृत्ति, किसान सहायता) के बारे में पूछ सकते हैं।`
+      : "नमस्ते! योजना साथी में आपका स्वागत है। मैं आपकी सरकारी योजनाएं खोजने में कैसे मदद कर सकता हूँ? आप किस तरह की योजना के बारे में जानना चाहते हैं? (जैसे: छात्रवृत्ति, किसान योजना, स्वास्थ्य बीमा, महिला कल्याण, या पेंशन) या अपनी स्थिति बताएं।";
+    const reply_en = detectedName
+      ? `Hello ${detectedName}! Welcome to SchemeSathi. How can I help you find government schemes today? You can tell me your occupation, income, or ask about specific schemes.`
+      : "Hello! Welcome to SchemeSathi. How can I help you find government schemes today? You can tell me your occupation, income, or ask about specific categories like scholarships, farming, or healthcare.";
 
     return {
-      reply: replyText,
+      reply: isHi ? reply_hi : reply_en,
+      reply_en,
+      reply_hi,
       quick_replies: isHi
         ? ["किसान योजनाएं", "छात्रवृत्ति / शिक्षा", "महिला कल्याण", "स्वास्थ्य बीमा", "पेंशन"]
         : ["Farmer Schemes", "Scholarships", "Women Welfare", "Health Insurance", "Pensions"],
+      quick_replies_hi: ["किसान योजनाएं", "छात्रवृत्ति / शिक्षा", "महिला कल्याण", "स्वास्थ्य बीमा", "पेंशन"],
+      quick_replies_en: ["Farmer Schemes", "Scholarships", "Women Welfare", "Health Insurance", "Pensions"],
       why: "",
       progress: { answered: 0 },
       profile: { ...session.profile },
@@ -418,13 +421,17 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     lowerMsg === 'not sure' || lowerMsg === "don't know" || lowerMsg === 'dont know';
 
   if (isNotSure) {
+    const reply_hi = "कोई बात नहीं! आप बिना आय सीमा वाली योजनाओं (जैसे स्वास्थ्य या सामाजिक सुरक्षा) के बारे में पूछ सकते हैं, या मुझे किसी विशिष्ट श्रेणी जैसे छात्रवृत्ति या खेती के बारे में बता सकते हैं।";
+    const reply_en = "That is completely fine! I can help you find schemes that do not have strict income limits, or you can tell me about a category like scholarships, healthcare, or farming.";
     return {
-      reply: isHi
-        ? "कोई बात नहीं! आप बिना आय सीमा वाली योजनाओं (जैसे स्वास्थ्य या सामाजिक सुरक्षा) के बारे में पूछ सकते हैं, या मुझे किसी विशिष्ट श्रेणी जैसे 'छात्रवृत्ति' या 'खेती' के बारे में बता सकते हैं।"
-        : "That's okay! I'll try to find schemes that don't have strict income limits, or you can ask me about a specific category like 'scholarships' or 'farming'.",
+      reply: isHi ? reply_hi : reply_en,
+      reply_en,
+      reply_hi,
       quick_replies: isHi
         ? ["छात्रवृत्ति / शिक्षा", "किसान सहायता", "आयुष्मान भारत (स्वास्थ्य)", "ई-श्रम (श्रमिक)"]
         : ["Scholarships / Education", "Farmer Support", "Ayushman Bharat (Health)", "e-Shram (Worker)"],
+      quick_replies_hi: ["छात्रवृत्ति / शिक्षा", "किसान सहायता", "आयुष्मान भारत (स्वास्थ्य)", "ई-श्रम (श्रमिक)"],
+      quick_replies_en: ["Scholarships / Education", "Farmer Support", "Ayushman Bharat (Health)", "e-Shram (Worker)"],
       why: "",
       progress: { answered: session.step || 1 },
       profile: { ...session.profile },
@@ -437,41 +444,69 @@ async function mockSendMessage(sessionId, message, language = 'en') {
   // 3. Domain Intent: Education / Scholarships
   if (/शिक्षा|पढ़ाई|छात्रवृत्ति|विद्यार्थी|स्कॉलरशिप|education|scholarship|study|college|school/i.test(lowerMsg)) {
     const csssScheme = (isHi ? MOCK_SCHEMES_HI : MOCK_SCHEMES_EN).find(s => s.id === "csss-higher");
+    const reply_hi = "शिक्षा और उच्च अध्ययन के लिए 'कॉलेज छात्रों के लिए केंद्रीय क्षेत्र छात्रवृत्ति योजना' उपलब्ध है। इसके तहत पात्र छात्रों को स्नातक स्तर पर ₹12,000 और स्नातकोत्तर स्तर पर ₹20,000 प्रति वर्ष की छात्रवृत्ति सीधे बैंक खाते में मिलती है। सरकारी आवेदन पूरी तरह निःशुल्क (मुफ़्त) हैं।";
+    const reply_en = "For higher education, the 'Central Sector Scheme of Scholarships for College Students' provides ₹12,000 to ₹20,000 per year directly credited via DBT. Official government applications are completely free of cost.";
+    const csssEn = MOCK_SCHEMES_EN.find(s => s.id === "csss-higher");
+    const csssHi = MOCK_SCHEMES_HI.find(s => s.id === "csss-higher");
     return {
-      reply: isHi
-        ? "शिक्षा और उच्च अध्ययन के लिए 'कॉलेज छात्रों के लिए केंद्रीय क्षेत्र छात्रवृत्ति योजना' उपलब्ध है। इसके तहत पात्र छात्रों को स्नातक स्तर पर ₹12,000 और स्नातकोत्तर स्तर पर ₹20,000 प्रति वर्ष की छात्रवृत्ति सीधे बैंक खाते में मिलती है। सरकारी आवेदन 100% निःशुल्क हैं।"
-        : "For higher education, the 'Central Sector Scheme of Scholarships for College Students' provides ₹12,000 to ₹20,000 per year directly credited via DBT. Government applications are completely free.",
-      quick_replies: isHi ? ["पात्रता की शर्तें", "आवश्यक दस्तावेज़", "आवेदन प्रक्रिया"] : ["Eligibility Criteria", "Required Documents", "Application Steps"],
-      why: "",
-      progress: { answered: 2 },
-      profile: { ...session.profile, [isHi ? 'पेशा' : 'Occupation']: isHi ? 'छात्र' : 'Student' },
-      done: false,
-      show_results: true,
-      results_url: "/results",
-      results: csssScheme ? [{
-        scheme_id: csssScheme.id,
-        name: csssScheme.name,
-        summary: csssScheme.summary,
-        category: csssScheme.category,
-        status: "needs_information",
-        passed: [],
-        failed: [],
-        missing: isHi ? ["12वीं कक्षा में 80 पर्सेंटाइल से ऊपर अंक", "पारिवारिक आय ₹4.5 लाख से कम"] : ["Above 80th percentile in Class 12", "Family income below ₹4.5 Lakh"],
-        benefits: csssScheme.benefits,
-        official_url: csssScheme.official_url
-      }] : []
-    };
-  }
+        reply: isHi ? reply_hi : reply_en,
+        reply_en,
+        reply_hi,
+        quick_replies: isHi ? ["पात्रता की शर्तें", "आवश्यक दस्तावेज़", "आवेदन प्रक्रिया"] : ["Eligibility Criteria", "Required Documents", "Application Steps"],
+        quick_replies_hi: ["पात्रता की शर्तें", "आवश्यक दस्तावेज़", "आवेदन प्रक्रिया"],
+        quick_replies_en: ["Eligibility Criteria", "Required Documents", "Application Steps"],
+        why: "",
+        progress: { answered: 2 },
+        profile: { ...session.profile, [isHi ? 'पेशा' : 'Occupation']: isHi ? 'छात्र' : 'Student' },
+        done: false,
+        show_results: true,
+        results_url: "/results",
+        results: csssScheme ? [{
+          scheme_id: csssScheme.id,
+          name: csssScheme.name,
+          name_en: csssEn?.name || csssScheme.name,
+          name_hi: csssHi?.name || csssScheme.name,
+          summary: csssScheme.summary,
+          summary_en: csssEn?.summary || csssScheme.summary,
+          summary_hi: csssHi?.summary || csssScheme.summary,
+          category: csssScheme.category,
+          category_en: csssEn?.category || "Students",
+          category_hi: csssHi?.category || "छात्र",
+          status: "needs_information",
+          passed: [],
+          passed_en: [],
+          passed_hi: [],
+          failed: [],
+          failed_en: [],
+          failed_hi: [],
+          missing: isHi ? ["12वीं कक्षा में 80 पर्सेंटाइल से ऊपर अंक", "पारिवारिक आय ₹4.5 लाख से कम"] : ["Above 80th percentile in Class 12", "Family income below ₹4.5 Lakh"],
+          missing_en: ["Above 80th percentile in Class 12", "Family income below ₹4.5 Lakh"],
+          missing_hi: ["12वीं कक्षा में 80 पर्सेंटाइल से ऊपर अंक", "पारिवारिक आय ₹4.5 लाख से कम"],
+          benefits: csssScheme.benefits,
+          benefits_en: csssEn?.benefits || csssScheme.benefits,
+          benefits_hi: csssHi?.benefits || csssScheme.benefits,
+          official_url: csssScheme.official_url
+        }] : []
+      };
+    }
 
   // 4. Domain Intent: Farming / Agriculture
   if (/किसान|खेती|फसल|बीमा|kisan|farmer|farming|crop|pmfby|pm kisan/i.test(lowerMsg)) {
     const pmKisan = (isHi ? MOCK_SCHEMES_HI : MOCK_SCHEMES_EN).find(s => s.id === "pm-kisan");
+    const pmKisanEn = MOCK_SCHEMES_EN.find(s => s.id === "pm-kisan");
+    const pmKisanHi = MOCK_SCHEMES_HI.find(s => s.id === "pm-kisan");
     const pmfby = (isHi ? MOCK_SCHEMES_HI : MOCK_SCHEMES_EN).find(s => s.id === "pmfby");
+    const pmfbyEn = MOCK_SCHEMES_EN.find(s => s.id === "pmfby");
+    const pmfbyHi = MOCK_SCHEMES_HI.find(s => s.id === "pmfby");
+    const reply_hi = "किसानों के लिए मुख्य रूप से 'प्रधानमंत्री किसान सम्मान निधि' (प्रति वर्ष ₹6,000 तीन किस्तों में) और 'प्रधानमंत्री फसल बीमा योजना' (फसल नुकसान पर सुरक्षा) उपलब्ध हैं। सरकारी आवेदन पूरी तरह निःशुल्क (मुफ़्त) हैं।";
+    const reply_en = "For farmers, key schemes include 'PM Kisan Samman Nidhi' (₹6,000 per year in 3 installments) and 'PM Fasal Bima Yojana' (subsidized crop loss insurance). Official government applications are completely free of cost.";
     return {
-      reply: isHi
-        ? "किसानों के लिए मुख्य रूप से 'प्रधानमंत्री किसान सम्मान निधि' (प्रति वर्ष ₹6,000 तीन किस्तों में) और 'प्रधानमंत्री फसल बीमा योजना' (फसल नुकसान पर सुरक्षा) उपलब्ध हैं। सरकारी आवेदन पूरी तरह निःशुल्क हैं।"
-        : "For farmers, key schemes include 'PM Kisan Samman Nidhi' (₹6,000 per year in 3 installments) and 'PM Fasal Bima Yojana' (subsidized crop loss insurance). Government applications are completely free.",
+      reply: isHi ? reply_hi : reply_en,
+      reply_en,
+      reply_hi,
       quick_replies: isHi ? ["2 हेक्टेयर तक ज़मीन", "2 हेक्टेयर से अधिक", "बटाईदार / भूमिहीन"] : ["Up to 2 hectares", "More than 2 hectares", "Tenant / Landless"],
+      quick_replies_hi: ["2 हेक्टेयर तक ज़मीन", "2 हेक्टेयर से अधिक", "बटाईदार / भूमिहीन"],
+      quick_replies_en: ["Up to 2 hectares", "More than 2 hectares", "Tenant / Landless"],
       why: "",
       progress: { answered: 2 },
       profile: { ...session.profile, [isHi ? 'पेशा' : 'Occupation']: isHi ? 'किसान' : 'Farmer' },
@@ -482,25 +517,53 @@ async function mockSendMessage(sessionId, message, language = 'en') {
         pmKisan && {
           scheme_id: pmKisan.id,
           name: pmKisan.name,
+          name_en: pmKisanEn?.name || pmKisan.name,
+          name_hi: pmKisanHi?.name || pmKisan.name,
           summary: pmKisan.summary,
+          summary_en: pmKisanEn?.summary || pmKisan.summary,
+          summary_hi: pmKisanHi?.summary || pmKisan.summary,
           category: pmKisan.category,
+          category_en: pmKisanEn?.category || "Farmers",
+          category_hi: pmKisanHi?.category || "किसान",
           status: "needs_information",
           passed: [isHi ? "मुख्य व्यवसाय कृषि" : "Primary occupation is farming"],
+          passed_en: ["Primary occupation is farming"],
+          passed_hi: ["मुख्य व्यवसाय कृषि"],
           failed: [],
+          failed_en: [],
+          failed_hi: [],
           missing: [isHi ? "ज़मीन का मालिकाना रिकॉर्ड (खतौनी/फर्द)" : "Land ownership record in your name"],
+          missing_en: ["Land ownership record in your name"],
+          missing_hi: ["ज़मीन का मालिकाना रिकॉर्ड (खतौनी/फर्द)"],
           benefits: pmKisan.benefits,
+          benefits_en: pmKisanEn?.benefits || pmKisan.benefits,
+          benefits_hi: pmKisanHi?.benefits || pmKisan.benefits,
           official_url: pmKisan.official_url
         },
         pmfby && {
           scheme_id: pmfby.id,
           name: pmfby.name,
+          name_en: pmfbyEn?.name || pmfby.name,
+          name_hi: pmfbyHi?.name || pmfby.name,
           summary: pmfby.summary,
+          summary_en: pmfbyEn?.summary || pmfby.summary,
+          summary_hi: pmfbyHi?.summary || pmfby.summary,
           category: pmfby.category,
+          category_en: pmfbyEn?.category || "Farmers",
+          category_hi: pmfbyHi?.category || "किसान",
           status: "needs_information",
           passed: [isHi ? "कृषि कार्य" : "Agricultural activity"],
+          passed_en: ["Agricultural activity"],
+          passed_hi: ["कृषि कार्य"],
           failed: [],
+          failed_en: [],
+          failed_hi: [],
           missing: [isHi ? "वर्तमान मौसम के लिए फसल बुवाई प्रमाण पत्र" : "Crop sowing certificate for current season"],
+          missing_en: ["Crop sowing certificate for current season"],
+          missing_hi: ["वर्तमान मौसम के लिए फसल बुवाई प्रमाण पत्र"],
           benefits: pmfby.benefits,
+          benefits_en: pmfbyEn?.benefits || pmfby.benefits,
+          benefits_hi: pmfbyHi?.benefits || pmfby.benefits,
           official_url: pmfby.official_url
         }
       ].filter(Boolean)
@@ -541,79 +604,159 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     const list = isHi ? MOCK_SCHEMES_HI : MOCK_SCHEMES_EN;
 
     if (isFarmer) {
-      const pk = list.find(s => s.id === "pm-kisan");
-      const pf = list.find(s => s.id === "pmfby");
+      const pkEn = MOCK_SCHEMES_EN.find(s => s.id === "pm-kisan");
+      const pkHi = MOCK_SCHEMES_HI.find(s => s.id === "pm-kisan");
+      const pfEn = MOCK_SCHEMES_EN.find(s => s.id === "pmfby");
+      const pfHi = MOCK_SCHEMES_HI.find(s => s.id === "pmfby");
+      const pk = isHi ? pkHi : pkEn;
+      const pf = isHi ? pfHi : pfEn;
       results = [
         pk && {
           scheme_id: pk.id,
           name: pk.name,
+          name_en: pkEn?.name || pk.name,
+          name_hi: pkHi?.name || pk.name,
           summary: pk.summary,
+          summary_en: pkEn?.summary || pk.summary,
+          summary_hi: pkHi?.summary || pk.summary,
           category: pk.category,
+          category_en: pkEn?.category || "Farmers",
+          category_hi: pkHi?.category || "किसान",
           status: "potentially_eligible",
           passed: isHi ? ["मुख्य व्यवसाय कृषि दर्ज है", "ज़मीन का रिकॉर्ड सत्यापित"] : ["Primary occupation is farming", "Landholding record verified"],
+          passed_en: ["Primary occupation is farming", "Landholding record verified"],
+          passed_hi: ["मुख्य व्यवसाय कृषि दर्ज है", "ज़मीन का रिकॉर्ड सत्यापित"],
           failed: [],
+          failed_en: [],
+          failed_hi: [],
           missing: [],
+          missing_en: [],
+          missing_hi: [],
           benefits: pk.benefits,
+          benefits_en: pkEn?.benefits || pk.benefits,
+          benefits_hi: pkHi?.benefits || pk.benefits,
           official_url: pk.official_url
         },
         pf && {
           scheme_id: pf.id,
           name: pf.name,
+          name_en: pfEn?.name || pf.name,
+          name_hi: pfHi?.name || pf.name,
           summary: pf.summary,
+          summary_en: pfEn?.summary || pf.summary,
+          summary_hi: pfHi?.summary || pf.summary,
           category: pf.category,
+          category_en: pfEn?.category || "Farmers",
+          category_hi: pfHi?.category || "किसान",
           status: "needs_information",
           passed: isHi ? ["कृषि भूमि धारक"] : ["Agricultural landholder"],
+          passed_en: ["Agricultural landholder"],
+          passed_hi: ["कृषि भूमि धारक"],
           failed: [],
+          failed_en: [],
+          failed_hi: [],
           missing: isHi ? ["वर्तमान मौसम में फसल बुवाई सत्यापन"] : ["Seasonal crop sowing verification"],
+          missing_en: ["Seasonal crop sowing verification"],
+          missing_hi: ["वर्तमान मौसम में फसल बुवाई सत्यापन"],
           benefits: pf.benefits,
+          benefits_en: pfEn?.benefits || pf.benefits,
+          benefits_hi: pfHi?.benefits || pf.benefits,
           official_url: pf.official_url
         }
       ].filter(Boolean);
     } else if (isStudent) {
-      const sc = list.find(s => s.id === "csss-higher");
+      const scEn = MOCK_SCHEMES_EN.find(s => s.id === "csss-higher");
+      const scHi = MOCK_SCHEMES_HI.find(s => s.id === "csss-higher");
+      const sc = isHi ? scHi : scEn;
       if (sc) {
         results = [{
           scheme_id: sc.id,
           name: sc.name,
+          name_en: scEn?.name || sc.name,
+          name_hi: scHi?.name || sc.name,
           summary: sc.summary,
+          summary_en: scEn?.summary || sc.summary,
+          summary_hi: scHi?.summary || sc.summary,
           category: sc.category,
+          category_en: scEn?.category || "Students",
+          category_hi: scHi?.category || "छात्र",
           status: "potentially_eligible",
           passed: isHi ? ["उच्च शिक्षा अध्ययनरत"] : ["Enrolled in higher education"],
+          passed_en: ["Enrolled in higher education"],
+          passed_hi: ["उच्च शिक्षा अध्ययनरत"],
           failed: [],
+          failed_en: [],
+          failed_hi: [],
           missing: [],
+          missing_en: [],
+          missing_hi: [],
           benefits: sc.benefits,
+          benefits_en: scEn?.benefits || sc.benefits,
+          benefits_hi: scHi?.benefits || sc.benefits,
           official_url: sc.official_url
         }];
       }
     } else if (isWoman) {
-      const wm = list.find(s => s.id === "pmmvy");
+      const wmEn = MOCK_SCHEMES_EN.find(s => s.id === "pmmvy");
+      const wmHi = MOCK_SCHEMES_HI.find(s => s.id === "pmmvy");
+      const wm = isHi ? wmHi : wmEn;
       if (wm) {
         results = [{
           scheme_id: wm.id,
           name: wm.name,
+          name_en: wmEn?.name || wm.name,
+          name_hi: wmHi?.name || wm.name,
           summary: wm.summary,
+          summary_en: wmEn?.summary || wm.summary,
+          summary_hi: wmHi?.summary || wm.summary,
           category: wm.category,
+          category_en: wmEn?.category || "Women",
+          category_hi: wmHi?.category || "महिलाएँ",
           status: "potentially_eligible",
           passed: isHi ? ["महिला नागरिक"] : ["Eligible female applicant"],
+          passed_en: ["Eligible female applicant"],
+          passed_hi: ["महिला नागरिक"],
           failed: [],
+          failed_en: [],
+          failed_hi: [],
           missing: [],
+          missing_en: [],
+          missing_hi: [],
           benefits: wm.benefits,
+          benefits_en: wmEn?.benefits || wm.benefits,
+          benefits_hi: wmHi?.benefits || wm.benefits,
           official_url: wm.official_url
         }];
       }
     } else if (isWorker) {
-      const es = list.find(s => s.id === "eshram");
+      const esEn = MOCK_SCHEMES_EN.find(s => s.id === "eshram");
+      const esHi = MOCK_SCHEMES_HI.find(s => s.id === "eshram");
+      const es = isHi ? esHi : esEn;
       if (es) {
         results = [{
           scheme_id: es.id,
           name: es.name,
+          name_en: esEn?.name || es.name,
+          name_hi: esHi?.name || es.name,
           summary: es.summary,
+          summary_en: esEn?.summary || es.summary,
+          summary_hi: esHi?.summary || es.summary,
           category: es.category,
+          category_en: esEn?.category || "Workers",
+          category_hi: esHi?.category || "मज़दूर",
           status: "potentially_eligible",
           passed: isHi ? ["असंगठित क्षेत्र के कामगार"] : ["Unorganized sector worker"],
+          passed_en: ["Unorganized sector worker"],
+          passed_hi: ["असंगठित क्षेत्र के कामगार"],
           failed: [],
+          failed_en: [],
+          failed_hi: [],
           missing: [],
+          missing_en: [],
+          missing_hi: [],
           benefits: es.benefits,
+          benefits_en: esEn?.benefits || es.benefits,
+          benefits_hi: esHi?.benefits || es.benefits,
           official_url: es.official_url
         }];
       }
@@ -622,13 +765,17 @@ async function mockSendMessage(sessionId, message, language = 'en') {
 
   // If still no scheme matched, return empty results with a helpful conversational prompt
   if (!results || results.length === 0) {
+    const reply_hi = "मुझे अभी सटीक योजना खोजने के लिए पर्याप्त जानकारी नहीं मिली है। क्या आप मुझे अपना पेशा, शिक्षा या आय बता सकते हैं?";
+    const reply_en = "I don't have enough information to find a matching scheme yet. Could you tell me your occupation, education, or income?";
     return {
-      reply: isHi
-        ? "मुझे अभी सटीक योजना खोजने के लिए पर्याप्त जानकारी नहीं मिली है। क्या आप मुझे अपना पेशा, शिक्षा या आय बता सकते हैं?"
-        : "I don't have enough information to find a matching scheme yet. Could you tell me your occupation, education, or income?",
+      reply: isHi ? reply_hi : reply_en,
+      reply_en,
+      reply_hi,
       quick_replies: isHi
         ? ["किसान", "छात्र", "महिला", "मज़दूर", "वरिष्ठ नागरिक"]
         : ["Farmer", "Student", "Woman", "Worker", "Senior citizen"],
+      quick_replies_hi: ["किसान", "छात्र", "महिला", "मज़दूर", "वरिष्ठ नागरिक"],
+      quick_replies_en: ["Farmer", "Student", "Woman", "Worker", "Senior citizen"],
       why: "",
       progress: { answered: session.step },
       profile: { ...session.profile },
@@ -638,10 +785,13 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     };
   }
 
+  const final_reply_hi = `हमने आपके विवरण के आधार पर ${results.length} प्रासंगिक सरकारी योजनाओं की पहचान की है। आप नीचे दिए गए कार्ड्स में विस्तृत जानकारी देख सकते हैं।`;
+  const final_reply_en = `Based on your details, we found ${results.length} relevant government schemes. You can view the details in the cards below.`;
+
   return {
-    reply: isHi
-      ? `हमने आपके विवरण के आधार पर ${results.length} प्रासंगिक सरकारी योजनाओं की पहचान की है। आप नीचे दिए गए कार्ड्स में विस्तृत जानकारी देख सकते हैं।`
-      : `Based on your details, we found ${results.length} relevant government schemes. You can view the details in the cards below.`,
+    reply: isHi ? final_reply_hi : final_reply_en,
+    reply_en: final_reply_en,
+    reply_hi: final_reply_hi,
     quick_replies: [],
     why: "",
     progress: { answered: session.step },
@@ -722,9 +872,13 @@ export async function sendMessage({ sessionId, message, language = 'en', audioBa
       const data = await aiRes.json();
       return {
         reply: data.reply,
+        reply_en: data.reply_en || (language === 'en' ? data.reply : null),
+        reply_hi: data.reply_hi || (language === 'hi' ? data.reply : null),
         audio_base64: data.audio_base64,
         fallback_to_browser_tts: data.fallback_to_browser_tts,
         quick_replies: data.done ? [] : (language === 'hi' ? ['₹1 लाख से कम', '₹1 - ₹2.5 लाख', '₹2.5 लाख से अधिक'] : ['Below ₹1 Lakh', '₹1 - ₹2.5 Lakh', 'Above ₹2.5 Lakh']),
+        quick_replies_hi: data.done ? [] : ['₹1 लाख से कम', '₹1 - ₹2.5 लाख', '₹2.5 लाख से अधिक'],
+        quick_replies_en: data.done ? [] : ['Below ₹1 Lakh', '₹1 - ₹2.5 Lakh', 'Above ₹2.5 Lakh'],
         why: '',
         progress: { answered: data.done ? 3 : 1 },
         profile: data.profile || {},
@@ -750,7 +904,12 @@ export async function sendMessage({ sessionId, message, language = 'en', audioBa
       })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    const chatData = await res.json();
+    return {
+      ...chatData,
+      reply_en: chatData.reply_en || (language === 'en' ? chatData.reply : null),
+      reply_hi: chatData.reply_hi || (language === 'hi' ? chatData.reply : null)
+    };
   } catch (err) {
     console.warn("Real API failed, falling back to mock sendMessage", err);
     return mockSendMessage(sessionId, message, language);
