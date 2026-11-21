@@ -140,7 +140,10 @@ export function App() {
         sender: 'bot',
         text: response.reply,
         why: response.why,
-        quick_replies: response.quick_replies || []
+        audio_base64: response.audio_base64 || null,
+        quick_replies: response.quick_replies || [],
+        show_results: response.show_results ?? (Array.isArray(response.results) && response.results.length > 0),
+        results_url: response.results_url || '/results'
       };
 
       setMessages([userMsg, botMsg]);
@@ -151,10 +154,10 @@ export function App() {
         setProgress(response.progress);
       }
 
-      if (response.done && response.results) {
+      if (response.results && response.results.length > 0) {
         setResults(response.results);
-        navigate('/results');
       }
+      // User stays in chat; no automatic redirect to /results. Clickable button is provided.
     } catch (err) {
       console.error("Start chat error:", err);
       setError(lang === 'hi' ? "संपर्क नहीं हो सका। पुनः प्रयास करें।" : "Could not connect to the assistant. Please retry.");
@@ -202,7 +205,10 @@ export function App() {
         sender: 'bot',
         text: response.reply,
         why: response.why,
-        quick_replies: response.quick_replies || []
+        audio_base64: response.audio_base64 || null,
+        quick_replies: response.quick_replies || [],
+        show_results: response.show_results ?? (Array.isArray(response.results) && response.results.length > 0),
+        results_url: response.results_url || '/results'
       };
 
       setMessages(prev => [...prev, botMsg]);
@@ -214,10 +220,10 @@ export function App() {
         setProgress(response.progress);
       }
 
-      if (response.done && response.results) {
+      if (response.results && response.results.length > 0) {
         setResults(response.results);
-        navigate('/results');
       }
+      // User stays in chat; no automatic redirect to /results. Clickable button is provided.
     } catch (err) {
       console.error("Send message error:", err);
       setError(lang === 'hi' ? "जवाब भेजने में त्रुटि हुई। कृपया पुनः प्रयास करें।" : "Error sending message. Please try again.");
@@ -279,7 +285,7 @@ export function App() {
       return;
     }
 
-    const isHi = lang === 'hi';
+    const isHi = lang === 'hi' || (messages.length > 0 && /[\u0900-\u097F]/.test(messages[messages.length - 1].text || ''));
     const missingItems = target.missing || [];
     const missingStr = missingItems.join(' ').toLowerCase();
 

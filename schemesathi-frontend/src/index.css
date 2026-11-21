@@ -2,10 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-canvas: #F9F8F6;
+  --text-primary: #1C1B1A;
+  --text-secondary: #6B6B6B;
+  --accent-green: #166534;
+  --border-subtle: #E7E5E4;
+}
+
 /* Root font scaling for Aa button */
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  background-color: #F9F8F6;
+  color: #1C1B1A;
 }
 
 html.big {
@@ -14,18 +24,19 @@ html.big {
 
 @layer base {
   body {
-    @apply bg-paper text-ink font-sans antialiased min-h-screen selection:bg-saffron/30;
-    @apply dark:bg-night dark:text-mist;
+    @apply bg-[#F9F8F6] text-[#1C1B1A] font-sans antialiased min-h-screen selection:bg-[#166534]/15;
+    background-color: #F9F8F6;
+    color: #1C1B1A;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight;
+    @apply font-serif tracking-tight text-[#1C1B1A];
   }
 
-  /* Accessible visible focus ring (3px saffron) */
+  /* Accessible, refined focus ring (government green subtle glow) */
   *:focus-visible {
     outline: none !important;
-    box-shadow: 0 0 0 3px #F2A20C !important;
+    box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.25) !important;
   }
 
   /* Respect reduced motion */
@@ -40,31 +51,43 @@ html.big {
 }
 
 @layer components {
-  /* Flat style, thin borders, rounded-2xl */
+  /* Editorial card: pure white, crisp 1px subtle stone border, gentle elevation */
   .card {
-    @apply bg-white rounded-2xl border border-line p-5 transition-colors;
-    @apply dark:bg-nightcard dark:border-nightline;
+    @apply bg-white rounded-xl border border-stone-200/90 shadow-sm p-5 transition-all;
   }
 
   /* Interactive button base: min 44x44px touch target, rounded-xl */
   .btn {
-    @apply inline-flex items-center justify-center font-medium rounded-xl px-4 py-2.5 transition-colors min-h-[44px] min-w-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none;
+    @apply inline-flex items-center justify-center font-medium rounded-xl px-4 py-2.5 transition-all min-h-[44px] min-w-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none;
   }
 
-  /* Primary button: Saffron background, dark ink text, bold */
+  /* Primary button: Solid Deep Forest Green, crisp white text, subtle hover */
   .btn-primary {
-    @apply inline-flex items-center justify-center font-bold bg-saffron text-ink rounded-xl px-5 py-2.5 hover:brightness-95 active:brightness-90 transition-all min-h-[44px] min-w-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-none select-none;
+    @apply inline-flex items-center justify-center font-medium bg-[#166534] text-white rounded-xl px-5 py-2.5 hover:bg-[#14532D] active:scale-[0.98] transition-all min-h-[44px] min-w-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm select-none;
   }
 
-  /* Ghost / outline button */
+  /* Ghost / outline button: clean white surface with subtle border */
   .btn-ghost {
-    @apply inline-flex items-center justify-center font-medium bg-transparent border border-line text-ink rounded-xl px-4 py-2.5 hover:bg-black/5 active:bg-black/10 transition-colors min-h-[44px] min-w-[44px] cursor-pointer select-none;
-    @apply dark:border-nightline dark:text-mist dark:hover:bg-white/5 dark:active:bg-white/10;
+    @apply inline-flex items-center justify-center font-medium bg-white border border-stone-200 text-[#1C1B1A] rounded-xl px-4 py-2.5 hover:bg-stone-100/80 active:bg-stone-200/60 transition-all min-h-[44px] min-w-[44px] cursor-pointer select-none;
   }
 
-  /* Chip: fully rounded, min 36px/44px target */
+  /* Chip: fully rounded, clean white pill, subtle stone border */
   .chip {
-    @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border border-line bg-white text-ink transition-colors min-h-[36px] cursor-pointer select-none;
-    @apply dark:bg-nightcard dark:border-nightline dark:text-mist;
+    @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium border border-stone-200 bg-white text-[#1C1B1A] hover:border-stone-300 hover:bg-stone-50 transition-all min-h-[36px] cursor-pointer select-none;
   }
+}
+
+/* Custom Scrollbar for a premium editorial feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #E7E5E4;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D6D3D1;
 }

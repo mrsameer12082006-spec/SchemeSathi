@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { extraStrings } from '../i18n.extra';
 
 export function HowItWorks({ lang = 'en', navigate }) {
@@ -24,10 +25,15 @@ export function HowItWorks({ lang = 'en', navigate }) {
   ];
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-8 sm:py-12 px-4 space-y-8">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="w-full max-w-2xl mx-auto py-8 sm:py-12 px-4 space-y-8"
+    >
       {/* Page Title */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-black text-ink dark:text-mist">
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1C1B1A]">
           {t.howPageTitle}
         </h1>
       </div>
@@ -35,11 +41,11 @@ export function HowItWorks({ lang = 'en', navigate }) {
       {/* 4 Stacked Cards */}
       <div className="space-y-4">
         {steps.map((step, idx) => (
-          <div key={idx} className="card p-5 sm:p-6 space-y-1.5 shadow-sm">
-            <h2 className="text-lg sm:text-xl font-bold text-ink dark:text-mist">
+          <div key={idx} className="card p-5 sm:p-6 space-y-1.5 shadow-sm bg-white border border-stone-200/90 rounded-xl">
+            <h2 className="font-serif text-lg sm:text-xl font-bold text-[#1C1B1A]">
               {step.title}
             </h2>
-            <p className="text-base text-ink/80 dark:text-mist/80 leading-relaxed">
+            <p className="text-base text-stone-600 leading-relaxed font-normal">
               {step.desc}
             </p>
           </div>
@@ -47,7 +53,7 @@ export function HowItWorks({ lang = 'en', navigate }) {
       </div>
 
       {/* Plain design rule note */}
-      <div className="p-4 rounded-xl bg-paper/70 dark:bg-nightcard/60 border border-line dark:border-nightline text-sm text-ink/80 dark:text-mist/80 text-center leading-relaxed">
+      <div className="p-4 rounded-xl bg-[#F9F8F6] border border-stone-200 text-sm text-stone-600 text-center leading-relaxed">
         <p>{t.howPageNote}</p>
       </div>
 
@@ -56,12 +62,12 @@ export function HowItWorks({ lang = 'en', navigate }) {
         <button
           type="button"
           onClick={() => navigate('/')}
-          className="btn-primary text-base font-bold px-8 py-3 w-full sm:w-auto"
+          className="btn-primary text-base font-medium px-8 py-3 w-full sm:w-auto"
         >
           {t.askAssistant}
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

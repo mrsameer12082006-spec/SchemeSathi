@@ -44,11 +44,11 @@ export const coreStrings = {
     scam: "Never pay anyone to apply. Official applications are free.",
     guidance: "Results are guidance. The final decision is the department's.",
     mayBeEligible: "May be eligible",
-    needMoreDetails: "Need more details",
+    needMoreDetails: "Need a little more info",
     notEligible: "Not eligible",
     needNDetail: "Need {n} detail",
     needNDetails: "Need {n} details",
-    whyHeader: "Why?"
+    whyHeader: "Why you get this"
   },
   hi: {
     note: "मुफ़्त। लॉगिन नहीं। हिंदी और अंग्रेज़ी में।",
@@ -93,11 +93,11 @@ export const coreStrings = {
     scam: "आवेदन के लिए किसी को पैसे न दें। सरकारी आवेदन मुफ़्त हैं।",
     guidance: "नतीजे सिर्फ़ मार्गदर्शन हैं। अंतिम फ़ैसला विभाग का होगा।",
     mayBeEligible: "पात्र हो सकते हैं",
-    needMoreDetails: "और जानकारी चाहिए",
+    needMoreDetails: "थोड़ी और जानकारी चाहिए",
     notEligible: "पात्र नहीं",
     needNDetail: "{n} जानकारी चाहिए",
     needNDetails: "{n} जानकारियाँ चाहिए",
-    whyHeader: "कारण"
+    whyHeader: "आपको क्यों मिलेगा?"
   }
 };
 
@@ -174,16 +174,6 @@ const EN_TO_HI = {
   "Rural (Village / Gram Panchayat)": "ग्रामीण (गाँव / ग्राम पंचायत)",
   "Urban (Town / City)": "शहरी (कस्बा / शहर)",
   "Not sure": "पता नहीं",
-
-  // Scheme results (Demo)
-  "Scheme A (demo)": "योजना A (डेमो)",
-  "Yearly support for small farmers": "छोटे और सीमांत किसान परिवारों के लिए वार्षिक आय सहायता",
-  "Landholding within 2 hectares limit": "खेती योग्य भूमि 2 हेक्टेयर सीमा के भीतर है",
-  "Primary occupation is farming": "मुख्य व्यवसाय कृषि दर्ज है",
-  "Scheme B (demo)": "योजना B (डेमो)",
-  "Crop insurance support": "प्राकृतिक आपदाओं के विरुद्ध रियायती फसल बीमा सहायता",
-  "Engaged in seasonal crop cultivation": "मौसमी फसल खेती में संलग्न",
-  "Need crop sowing verification for current season": "वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है",
 
   // All 30 Schemes
   "PM Kisan Samman Nidhi": "प्रधानमंत्री किसान सम्मान निधि",

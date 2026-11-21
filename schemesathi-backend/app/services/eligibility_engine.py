@@ -82,6 +82,52 @@ class EligibilityEngine:
 
         return attrs
 
+    @staticmethod
+    def _check_occupation_match(allowed_occupations: List[str], attrs: Dict[str, Any], profile_occupation: Optional[str]) -> tuple[bool, bool]:
+        """
+        Checks if citizen profile matches allowed occupations.
+        Returns: (is_match, is_mismatch)
+        """
+        if not allowed_occupations:
+            return True, False
+
+        allowed_lower = [str(o).lower() for o in allowed_occupations]
+
+        # Check if user has an identified persona/occupation
+        has_any_occ = bool(
+            profile_occupation or 
+            attrs.get("is_farmer") or 
+            attrs.get("is_student") or 
+            attrs.get("is_woman") or 
+            attrs.get("is_worker") or 
+            attrs.get("is_senior") or 
+            attrs.get("is_business")
+        )
+        if not has_any_occ:
+            return False, False  # Unknown occupation, not a hard mismatch
+
+        # Check persona matches against allowed occupations
+        matched = False
+        if attrs.get("is_farmer") and any(w in o for o in allowed_lower for w in ["farmer", "kisan", "cultivator", "agriculture"]):
+            matched = True
+        elif attrs.get("is_student") and any(w in o for o in allowed_lower for w in ["student", "विद्यार्थी", "छात्र", "scholarship"]):
+            matched = True
+        elif attrs.get("is_worker") and any(w in o for o in allowed_lower for w in ["worker", "labour", "मजदूर", "मज़दूर", "shramik", "unorganized", "any worker", "dihadi"]):
+            matched = True
+        elif attrs.get("is_business") and any(w in o for o in allowed_lower for w in ["business", "vendor", "व्यापारी", "self employed", "shop"]):
+            matched = True
+        elif attrs.get("is_woman") and any(w in o for o in allowed_lower for w in ["woman", "women", "महिला", "female"]):
+            matched = True
+        elif attrs.get("is_senior") and any(w in o for o in allowed_lower for w in ["senior", "elderly", "बुजुर्ग", "pensioner"]):
+            matched = True
+        elif profile_occupation and any(profile_occupation.lower() in o or o in profile_occupation.lower() for o in allowed_lower):
+            matched = True
+
+        if matched:
+            return True, False
+        else:
+            return False, True
+
     def evaluate(self, profile: UserProfile, schemes_data: List[Dict[str, Any]], language: str = "en") -> EvaluationResponse:
         is_hi = language == "hi"
         attrs = self._extract_attributes(profile)
@@ -112,14 +158,32 @@ class EligibilityEngine:
             elif cat_code == "business" and attrs["is_business"]:
                 persona_matched = True
 
+            # Check explicit allowed occupations rules from criteria
+            crit_occs = criteria.get("allowed_occupations") or item.get("eligibility", {}).get("allowed_occupations") or []
+            occ_matched, occ_mismatch = self._check_occupation_match(crit_occs, attrs, profile.occupation)
+
+            if occ_mismatch:
+                failed.append(
+                    f"यह योजना आपके वर्तमान व्यवसाय/पेशा ({profile.occupation or 'वर्ग'}) के लिए नहीं है"
+                    if is_hi else f"Scheme not applicable for {profile.occupation or 'your occupation'}"
+                )
+            elif (occ_matched and crit_occs) or persona_matched:
+                passed.append("लक्षित श्रेणी/पेशा मेल खाता है" if is_hi else "Target occupation/category matches")
+
             # Universal social security schemes available to workers & general citizens
-            is_universal = (cat_code == "workers" and scheme_code in ["pmsby", "pmjjby", "apy"])
+            # CRITICAL SAFEGUARD: Do not match universal schemes if citizen profile is completely blank,
+            # or if the citizen has an explicit occupation mismatch (e.g. APY is not for students)
+            has_any_profile = bool(
+                attrs["is_worker"] or attrs["is_farmer"] or attrs["is_student"] or 
+                attrs["is_female"] or attrs["is_senior"] or attrs["is_business"] or 
+                profile.occupation or profile.landholding_hectares is not None or 
+                profile.annual_income is not None or profile.age is not None
+            )
+
+            is_universal = (cat_code == "workers" and scheme_code in ["pmsby", "pmjjby"] and has_any_profile and not occ_mismatch)
 
             if not persona_matched and not is_universal:
                 continue
-
-            if persona_matched:
-                passed.append("लक्षित श्रेणी/पेशा मेल खाता है" if is_hi else "Target occupation/category matches")
 
             # Step 2: Landholding Limit Checks
             max_land = criteria.get("max_landholding_hectares")
@@ -207,6 +271,11 @@ class EligibilityEngine:
                     failed.append(
                         "यह योजना विशेष रूप से महिलाओं के लिए है"
                         if is_hi else "Scheme is exclusively for women"
+                    )
+                else:
+                    missing.append(
+                        "यह योजना केवल महिलाओं के लिए है (महिला लाभार्थी होना आवश्यक है)"
+                        if is_hi else "Exclusively for female beneficiaries (female applicant required)"
                     )
 
             # Step 6: Residential Area (Rural/Urban) Checks

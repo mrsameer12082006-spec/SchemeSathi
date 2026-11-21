@@ -39,6 +39,13 @@ lerna-debug.log*
 Thumbs.db
 desktop.ini
 
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
 # Caches and temporary files
 .cache/
 .vite/
@@ -47,11 +54,9 @@ coverage/
 *.tmp
 *.temp
 
-
-context.md 
-
-supabase_schema_and_seed.sql
-
+# Local documentation and database artifacts
 SchemeSathi_Supabase_Database_Guide.pdf
-
 VOICE_LLM_AGENT_INTEGRATION_GUIDE.md
+supabase_schema_and_seed.sql
+context.md
+
