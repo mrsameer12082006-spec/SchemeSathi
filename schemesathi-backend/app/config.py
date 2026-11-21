@@ -22,9 +22,11 @@ class Settings(BaseSettings):
     
     # Sarvam AI Voice Settings (Hinglish/Hindi STT & Bulbul Neural TTS)
     SARVAM_API_KEY: str = ""
-    SARVAM_SPEAKER: Optional[str] = None
+    SARVAM_MODEL: str = "bulbul:v3"
+    SARVAM_SPEAKER: Optional[str] = "priya"
+    SARVAM_PACE: float = 1.0
+    SARVAM_TEMPERATURE: float = 0.7
     SARVAM_PITCH: float = -0.1
-    SARVAM_PACE: float = 0.92
     SARVAM_LOUDNESS: float = 1.0
     
     SESSION_TTL_MINUTES: int = 30

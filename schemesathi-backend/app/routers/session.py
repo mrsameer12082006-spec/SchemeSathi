@@ -1,13 +1,15 @@
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, HTTPException, Path, Request
 from typing import Dict, Any
 
+from app.limiter import limiter
 from app.models.profile import SessionCreateRequest, SessionResponse, IngestProfileRequest, UserProfile
 from app.services.session_store import session_store
 
 router = APIRouter(prefix="/api/session", tags=["Session & Citizen Profile"])
 
 @router.post("", response_model=SessionResponse, summary="Initialize anonymous ephemeral session")
-async def create_session(req: SessionCreateRequest = SessionCreateRequest()):
+@limiter.limit("60/minute")
+async def create_session(request: Request, req: SessionCreateRequest = SessionCreateRequest()):
     """
     Creates an ephemeral session held strictly in volatile RAM.
     Guarantees 0 persistent records, cookies, or database tracking.

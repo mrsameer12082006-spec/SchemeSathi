@@ -1,4 +1,6 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { CheckCircle2, HelpCircle, XCircle } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { coreStrings } from '../i18n';
 
@@ -49,30 +51,33 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
   const hasWhyItems = passed.length > 0 || missing.length > 0 || failed.length > 0;
 
   return (
-    <div className="card flex flex-col gap-4">
+    <motion.div
+      whileHover={{ y: -2, transition: { duration: 0.15 } }}
+      className="card flex flex-col gap-4 bg-white border border-stone-200/90 shadow-sm rounded-xl"
+    >
       {/* Top Header: Name and Status Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-line dark:border-nightline">
-        <h3 className="text-xl font-bold text-ink dark:text-mist">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-stone-200">
+        <h3 className="font-serif text-xl font-bold text-[#1C1B1A]">
           {result.name}
         </h3>
         <StatusBadge status={status} lang={lang} />
       </div>
 
       {/* One-line clean summary */}
-      <p className="text-base text-ink/90 dark:text-mist/90 leading-relaxed font-normal">
+      <p className="text-base text-stone-600 leading-relaxed font-normal">
         {displaySummary}
       </p>
 
       {/* Clean key criteria pills if parsed from raw strings */}
       {parsedCriteria.length > 0 && (
-        <div className="bg-paper/70 dark:bg-night/50 rounded-xl p-3.5 border border-line/60 dark:border-nightline/60">
-          <span className="text-xs font-bold uppercase tracking-wider text-ink/60 dark:text-mist/60 block mb-2">
+        <div className="bg-[#F9F8F6] rounded-xl p-3.5 border border-stone-200/80">
+          <span className="text-xs font-semibold uppercase tracking-wider text-stone-500 block mb-2">
             {lang === 'hi' ? 'मुख्य पात्रता मानदंड' : 'Key Eligibility Criteria'}
           </span>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-ink/90 dark:text-mist/90">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-[#1C1B1A]">
             {parsedCriteria.map((crit, idx) => (
               <li key={`crit-${idx}`} className="flex items-center gap-2">
-                <span className="text-saffron font-bold text-sm select-none">•</span>
+                <span className="text-[#166534] font-bold text-sm select-none">•</span>
                 <span className="font-medium">{crit}</span>
               </li>
             ))}
@@ -82,26 +87,26 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
 
       {/* "Why?" list */}
       {hasWhyItems && (
-        <div className="bg-paper/70 dark:bg-night/50 rounded-xl p-3.5 border border-line/60 dark:border-nightline/60 flex flex-col gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-ink/60 dark:text-mist/60">
+        <div className="bg-[#F9F8F6] rounded-xl p-3.5 border border-stone-200/80 flex flex-col gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-stone-500">
             {t.whyHeader}
           </span>
           <ul className="space-y-1.5 text-sm" aria-label={t.whyHeader}>
             {passed.map((item, idx) => (
-              <li key={`passed-${idx}`} className="flex items-start gap-2.5 text-ink dark:text-mist">
-                <span className="text-leaf font-extrabold text-base leading-none select-none" aria-hidden="true">✓</span>
+              <li key={`passed-${idx}`} className="flex items-start gap-2.5 text-[#1C1B1A]">
+                <CheckCircle2 className="w-4 h-4 text-[#166534] shrink-0 mt-0.5" aria-hidden="true" />
                 <span className="leading-snug">{item}</span>
               </li>
             ))}
             {missing.map((item, idx) => (
-              <li key={`missing-${idx}`} className="flex items-start gap-2.5 text-amber-900 dark:text-amber-200">
-                <span className="text-amber-600 font-extrabold text-base leading-none select-none" aria-hidden="true">?</span>
+              <li key={`missing-${idx}`} className="flex items-start gap-2.5 text-amber-900">
+                <HelpCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" aria-hidden="true" />
                 <span className="leading-snug">{item}</span>
               </li>
             ))}
             {failed.map((item, idx) => (
-              <li key={`failed-${idx}`} className="flex items-start gap-2.5 text-ink/70 dark:text-mist/70">
-                <span className="text-gray-400 font-extrabold text-base leading-none select-none" aria-hidden="true">✕</span>
+              <li key={`failed-${idx}`} className="flex items-start gap-2.5 text-stone-500">
+                <XCircle className="w-4 h-4 text-stone-400 shrink-0 mt-0.5" aria-hidden="true" />
                 <span className="leading-snug">{item}</span>
               </li>
             ))}
@@ -115,7 +120,7 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
           <button
             type="button"
             onClick={() => onHowToApply && onHowToApply(result.scheme_id)}
-            className="btn-primary w-full sm:w-auto"
+            className="btn-primary w-full sm:w-auto font-medium"
           >
             {t.howToApply} →
           </button>
@@ -125,7 +130,7 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
           <button
             type="button"
             onClick={() => onAnswerMore && onAnswerMore(result.scheme_id)}
-            className="btn-ghost w-full sm:w-auto font-bold"
+            className="btn-ghost w-full sm:w-auto font-medium text-[#1C1B1A] border border-stone-300"
           >
             {t.answerMore} →
           </button>
@@ -133,7 +138,7 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
 
         {isNotEligible && null}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

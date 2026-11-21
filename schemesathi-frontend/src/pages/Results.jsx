@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import ResultCard from '../components/ResultCard';
 import Chips from '../components/Chips';
 import { coreStrings } from '../i18n';
@@ -60,15 +61,19 @@ export function Results({
   // Profile chips
   const profileChips = Object.entries(profile).map(([, val]) => `${val}`);
 
-
   return (
-    <div className="w-full max-w-3xl mx-auto py-8 px-4 space-y-8">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="w-full max-w-3xl mx-auto py-8 px-4 space-y-8"
+    >
       {/* Header */}
       <header className="space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-black text-ink dark:text-mist">
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1C1B1A]">
           {tCore.resultsTitle}
         </h1>
-        <p className="text-base sm:text-lg font-medium text-ink/80 dark:text-mist/80">
+        <p className="text-base sm:text-lg font-normal text-stone-600">
           {tCore.checkedSchemes.replace('{n}', String(results.length))}
         </p>
 
@@ -77,7 +82,7 @@ export function Results({
           {summaryTags.map((tag, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-nightcard border border-line dark:border-nightline text-ink dark:text-mist shadow-none select-none"
+              className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-white border border-stone-200 text-[#1C1B1A] shadow-sm select-none"
             >
               {tag}
             </span>
@@ -87,8 +92,8 @@ export function Results({
 
       {/* "What I understood" line */}
       {profileChips.length > 0 && (
-        <section className="p-4 rounded-2xl bg-white dark:bg-nightcard border border-line dark:border-nightline space-y-2">
-          <p className="text-xs font-bold uppercase tracking-wider text-ink/60 dark:text-mist/60">
+        <section className="p-4 rounded-xl bg-white border border-stone-200 space-y-2 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-500">
             {tCore.understood}
           </p>
           <Chips items={profileChips} variant="display" ariaLabel={tCore.understood} />
@@ -109,21 +114,21 @@ export function Results({
       </section>
 
       {/* Bottom Actions: Start Again */}
-      <section className="flex items-center justify-center pt-4 border-t border-line dark:border-nightline">
+      <section className="flex items-center justify-center pt-4 border-t border-stone-200">
         <button
           type="button"
           onClick={onStartAgain}
-          className="btn-ghost font-bold text-ink dark:text-mist px-6 py-3 w-full sm:w-auto"
+          className="btn-ghost font-medium text-[#1C1B1A] px-6 py-3 w-full sm:w-auto border border-stone-300"
         >
           {tCore.startAgain}
         </button>
       </section>
 
       {/* Footer guidance note */}
-      <p className="text-center text-xs text-ink/60 dark:text-mist/60 pt-2">
+      <p className="text-center text-xs text-stone-500 pt-2">
         {tCore.guidance}
       </p>
-    </div>
+    </motion.div>
   );
 }
 

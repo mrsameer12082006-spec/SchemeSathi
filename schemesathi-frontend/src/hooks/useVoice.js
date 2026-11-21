@@ -192,13 +192,15 @@ export function useVoice({ lang = 'en' } = {}) {
     });
   }, [cancelSpeech]);
 
-  // Helper: play streaming audio via HTML5 Audio with instant start (<400ms)
+  // Helper: play streaming audio via HTML5 Audio with instant start (<300ms)
   const playAudioStream = useCallback((streamUrl, id = null) => {
     return new Promise((resolve) => {
       try {
         cancelSpeech();
 
-        const audio = new Audio(streamUrl);
+        const audio = new Audio();
+        audio.preload = 'auto';
+        audio.src = streamUrl;
         audioPlayerRef.current = audio;
 
         audio.onplay = () => {

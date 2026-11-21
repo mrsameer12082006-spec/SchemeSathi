@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Volume2, Pause, Gift, FileText, Send, Info, ShieldCheck, ExternalLink } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import { getSchemeById } from '../services/api';
 import { coreStrings } from '../i18n';
@@ -66,8 +68,8 @@ export function SchemeDetail({
   if (loading) {
     return (
       <div className="w-full max-w-3xl mx-auto py-16 px-4 flex flex-col items-center justify-center gap-4">
-        <div className="w-8 h-8 border-4 border-saffron border-t-transparent rounded-full animate-spin" />
-        <p className="text-base font-semibold text-ink/70 dark:text-mist/70">{tExtra.loading}</p>
+        <div className="w-8 h-8 border-3 border-[#166534] border-t-transparent rounded-full animate-spin" />
+        <p className="text-base font-medium text-stone-500">{tExtra.loading}</p>
       </div>
     );
   }
@@ -75,7 +77,7 @@ export function SchemeDetail({
   if (error || !scheme) {
     return (
       <div className="w-full max-w-2xl mx-auto py-16 px-4 text-center space-y-4">
-        <p className="text-xl font-bold text-red-600 dark:text-red-400">
+        <p className="text-xl font-medium text-red-600">
           {error || tExtra.notFound}
         </p>
         <button
@@ -98,9 +100,13 @@ export function SchemeDetail({
   const totalCount = documents.length;
   const progressPercent = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0;
 
-
   return (
-    <article className="w-full max-w-3xl mx-auto py-8 px-4 space-y-8">
+    <motion.article
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="w-full max-w-3xl mx-auto py-8 px-4 space-y-8"
+    >
       {/* Back button */}
       <div>
         <button
@@ -112,7 +118,7 @@ export function SchemeDetail({
               navigate('/schemes');
             }
           }}
-          className="text-sm font-semibold text-ink/70 dark:text-mist/70 hover:text-ink dark:hover:text-mist hover:underline flex items-center gap-1.5 cursor-pointer"
+          className="text-sm font-medium text-stone-600 hover:text-[#166534] hover:underline flex items-center gap-1.5 cursor-pointer"
         >
           <span aria-hidden="true">←</span>
           <span>{results && results.length > 0 ? tExtra.backToResults : tExtra.backToSchemes}</span>
@@ -123,7 +129,7 @@ export function SchemeDetail({
       {scheme.demo && (
         <div
           role="note"
-          className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-amber-900 dark:text-amber-200 text-sm font-semibold flex items-center gap-2"
+          className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm font-medium flex items-center gap-2 shadow-sm"
         >
           <span aria-hidden="true">⚠️</span>
           <span>{tExtra.demoSchemeWarning}</span>
@@ -131,43 +137,45 @@ export function SchemeDetail({
       )}
 
       {/* Scheme Title & Status */}
-      <header className="space-y-3 pb-4 border-b border-line dark:border-nightline">
+      <header className="space-y-3 pb-4 border-b border-stone-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h1 className="text-3xl sm:text-4xl font-black text-ink dark:text-mist">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1C1B1A]">
             {scheme.name}
           </h1>
           <StatusBadge status={status} lang={lang} />
         </div>
-        <p className="text-base text-ink/80 dark:text-mist/80">
+        <p className="text-base text-stone-600 leading-relaxed font-normal">
           {scheme.summary}
         </p>
       </header>
 
       {/* What You Get (Benefits) */}
-      <section className="card space-y-3">
-        <h2 className="text-xl font-bold text-ink dark:text-mist flex items-center gap-2">
-          <span>🎁</span> {tExtra.whatYouGet}
+      <section className="card space-y-3 bg-white border border-stone-200/90 shadow-sm rounded-xl">
+        <h2 className="font-serif text-xl font-bold text-[#1C1B1A] flex items-center gap-2">
+          <Gift className="w-5 h-5 text-[#166534]" aria-hidden="true" />
+          <span>{tExtra.whatYouGet}</span>
         </h2>
-        <p className="text-base text-ink/90 dark:text-mist/90 leading-relaxed">
+        <p className="text-base text-stone-700 leading-relaxed font-normal">
           {scheme.benefits}
         </p>
       </section>
 
       {/* Documents to keep ready (Interactive Checklist) */}
-      <section className="card space-y-4">
+      <section className="card space-y-4 bg-white border border-stone-200/90 shadow-sm rounded-xl">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <h2 className="text-xl font-bold text-ink dark:text-mist flex items-center gap-2">
-            <span>📋</span> {tExtra.documentsToKeep}
+          <h2 className="font-serif text-xl font-bold text-[#1C1B1A] flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#166534]" aria-hidden="true" />
+            <span>{tExtra.documentsToKeep}</span>
           </h2>
-          <span className="text-sm font-bold text-ink/70 dark:text-mist/70">
+          <span className="text-sm font-medium text-stone-500">
             {tExtra.readyProgress.replace('{ready}', String(checkedCount)).replace('{total}', String(totalCount))}
           </span>
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-line dark:bg-nightline rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden border border-stone-200/50">
           <div
-            className="h-full bg-saffron transition-all duration-300 rounded-full"
+            className="h-full bg-[#166534] transition-all duration-300 rounded-full"
             style={{ width: `${progressPercent}%` }}
             role="progressbar"
             aria-valuenow={checkedCount}
@@ -185,23 +193,23 @@ export function SchemeDetail({
             return (
               <label
                 key={idx}
-                className={`flex items-start gap-3 p-3 rounded-xl border border-line/60 dark:border-nightline/60 cursor-pointer transition-colors ${
+                className={`flex items-start gap-3 p-3 rounded-xl border border-stone-200 cursor-pointer transition-all ${
                   isChecked
-                    ? 'bg-paper/40 dark:bg-night/30'
-                    : 'bg-white dark:bg-nightcard hover:border-saffron'
+                    ? 'bg-stone-50 text-stone-400'
+                    : 'bg-white hover:border-[#166534]/50'
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => toggleDoc(idx)}
-                  className="w-5 h-5 mt-0.5 rounded text-saffron focus:ring-saffron cursor-pointer"
+                  className="w-5 h-5 mt-0.5 rounded text-[#166534] focus:ring-[#166534] cursor-pointer accent-[#166534]"
                 />
                 <span
                   className={`text-base select-none leading-snug ${
                     isChecked
-                      ? 'line-through text-ink/50 dark:text-mist/50'
-                      : 'text-ink dark:text-mist font-medium'
+                      ? 'line-through text-stone-400'
+                      : 'text-[#1C1B1A] font-normal'
                   }`}
                 >
                   {doc}
@@ -213,28 +221,29 @@ export function SchemeDetail({
       </section>
 
       {/* How to Apply */}
-      <section className="card space-y-4">
+      <section className="card space-y-4 bg-white border border-stone-200/90 shadow-sm rounded-xl">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <h2 className="text-xl font-bold text-ink dark:text-mist flex items-center gap-2">
-            <span>🚀</span> {tExtra.howToApplyHeading}
+          <h2 className="font-serif text-xl font-bold text-[#1C1B1A] flex items-center gap-2">
+            <Send className="w-5 h-5 text-[#166534]" aria-hidden="true" />
+            <span>{tExtra.howToApplyHeading}</span>
           </h2>
           <button
             type="button"
             onClick={handleListenSteps}
-            className={`text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 rounded-lg transition-colors cursor-pointer ${
+            className={`text-xs font-semibold px-3 py-1.5 flex items-center gap-1.5 rounded-lg transition-colors cursor-pointer ${
               activePlayingId === 'steps'
-                ? 'bg-saffron text-ink font-bold shadow-sm'
+                ? 'bg-[#166534] text-white shadow-sm'
                 : 'btn-ghost'
             }`}
             aria-label={activePlayingId === 'steps' ? (lang === 'hi' ? 'रोकें' : 'Stop') : tExtra.listenSteps}
           >
-            <span aria-hidden="true">{activePlayingId === 'steps' ? '⏸️' : '🔊'}</span>
+            {activePlayingId === 'steps' ? <Pause className="w-3.5 h-3.5 text-inherit" aria-hidden="true" /> : <Volume2 className="w-3.5 h-3.5 text-inherit" aria-hidden="true" />}
             <span>{activePlayingId === 'steps' ? (lang === 'hi' ? 'रोकें' : 'Stop') : tExtra.listenSteps}</span>
             {activePlayingId === 'steps' && (
               <span className="flex items-center gap-0.5 ml-1" aria-hidden="true">
-                <span className="w-1 h-3 bg-ink rounded-full animate-pulse" />
-                <span className="w-1 h-4 bg-ink rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-                <span className="w-1 h-2 bg-ink rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                <span className="w-1 h-3 bg-white rounded-full animate-pulse" />
+                <span className="w-1 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                <span className="w-1 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
               </span>
             )}
           </button>
@@ -242,8 +251,8 @@ export function SchemeDetail({
 
         <ol className="space-y-3 list-none counter-reset">
           {(scheme.steps || []).map((step, idx) => (
-            <li key={idx} className="flex items-start gap-3 text-base text-ink dark:text-mist leading-relaxed">
-              <span className="w-6 h-6 rounded-full bg-saffron/20 text-ink dark:text-mist font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+            <li key={idx} className="flex items-start gap-3 text-base text-stone-700 leading-relaxed font-normal">
+              <span className="w-6 h-6 rounded-full bg-[#166534]/10 text-[#166534] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                 {idx + 1}
               </span>
               <span>{step}</span>
@@ -252,9 +261,9 @@ export function SchemeDetail({
         </ol>
 
         {/* CSC Explanation line */}
-        <div className="p-3.5 rounded-xl bg-paper/70 dark:bg-night/40 border border-line/60 dark:border-nightline/60 text-xs sm:text-sm text-ink/80 dark:text-mist/80">
+        <div className="p-3.5 rounded-xl bg-[#F9F8F6] border border-stone-200 text-xs sm:text-sm text-stone-600 flex items-start gap-2">
+          <Info className="w-4 h-4 text-[#166534] shrink-0 mt-0.5" aria-hidden="true" />
           <p className="leading-relaxed">
-            <span className="font-bold text-ink dark:text-mist">ℹ️ </span>
             {tExtra.cscExplanation}
           </p>
         </div>
@@ -267,42 +276,42 @@ export function SchemeDetail({
             href={scheme.official_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary text-center flex items-center justify-center gap-2 text-base font-bold w-full"
+            className="btn-primary text-center flex items-center justify-center gap-2 text-base font-medium w-full"
           >
             <span>{tCore.openOfficial}</span>
-            <span aria-hidden="true">↗</span>
+            <ExternalLink className="w-4 h-4 text-inherit" aria-hidden="true" />
           </a>
         </div>
 
-        {/* Amber Scam Warning */}
+        {/* Scam Warning */}
         <div
           role="note"
-          className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-amber-900 dark:text-amber-200 text-sm font-semibold flex items-start gap-2.5 shadow-sm"
+          className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm font-medium flex items-start gap-2.5 shadow-sm"
         >
-          <span className="text-base select-none leading-none" aria-hidden="true">🛡️</span>
+          <ShieldCheck className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" aria-hidden="true" />
           <p className="leading-snug">{tCore.scam}</p>
         </div>
 
         {/* Source line */}
-        <div className="pt-2 text-xs text-ink/60 dark:text-mist/60 space-y-1">
+        <div className="pt-2 text-xs text-stone-500 space-y-1">
           <p>
-            <span className="font-semibold">{tExtra.lastChecked}: </span>
+            <span className="font-medium text-stone-600">{tExtra.lastChecked}: </span>
             {scheme.last_verified || tExtra.lastCheckedDemo}
           </p>
           <p className="truncate">
-            <span className="font-semibold">URL: </span>
+            <span className="font-medium text-stone-600">URL: </span>
             <a
               href={scheme.official_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="underline hover:text-ink dark:hover:text-mist"
+              className="underline hover:text-[#166534]"
             >
               {scheme.official_url}
             </a>
           </p>
         </div>
       </section>
-    </article>
+    </motion.article>
   );
 }
 

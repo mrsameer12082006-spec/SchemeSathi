@@ -55,7 +55,7 @@ class SarvamVoiceService(VoiceService):
     """
     Production-grade Sarvam AI implementation:
     - STT: Saaras v4 model with native Hinglish and Hindi code-mix accuracy, high VAD sensitivity, and scheme domain hotwords.
-    - TTS: Bulbul v4-flash low-latency streaming and natural Indian voice persona synthesis.
+    - TTS: Bulbul v3 expressive conversational model with 'priya' speaker, pace=1.0, temperature=0.7, enable_preprocessing=True, and HTTP streaming.
     """
 
     STT_URL = "https://api.sarvam.ai/speech-to-text"
@@ -121,8 +121,12 @@ class SarvamVoiceService(VoiceService):
             }
 
     def _prepare_tts_payload(self, text: str, language_code: str = "hi-IN", speaker: Optional[str] = None) -> tuple[Dict[str, Any], str]:
-        # Clean HTML or markdown tags from text before speech synthesis
+        # Clean HTML, markdown formatting, bullet points, and emojis from text before speech synthesis
         clean_text = text.replace("**", "").replace("*", "").replace("#", "").strip()
+        clean_text = re.sub(r'^[•\-\*]\s*', '', clean_text, flags=re.MULTILINE)
+        clean_text = re.sub(r'[•\-\*]\s*', ' ', clean_text)
+        clean_text = re.sub(r'[\U00010000-\U0010ffff]', '', clean_text)
+        clean_text = re.sub(r'\s+', ' ', clean_text).strip()
 
         # Auto-detect language from script: if Devanagari Hindi characters are present, always use hi-IN
         has_devanagari = any('\u0900' <= c <= '\u097f' for c in clean_text)
@@ -143,21 +147,33 @@ class SarvamVoiceService(VoiceService):
         if len(clean_text) > 500:
             clean_text = clean_text[:497] + "..."
 
-        # Persona speaker mapping for bulbul:v4-flash
-        # Legacy speaker names like 'priya' / 'anushka' map to 'simran_hi_conversation'
-        configured_speaker = os.environ.get("SARVAM_SPEAKER")
-        effective_speaker = speaker or configured_speaker
-        if not effective_speaker or effective_speaker in ["priya", "anushka", "default"]:
-            effective_speaker = "simran_hi_conversation" if target_lang == "hi-IN" else "simran_en_customer"
+        # Compatible speakers for Sarvam bulbul:v3
+        VALID_V3_SPEAKERS = {
+            "aditya", "ritu", "ashutosh", "priya", "neha", "rahul", "pooja", "rohan",
+            "simran", "kavya", "amit", "dev", "ishita", "shreya", "ratan", "varun",
+            "manan", "sumit", "roopa", "kabir", "aayan", "shubh", "advait", "anand",
+            "tanya", "tarun", "sunny", "mani", "gokul", "vijay", "shruti", "suhani",
+            "mohit", "kavitha", "rehan", "soham", "rupali"
+        }
+
+        # Select model and speaker (Default: bulbul:v3 with recommended conversational voice 'priya')
+        model_name = os.environ.get("SARVAM_MODEL", "bulbul:v3").strip()
+        configured_speaker = os.environ.get("SARVAM_SPEAKER", "priya").strip()
+        req_speaker = speaker.strip() if speaker else None
+
+        # Resolve speaker: ensure it is a valid v3 speaker (defaulting to priya)
+        effective_speaker = req_speaker or configured_speaker
+        if not effective_speaker or effective_speaker not in VALID_V3_SPEAKERS:
+            effective_speaker = "priya"
 
         pace_val = float(os.environ.get("SARVAM_PACE", 1.0))
-        temp_val = float(os.environ.get("SARVAM_TEMPERATURE", 0.6))
+        temp_val = float(os.environ.get("SARVAM_TEMPERATURE", 0.7))
 
         payload = {
             "text": clean_text,
             "target_language_code": target_lang,
             "speaker": effective_speaker,
-            "model": "bulbul:v4-flash",
+            "model": model_name,
             "pace": pace_val,
             "temperature": temp_val,
             "enable_preprocessing": True

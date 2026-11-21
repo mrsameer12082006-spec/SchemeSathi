@@ -1,10 +1,11 @@
 import base64
 import logging
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from app.limiter import limiter, CHAT_RATE_LIMIT, TTS_RATE_LIMIT, STT_RATE_LIMIT
 from app.models.profile import UserProfile
 from app.models.scheme import EvaluationResponse
 from app.services.session_store import session_store
@@ -328,7 +329,8 @@ async def extract_profile_endpoint(req: ExtractRequest):
 
 
 @router.post("/search", summary="Semantic RAG search over scheme knowledge base (Hindi/English)")
-async def search_schemes_endpoint(req: SearchRequest):
+@limiter.limit("60/minute")
+async def search_schemes_endpoint(request: Request, req: SearchRequest):
     """
     RAG semantic search: queries Supabase pgvector RPC or local in-memory embeddings.
     Accepts natural Hindi or English questions (e.g. 'फसल बीमा के नियम', 'Aadhaar scholarship').
@@ -343,7 +345,9 @@ async def search_schemes_endpoint(req: SearchRequest):
 
 
 @router.post("/transcribe", summary="Transcribe speech audio via Sarvam AI Saaras STT")
+@limiter.limit(STT_RATE_LIMIT)
 async def transcribe_audio_endpoint(
+    request: Request,
     file: UploadFile = File(...),
     language: str = Form("hi-IN")
 ):
@@ -360,9 +364,10 @@ async def transcribe_audio_endpoint(
 
 
 @router.post("/synthesize", summary="Synthesize Hindi/Indian English speech via Sarvam AI Bulbul TTS")
-async def synthesize_speech_endpoint(req: SynthesizeRequest):
+@limiter.limit(TTS_RATE_LIMIT)
+async def synthesize_speech_endpoint(request: Request, req: SynthesizeRequest):
     """
-    Synthesizes natural speech using Sarvam AI Bulbul v4-flash.
+    Synthesizes natural speech using Sarvam AI Bulbul v3.
     Returns base64 encoded audio for immediate browser playback.
     """
     lang_code = "hi-IN" if req.language == "hi" else "en-IN"
@@ -370,38 +375,52 @@ async def synthesize_speech_endpoint(req: SynthesizeRequest):
     return result
 
 
-@router.get("/synthesize/stream", summary="Real-time HTTP audio streaming via Sarvam Bulbul v4-flash")
+@router.get("/synthesize/stream", summary="Real-time HTTP audio streaming via Sarvam Bulbul v3")
+@limiter.limit(TTS_RATE_LIMIT)
 async def stream_speech_get(
+    request: Request,
     text: str = Query(..., description="Text to speak"),
     lang: str = Query("hi", description="Language code ('hi' or 'en')"),
     speaker: Optional[str] = Query(None, description="Optional speaker ID override")
 ):
     """
-    Streams audio/mpeg chunks with ultra-low latency (<400ms time to first word)
-    using Sarvam Bulbul v4-flash streaming API.
+    Streams audio/mpeg chunks with ultra-low latency (<300ms time to first word)
+    using Sarvam Bulbul v3 streaming API.
     """
     lang_code = "hi-IN" if lang == "hi" else "en-IN"
     return StreamingResponse(
         voice_service.stream_synthesize(text, language_code=lang_code, speaker=speaker),
-        media_type="audio/mpeg"
+        media_type="audio/mpeg",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "Content-Type": "audio/mpeg",
+            "X-Accel-Buffering": "no"
+        }
     )
 
 
-@router.post("/synthesize/stream", summary="Real-time HTTP audio streaming via Sarvam Bulbul v4-flash (POST)")
-async def stream_speech_post(req: SynthesizeRequest):
+@router.post("/synthesize/stream", summary="Real-time HTTP audio streaming via Sarvam Bulbul v3 (POST)")
+@limiter.limit(TTS_RATE_LIMIT)
+async def stream_speech_post(request: Request, req: SynthesizeRequest):
     """
-    Streams audio/mpeg chunks with ultra-low latency (<400ms time to first word)
-    using Sarvam Bulbul v4-flash streaming API.
+    Streams audio/mpeg chunks with ultra-low latency (<300ms time to first word)
+    using Sarvam Bulbul v3 streaming API.
     """
     lang_code = "hi-IN" if req.language == "hi" else "en-IN"
     return StreamingResponse(
         voice_service.stream_synthesize(req.text, language_code=lang_code, speaker=req.speaker),
-        media_type="audio/mpeg"
+        media_type="audio/mpeg",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "Content-Type": "audio/mpeg",
+            "X-Accel-Buffering": "no"
+        }
     )
 
 
 @router.post("/chat", response_model=AIChatTurnResponse, summary="Full AI Voice Agent Turn: STT -> Groq 8B Extraction -> Rule Engine -> Groq Explanation -> Sarvam TTS")
-async def ai_chat_turn(req: AIChatTurnRequest):
+@limiter.limit(CHAT_RATE_LIMIT)
+async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
     """
     Unified multimodal conversational pipeline:
     1. If audio provided, transcribes via Sarvam AI Saaras (STT).

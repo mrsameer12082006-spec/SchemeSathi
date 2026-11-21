@@ -1,10 +1,13 @@
+import os
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
 
 from app.config import get_settings
+from app.limiter import limiter, custom_rate_limit_exceeded_handler
 from app.routers.session import router as session_router
 from app.routers.schemes import router as schemes_router
 from app.routers.eligibility import router as eligibility_router
@@ -59,10 +62,31 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Enable CORS for frontend applications & Voice LLM Agent
+# ─── Layer 2: Application-Level Rate Limiter (SlowAPI) ──────────────────────
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, custom_rate_limit_exceeded_handler)
+
+# ─── Layer 3: Hardened Security Headers Middleware ──────────────────────────
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    return response
+
+# ─── Layer 3: Controlled CORS Policy ─────────────────────────────────────────
+cors_origins_env = os.environ.get("CORS_ORIGINS", "*")
+if cors_origins_env == "*":
+    allowed_origins = ["*"]
+else:
+    allowed_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
