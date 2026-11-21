@@ -1,34 +1,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-<<<<<<< HEAD
 import { synthesizeSpeech, getAudioStreamUrl } from '../services/api';
-=======
->>>>>>> origin/master
 
 /**
  * Hook for Voice progressive enhancement:
  * - Speech-to-Text: Web Speech API (SpeechRecognition / webkitSpeechRecognition)
-<<<<<<< HEAD
  * - Text-to-Speech: Sarvam AI Bulbul neural companion voice (via backend /api/ai/synthesize)
  *   with graceful fallback to tuned window.speechSynthesis (calm, grounded pitch & pace).
-=======
- * - Text-to-Speech: window.speechSynthesis
- * Gracefully degrades if the browser does not support it.
->>>>>>> origin/master
  */
 export function useVoice({ lang = 'en' } = {}) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-<<<<<<< HEAD
   const [activePlayingId, setActivePlayingId] = useState(null);
   const [voiceError, setVoiceError] = useState(null);
 
   const recognitionRef = useRef(null);
   const audioPlayerRef = useRef(null);
-=======
-  const [voiceError, setVoiceError] = useState(null);
-
-  const recognitionRef = useRef(null);
->>>>>>> origin/master
   const speechLang = lang === 'hi' ? 'hi-IN' : 'en-IN';
 
   // Check SpeechRecognition browser support
@@ -36,7 +22,6 @@ export function useVoice({ lang = 'en' } = {}) {
     !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   const isTextToSpeechSupported = typeof window !== 'undefined' &&
-<<<<<<< HEAD
     (!!window.speechSynthesis || typeof Audio !== 'undefined');
 
   // Cancel any ongoing speech or audio playback
@@ -60,9 +45,6 @@ export function useVoice({ lang = 'en' } = {}) {
     setIsSpeaking(false);
     setActivePlayingId(null);
   }, []);
-=======
-    !!window.speechSynthesis;
->>>>>>> origin/master
 
   // Cleanup on unmount
   useEffect(() => {
@@ -74,34 +56,13 @@ export function useVoice({ lang = 'en' } = {}) {
           // ignore
         }
       }
-<<<<<<< HEAD
       cancelSpeech();
     };
   }, [cancelSpeech]);
-=======
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
-  // Cancel any ongoing speech
-  const cancelSpeech = useCallback(() => {
-    if (isTextToSpeechSupported) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-  }, [isTextToSpeechSupported]);
->>>>>>> origin/master
 
   // Start speech recognition
   const startListening = useCallback((onResultCallback) => {
     setVoiceError(null);
-<<<<<<< HEAD
-=======
-
-    // Cancel text-to-speech if speaking
->>>>>>> origin/master
     cancelSpeech();
 
     if (!isSpeechToTextSupported) {
@@ -180,7 +141,6 @@ export function useVoice({ lang = 'en' } = {}) {
     setIsListening(false);
   }, []);
 
-<<<<<<< HEAD
   // Helper: play base64 audio via HTML5 Audio
   const playAudioBase64 = useCallback((base64Data, id = null) => {
     return new Promise((resolve) => {
@@ -309,28 +269,10 @@ export function useVoice({ lang = 'en' } = {}) {
       // Match natural Indian voice if installed
       const voices = window.speechSynthesis.getVoices();
       const matchVoice = voices.find(v => v.lang === speechLang || (v.lang && v.lang.startsWith(lang)));
-=======
-  // Text-to-speech read aloud
-  const speak = useCallback((text) => {
-    if (!isTextToSpeechSupported || !text) return;
-
-    try {
-      // Cancel any speech in progress before starting new speech
-      window.speechSynthesis.cancel();
-
-      const cleanText = text.replace(/<[^>]+>/g, '').trim();
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.lang = speechLang;
-
-      // Attempt to pick a matching localized voice
-      const voices = window.speechSynthesis.getVoices();
-      const matchVoice = voices.find(v => v.lang === speechLang || v.lang.startsWith(lang));
->>>>>>> origin/master
       if (matchVoice) {
         utterance.voice = matchVoice;
       }
 
-<<<<<<< HEAD
       utterance.onstart = () => {
         setIsSpeaking(true);
         setActivePlayingId(id || 'current');
@@ -399,26 +341,11 @@ export function useVoice({ lang = 'en' } = {}) {
     speakBrowserFallback(text, id);
     return null;
   }, [activePlayingId, cancelSpeech, playAudioBase64, playAudioStream, speakBrowserFallback, lang]);
-=======
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-
-      window.speechSynthesis.speak(utterance);
-    } catch (err) {
-      console.warn("Text-to-speech error:", err);
-      setIsSpeaking(false);
-    }
-  }, [isTextToSpeechSupported, lang, speechLang]);
->>>>>>> origin/master
 
   return {
     isListening,
     isSpeaking,
-<<<<<<< HEAD
     activePlayingId,
-=======
->>>>>>> origin/master
     voiceError,
     isSpeechToTextSupported,
     isTextToSpeechSupported,

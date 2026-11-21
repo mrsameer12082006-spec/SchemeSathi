@@ -153,6 +153,17 @@ class GroqService:
             self._init_client()
         return self._client is not None
 
+    def _create_chat_completion(self, messages: List[Dict[str, str]], temperature: float = 0.3, max_tokens: int = 250, json_object: bool = False):
+        kwargs: Dict[str, Any] = {
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens
+        }
+        if json_object:
+            kwargs["response_format"] = {"type": "json_object"}
+
+        return self._client.chat.completions.create(model=self.model, **kwargs)
+
     def extract_attributes(
         self,
         user_text: str,
@@ -194,12 +205,11 @@ class GroqService:
                             "content": f"Your previous response caused validation error: {last_error}. Please correct and output ONLY pure valid JSON."
                         })
 
-                    response = self._client.chat.completions.create(
-                        model=self.model,
+                    response = self._create_chat_completion(
                         messages=messages,
-                        response_format={"type": "json_object"},
                         temperature=0.1,
-                        max_tokens=300
+                        max_tokens=300,
+                        json_object=True
                     )
 
                     raw_content = response.choices[0].message.content.strip()
@@ -350,7 +360,7 @@ class GroqService:
         else:
             # Check for LPA or direct numeric currency
             lpa_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:lpa|लाख प्रति वर्ष|lakh per annum)', text_lower)
-            inr_match = re.search(r'(?:₹|rs\.?|inr|आय|income)\s*(\d{1,3}(?:,\d{3})+|\d{4,7})', text_lower)
+            inr_match = re.search(r'(?:₹|rs\.?|inr|आय|income)\s*(\d{1,3}(?:,\d{2,3})+|\d{4,7})', text_lower)
             lakh_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:lakh|लाख)', text_lower)
             if lpa_match:
                 val = float(lpa_match.group(1)) * 100000.0
@@ -622,7 +632,7 @@ class GroqService:
                     "1. GREETING & INTRO RULE: If the user greets you or introduces their name (e.g., 'hi i m kaalu' or 'mera naam suresh hai'), reply warmly: 'Namaste [Name]! 🙏 How can I help you today? Are you looking for schemes for yourself, or for your family?' (and in Hindi: 'नमस्ते [Name] जी! 🙏 आज मैं आपकी क्या सहायता कर सकता हूँ? क्या आप अपने लिए योजनाएं खोज रहे हैं या अपने परिवार के लिए?'). Do NOT immediately ask a rigid occupation question.\n"
                     "2. UNCERTAINTY RULE: If the user says 'Not sure' or 'Don't know' (or 'पता नहीं'), reassure them with empathy: 'That's okay! I can help you find schemes that don't have strict income limits, or you can tell me about a specific category like scholarships, healthcare, or farming.'\n"
                     "3. ZERO HALLUCINATION RULE: Never invent fake schemes like 'Scheme A' or fake eligibility criteria.\n"
-                    "4. LANGUAGE RULE: Reply strictly in the exact language the user used. If the user spoke Hindi, reply in simple, warm Hindi (Devanagari). If Hinglish, reply in Hinglish. If English, reply in English.\n"
+                    "4. LANGUAGE & SCRIPT RULE: If the user speaks Hindi or Hinglish, always reply in clean, warm Devanagari Hindi (e.g. 'नमस्ते [Name] जी! 🙏 आज मैं आपकी क्या सहायता कर सकता हूँ? क्या आप अपने लिए योजनाएं खोज रहे हैं या अपने परिवार के लिए?'). NEVER write Hindi words using English Roman letters (e.g. do not write 'aapka swagat hai', 'kya help chahiye'), as this breaks neural TTS pronunciation and sounds robotic. If the user spoke English, reply in English.\n"
                     "5. HINDI WORDS FOR NUMBERS & ABBREVIATIONS: When writing in Hindi, write numbers and abbreviations in full Hindi words (e.g., 'पाँच लाख', 'प्रधानमंत्री').\n"
                     "6. Keep your reply concise (2-3 warm, conversational sentences).\n"
                     "7. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response. Complete every sentence clearly."
@@ -638,8 +648,7 @@ class GroqService:
                             messages.append({"role": role, "content": content})
                 messages.append({"role": "user", "content": user_prompt})
 
-                response = self._client.chat.completions.create(
-                    model=self.model,
+                response = self._create_chat_completion(
                     messages=messages,
                     temperature=0.6,
                     max_tokens=200

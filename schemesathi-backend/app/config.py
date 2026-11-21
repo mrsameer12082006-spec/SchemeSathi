@@ -2,7 +2,6 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 import os
 from pathlib import Path
-<<<<<<< HEAD
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -10,16 +9,10 @@ from dotenv import load_dotenv
 ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 if ENV_FILE.exists():
     load_dotenv(ENV_FILE)
-=======
-
-# Locate .env file relative to current file or project root
-ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
->>>>>>> origin/master
 
 class Settings(BaseSettings):
     SUPABASE_URL: str = "https://yywtrgwhemfwywfnwmxf.supabase.co"
     SUPABASE_KEY: str = "sb_publishable_hBj_1ALXEzUorlS28aXOPg_AXM-b_xx"
-<<<<<<< HEAD
     SUPABASE_SERVICE_ROLE_KEY: Optional[str] = None
     
     # Groq AI Voice & LLM Settings
@@ -35,8 +28,6 @@ class Settings(BaseSettings):
     SARVAM_TEMPERATURE: float = 0.7
     SARVAM_PITCH: float = -0.1
     SARVAM_LOUDNESS: float = 1.0
-=======
->>>>>>> origin/master
     
     SESSION_TTL_MINUTES: int = 30
     SCHEME_CACHE_TTL_MINUTES: int = 60

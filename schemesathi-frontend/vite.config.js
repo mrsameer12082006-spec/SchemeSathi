@@ -6,7 +6,6 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-<<<<<<< HEAD
     host: true,
     proxy: {
       '/api': {
@@ -14,8 +13,5 @@ export default defineConfig({
         changeOrigin: true
       }
     }
-=======
-    host: true
->>>>>>> origin/master
   }
 });

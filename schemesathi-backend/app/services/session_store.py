@@ -16,10 +16,7 @@ class SessionRecord:
         self.created_at = datetime.now(timezone.utc)
         self.last_active = datetime.now(timezone.utc)
         self.profile = UserProfile()
-<<<<<<< HEAD
         self.history = []
-=======
->>>>>>> origin/master
 
 class EphemeralSessionStore:
     """

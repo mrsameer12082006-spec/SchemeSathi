@@ -2106,8 +2106,8 @@
       "max_landholding_hectares": null,
       "allowed_occupations": [
         "Worker",
-        "Farmer",
-        "Woman",
+        "Unorganized worker",
+        "Labour",
         "Small business"
       ],
       "allowed_genders": [

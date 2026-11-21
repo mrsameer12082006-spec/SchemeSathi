@@ -4,7 +4,6 @@ export default {
     "./index.html",
     "./src/**/*.{js,jsx}",
   ],
-<<<<<<< HEAD
   darkMode: "class",
   theme: {
     extend: {
@@ -66,25 +65,6 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         }
-=======
-  darkMode: "media",
-  theme: {
-    extend: {
-      colors: {
-        paper: "#EDF0F4",
-        ink: "#14213D",
-        line: "#D5DAE1",
-        saffron: "#F2A20C",
-        leaf: "#1B7F4B",
-        night: "#0F1624",
-        nightcard: "#18223A",
-        nightline: "#2A3752",
-        mist: "#EEF1F6",
-      },
-      fontFamily: {
-        heading: ["'Bricolage Grotesque'", "sans-serif"],
-        sans: ["'Noto Sans'", "'Noto Sans Devanagari'", "sans-serif"],
->>>>>>> origin/master
       },
       borderRadius: {
         '2xl': '1rem',

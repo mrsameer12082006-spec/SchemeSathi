@@ -524,7 +524,7 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
         )
     
     # Check for name introduction: "hi i m kaalu", "i am kaalu", "mera naam kaalu hai", "my name is kaalu"
-    name_match = re.search(r'\b(?:i am|i\'m|im|my name is|mera naam|main|mai)\s+([a-zA-Z\u0900-\u097F]+)', clean_text, re.IGNORECASE)
+    name_match = re.search(r'\b(?:i am|i\'m|i\s+m|im|my name is|mera naam|main|mai)\s+([a-zA-Z\u0900-\u097F]+)', clean_text, re.IGNORECASE)
     detected_name = None
     if name_match:
         cand_name = name_match.group(1).strip()
@@ -632,13 +632,19 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
     if domain_intent and not (domain_intent.startswith("agriculture") and record.profile.occupation == "Farmer" and (record.profile.landholding_hectares is not None or record.profile.annual_income is not None)):
         # Explicit topic search takes top priority!
         search_query = f"{clean_text} {domain_intent}"
-        rag_chunks = await rag_service.search(search_query, top_k=3)
+        rag_chunks = await rag_service.search(search_query, top_k=6)
 
         # Filter chunks to prioritize domain intent (e.g. students if education was asked)
         if domain_intent and domain_intent.startswith("education"):
             domain_chunks = [c for c in rag_chunks if c.get("category") == "students"]
             if domain_chunks:
                 rag_chunks = domain_chunks
+        elif domain_intent and (domain_intent.startswith("senior") or "pension" in domain_intent):
+            domain_chunks = [c for c in rag_chunks if c.get("category") == "seniors" or c.get("scheme_code") in ["pmvvy", "scss", "apy"]]
+            if domain_chunks:
+                rag_chunks = domain_chunks
+            else:
+                rag_chunks = rag_service.keyword_search("senior citizen pension", top_k=3)
 
         if rag_chunks:
             spoken_reply = groq_service.generate_rag_reply(
@@ -708,13 +714,19 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
 
     else:
         # Exploratory / Topical question without explicit keywords
-        rag_chunks = await rag_service.search(clean_text, top_k=3)
+        rag_chunks = await rag_service.search(clean_text, top_k=6)
 
         # Filter chunks to prioritize domain intent (e.g. students if education was asked)
         if domain_intent and domain_intent.startswith("education"):
             domain_chunks = [c for c in rag_chunks if c.get("category") == "students"]
             if domain_chunks:
                 rag_chunks = domain_chunks
+        elif domain_intent and (domain_intent.startswith("senior") or "pension" in domain_intent):
+            domain_chunks = [c for c in rag_chunks if c.get("category") == "seniors" or c.get("scheme_code") in ["pmvvy", "scss", "apy"]]
+            if domain_chunks:
+                rag_chunks = domain_chunks
+            else:
+                rag_chunks = rag_service.keyword_search("senior citizen pension", top_k=3)
 
         if rag_chunks:
             spoken_reply = groq_service.generate_rag_reply(

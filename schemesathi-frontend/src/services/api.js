@@ -10,37 +10,23 @@ import {
   evaluateEligibilityAgainstCriteria
 } from './supabaseClient';
 
-<<<<<<< HEAD
 const API_BASE = import.meta.env.VITE_API_URL 
   ? import.meta.env.VITE_API_URL.replace(/\/$/, '') 
   : (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:8000' : '');
-=======
-const API_BASE = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '';
->>>>>>> origin/master
 
 // In-memory mock sessions storage
 const mockSessions = new Map();
 
-<<<<<<< HEAD
 // Verified official government schemes (Zero fake/demo data)
 const MOCK_SCHEMES_EN = [
   {
     id: "pm-kisan",
     name: "PM Kisan Samman Nidhi",
     summary: "Direct income support of ₹6,000 per year for landholding farmer families",
-=======
-// Built-in mock schemes list
-const MOCK_SCHEMES_EN = [
-  {
-    id: "scheme-a",
-    name: "Scheme A (demo)",
-    summary: "Yearly support for small farmers",
->>>>>>> origin/master
     category: "Farmers",
     benefits: "₹6,000 per year transferred directly to your bank account in 3 equal installments of ₹2,000 every four months through Direct Benefit Transfer (DBT).",
     documents: [
       "Aadhaar card copy",
-<<<<<<< HEAD
       "Land ownership record (Khatoni / Fard / Jamabandi)",
       "Bank passbook copy linked with Aadhaar"
     ],
@@ -101,73 +87,10 @@ const MOCK_SCHEMES_EN = [
     summary: "Maternity benefit cash incentive of ₹5,000 for pregnant and lactating mothers",
     category: "Women",
     benefits: "Cash incentive of ₹5,000 transferred in installments directly into mother's bank account for improved nutrition and health during first pregnancy.",
-=======
-      "Land ownership paper (Khatoni / Fard / Jamabandi)",
-      "Bank passbook copy linked with Aadhaar"
-    ],
-    steps: [
-      "Check that your Aadhaar is linked to your bank account with active DBT.",
-      "Visit the official registration portal or your nearby CSC (Common Service Centre).",
-      "Submit your land record details and Aadhaar number.",
-      "Receive an application registration number and track status online."
-    ],
-    official_url: "https://example.gov.in/demo-scheme-a",
-    last_verified: null, // will display 'demo'
-    demo: true
-  },
-  {
-    id: "scheme-b",
-    name: "Scheme B (demo)",
-    summary: "Crop insurance support",
-    category: "Farmers",
-    benefits: "Comprehensive crop loss protection against drought, flood, pests and post-harvest unseasonal rain with low premium rates (1.5% to 2%).",
-    documents: [
-      "Aadhaar card copy",
-      "Land possession certificate / Sowing certificate from Patwari or Sarpanch",
-      "Bank account details"
-    ],
-    steps: [
-      "Obtain a crop sowing certificate from your local village revenue officer.",
-      "Apply through your bank branch or the nearest Common Service Centre before cut-off date.",
-      "Pay the small farmer premium share and collect the acknowledgement receipt."
-    ],
-    official_url: "https://example.gov.in/demo-scheme-b",
-    last_verified: null,
-    demo: true
-  },
-  {
-    id: "scheme-d",
-    name: "Scheme D (demo)",
-    summary: "Post-matric student scholarship support",
-    category: "Students",
-    benefits: "Full reimbursement of compulsory non-refundable tuition fees plus a monthly maintenance allowance for post-secondary education.",
-    documents: [
-      "Student Aadhaar card",
-      "Previous class marksheet",
-      "Income certificate from Tehsildar",
-      "College fee receipt and admission slip"
-    ],
-    steps: [
-      "Register on the state scholarship portal with Aadhaar.",
-      "Upload marksheet, income certificate, and fee receipt.",
-      "College verifies the application and forwards to district welfare officer."
-    ],
-    official_url: "https://example.gov.in/demo-scheme-d",
-    last_verified: null,
-    demo: true
-  },
-  {
-    id: "scheme-e",
-    name: "Scheme E (demo)",
-    summary: "Maternity and nutrition support",
-    category: "Women",
-    benefits: "Cash incentive of ₹5,000 in three stages to pregnant and lactating mothers for improved health and nutrition.",
->>>>>>> origin/master
     documents: [
       "Mother's Aadhaar card",
       "Husband's Aadhaar card",
       "Mother and Child Protection (MCP) card",
-<<<<<<< HEAD
       "Bank passbook in mother's name linked with Aadhaar"
     ],
     steps: [
@@ -185,32 +108,12 @@ const MOCK_SCHEMES_EN = [
     summary: "Universal social security identity card with ₹2 Lakh accidental insurance for informal workers",
     category: "Workers",
     benefits: "12-digit Universal Account Number (UAN) with ₹2 Lakh accidental death cover and seamless access to national social welfare programs.",
-=======
-      "Bank passbook in mother's name"
-    ],
-    steps: [
-      "Register pregnancy at the local Anganwadi Centre within 150 days of LMP.",
-      "Attend mandatory antenatal checkups and immunization sessions.",
-      "Amount is deposited directly into mother's bank account."
-    ],
-    official_url: "https://example.gov.in/demo-scheme-e",
-    last_verified: null,
-    demo: true
-  },
-  {
-    id: "scheme-f",
-    name: "Scheme F (demo)",
-    summary: "Unorganized worker social security support",
-    category: "Workers",
-    benefits: "Universal social security number with ₹2 Lakh accidental death cover and access to state worker welfare funds.",
->>>>>>> origin/master
     documents: [
       "Aadhaar card",
       "Active mobile number linked with Aadhaar",
       "Bank account number with IFSC"
     ],
     steps: [
-<<<<<<< HEAD
       "Self-register online at eshram.gov.in or visit any nearby CSC centre.",
       "Enter Aadhaar and complete OTP verification.",
       "Download your official e-Shram card instantly."
@@ -237,33 +140,16 @@ const MOCK_SCHEMES_EN = [
     official_url: "https://pmjay.gov.in",
     last_verified: "2026",
     demo: false
-=======
-      "Self-register online or visit any CSC centre.",
-      "Enter Aadhaar and verify with OTP.",
-      "Download your digital worker card with 12-digit number."
-    ],
-    official_url: "https://example.gov.in/demo-scheme-f",
-    last_verified: null,
-    demo: true
->>>>>>> origin/master
   }
 ];
 
 const MOCK_SCHEMES_HI = [
   {
-<<<<<<< HEAD
     id: "pm-kisan",
     name: "प्रधानमंत्री किसान सम्मान निधि",
     summary: "छोटे और सीमांत किसान परिवारों के लिए प्रति वर्ष ₹6,000 की प्रत्यक्ष आर्थिक सहायता",
     category: "किसान",
     benefits: "प्रत्यक्ष लाभ अंतरण (DBT) के माध्यम से हर चार महीने में ₹2,000 की 3 समान किस्तों में ₹6,000 प्रति वर्ष सीधे बैंक खाते में।",
-=======
-    id: "scheme-a",
-    name: "योजना A (डेमो)",
-    summary: "छोटे किसानों के लिए वार्षिक सहायता",
-    category: "किसान",
-    benefits: "हर चार महीने में ₹2,000 की 3 समान किस्तों में ₹6,000 प्रति वर्ष सीधे आपके बैंक खाते में DBT (प्रत्यक्ष लाभ अंतरण) द्वारा भेजे जाते हैं।",
->>>>>>> origin/master
     documents: [
       "आधार कार्ड की प्रति",
       "ज़मीन का मालिकाना दस्तावेज़ (खतौनी / फर्द / जमाबंदी)",
@@ -271,7 +157,6 @@ const MOCK_SCHEMES_HI = [
     ],
     steps: [
       "सुनिश्चित करें कि आपका आधार बैंक खाते से जुड़ा है और DBT सक्रिय है।",
-<<<<<<< HEAD
       "pmkisan.gov.in पोर्टल पर जाएँ या अपने निकटतम CSC केंद्र पर जाएँ।",
       "अपने ज़मीन के रिकॉर्ड और आधार नंबर दर्ज करवाएँ।",
       "पंजीकरण नंबर प्राप्त करें और DBT भुगतान की स्थिति ऑनलाइन देखें।"
@@ -286,22 +171,6 @@ const MOCK_SCHEMES_HI = [
     summary: "प्राकृतिक आपदाओं, सूखा, बाढ़ और बेमौसम बारिश से फसल नुकसान के विरुद्ध रियायती फसल बीमा",
     category: "किसान",
     benefits: "कम प्रीमियम (रबी फसल 1.5%, खरीफ फसल 2%) पर सूखा, बाढ़, कीट और बेमौसम बारिश से फसल नुकसान के विरुद्ध व्यापक सुरक्षा।",
-=======
-      "आधिकारिक पोर्टल पर जाएँ या अपने निकटतम CSC (ग्राहक सेवा केंद्र) पर जाएँ।",
-      "अपने ज़मीन के रिकॉर्ड और आधार नंबर दर्ज करवाएँ।",
-      "आवेदन रसीद प्राप्त करें और स्थिति की ऑनलाइन जाँच करें।"
-    ],
-    official_url: "https://example.gov.in/demo-scheme-a",
-    last_verified: null,
-    demo: true
-  },
-  {
-    id: "scheme-b",
-    name: "योजना B (डेमो)",
-    summary: "फसल बीमा सुरक्षा सहायता",
-    category: "किसान",
-    benefits: "कम प्रीमियम (1.5% से 2%) पर सूखा, बाढ़, कीट और बेमौसम बारिश से फसल नुकसान के विरुद्ध व्यापक सुरक्षा।",
->>>>>>> origin/master
     documents: [
       "आधार कार्ड",
       "पटवारी या सरपंच से फसल बुवाई प्रमाण पत्र / खसरा",
@@ -312,7 +181,6 @@ const MOCK_SCHEMES_HI = [
       "कट-ऑफ तिथि से पहले अपनी बैंक शाखा या CSC केंद्र पर आवेदन करें।",
       "किसान प्रीमियम हिस्सा जमा करें और रसीद संभाल कर रखें।"
     ],
-<<<<<<< HEAD
     official_url: "https://pmfby.gov.in",
     last_verified: "2026",
     demo: false
@@ -344,39 +212,6 @@ const MOCK_SCHEMES_HI = [
     summary: "गर्भवती और स्तनपान कराने वाली माताओं के बेहतर पोषण और स्वास्थ्य के लिए ₹5,000 नकद सहायता",
     category: "महिलाएँ",
     benefits: "पहले जीवित बच्चे के लिए बेहतर पोषण और प्रसव पूर्व देखभाल हेतु तीन किस्तों में ₹5,000 की नकद राशि सीधे बैंक खाते में।",
-=======
-    official_url: "https://example.gov.in/demo-scheme-b",
-    last_verified: null,
-    demo: true
-  },
-  {
-    id: "scheme-d",
-    name: "योजना D (डेमो)",
-    summary: "पोस्ट-मैट्रिक छात्रवृत्ति सहायता",
-    category: "छात्र",
-    benefits: "उच्च शिक्षा के लिए अनिवार्य गैर-वापसी योग्य शिक्षण शुल्क की पूरी प्रतिपूर्ति और मासिक रखरखाव भत्ता।",
-    documents: [
-      "छात्र का आधार कार्ड",
-      "पिछली कक्षा की अंकतालिका",
-      "तहसीलदार द्वारा जारी आय प्रमाण पत्र",
-      "कॉलेज शुल्क रसीद और प्रवेश पत्र"
-    ],
-    steps: [
-      "छात्रवृत्ति पोर्टल पर आधार द्वारा पंजीकरण करें।",
-      "अंकतालिका, आय प्रमाण पत्र और शुल्क रसीद अपलोड करें।",
-      "कॉलेज द्वारा सत्यापन के बाद ज़िला कल्याण अधिकारी द्वारा राशि स्वीकृत की जाती है।"
-    ],
-    official_url: "https://example.gov.in/demo-scheme-d",
-    last_verified: null,
-    demo: true
-  },
-  {
-    id: "scheme-e",
-    name: "योजना E (डेमो)",
-    summary: "मातृत्व एवं पोषण सहायता",
-    category: "महिलाएँ",
-    benefits: "गर्भवती और स्तनपान कराने वाली माताओं के बेहतर पोषण और स्वास्थ्य के लिए तीन चरणों में ₹5,000 की नकद सहायता।",
->>>>>>> origin/master
     documents: [
       "माता का आधार कार्ड",
       "पति का आधार कार्ड",
@@ -388,7 +223,6 @@ const MOCK_SCHEMES_HI = [
       "नियमित प्रसव पूर्व जांच और टीकाकरण पूरा करें।",
       "राशि सीधे माता के बैंक खाते में जमा होती है।"
     ],
-<<<<<<< HEAD
     official_url: "https://pmmvy.wcd.gov.in",
     last_verified: "2026",
     demo: false
@@ -399,25 +233,12 @@ const MOCK_SCHEMES_HI = [
     summary: "असंगठित मज़दूरों के लिए 12 अंकों का विशिष्ट पहचान नंबर और ₹2 लाख दुर्घटना बीमा",
     category: "मज़दूर",
     benefits: "12 अंकों का विशिष्ट पहचान नंबर (UAN), ₹2 लाख का दुर्घटना बीमा कवर और राज्य कल्याण योजनाओं का सीधा लाभ।",
-=======
-    official_url: "https://example.gov.in/demo-scheme-e",
-    last_verified: null,
-    demo: true
-  },
-  {
-    id: "scheme-f",
-    name: "योजना F (डेमो)",
-    summary: "असंगठित मज़दूर सामाजिक सुरक्षा कार्ड",
-    category: "मज़दूर",
-    benefits: "12 अंकों का विशिष्ट पहचान नंबर, ₹2 लाख का दुर्घटना बीमा कवर और राज्य कल्याण योजनाओं का सीधा लाभ।",
->>>>>>> origin/master
     documents: [
       "आधार कार्ड",
       "आधार से जुड़ा सक्रिय मोबाइल नंबर",
       "IFSC कोड सहित बैंक खाता विवरण"
     ],
     steps: [
-<<<<<<< HEAD
       "eshram.gov.in पर स्वयं ऑनलाइन पंजीकरण करें या CSC केंद्र पर जाएं।",
       "आधार नंबर दर्ज करके OTP द्वारा सत्यापन करें।",
       "अपना डिजिटल ई-श्रम कार्ड डाउनलोड करें।"
@@ -444,15 +265,6 @@ const MOCK_SCHEMES_HI = [
     official_url: "https://pmjay.gov.in",
     last_verified: "2026",
     demo: false
-=======
-      "ऑनलाइन स्वयं पंजीकरण करें या किसी भी CSC केंद्र पर जाएं।",
-      "आधार नंबर दर्ज करके OTP द्वारा सत्यापन करें।",
-      "अपना डिजिटल ई-श्रम कार्ड डाउनलोड करें।"
-    ],
-    official_url: "https://example.gov.in/demo-scheme-f",
-    last_verified: null,
-    demo: true
->>>>>>> origin/master
   }
 ];
 
@@ -539,13 +351,8 @@ async function mockCreateSession(language = 'en') {
 }
 
 async function mockSendMessage(sessionId, message, language = 'en') {
-<<<<<<< HEAD
   // Simulate network latency (150-250ms)
   await new Promise(r => setTimeout(r, 200));
-=======
-  // Simulate network latency (250-400ms)
-  await new Promise(r => setTimeout(r, 320));
->>>>>>> origin/master
 
   let session = mockSessions.get(sessionId);
   if (!session) {
@@ -558,7 +365,6 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     };
     mockSessions.set(sessionId, session);
   } else {
-<<<<<<< HEAD
     session.language = language;
   }
 
@@ -603,186 +409,10 @@ async function mockSendMessage(sessionId, message, language = 'en') {
       profile: { ...session.profile },
       done: false,
       show_results: false,
-=======
-    // Keep session language synchronized with request
-    session.language = language;
-  }
-
-  const isHi = (language || session.language) === 'hi';
-  const extracted = parseProfileFromText(message, isHi ? 'hi' : 'en');
-  Object.assign(session.profile, extracted);
-
-  session.history.push({ role: 'user', content: message });
-  session.step += 1;
-
-  // Question 1
-  if (session.step === 1) {
-    const isFarmer = Object.values(session.profile).some(v => String(v).includes('Farmer') || String(v).includes('किसान'));
-    const isStudent = Object.values(session.profile).some(v => String(v).includes('Student') || String(v).includes('छात्र'));
-    const isWoman = Object.values(session.profile).some(v => String(v).includes('Woman') || String(v).includes('महिला'));
-    const isSenior = Object.values(session.profile).some(v => String(v).includes('Senior') || String(v).includes('नागरिक'));
-    const isWorker = Object.values(session.profile).some(v => String(v).includes('Worker') || String(v).includes('मज़दूर') || String(v).includes('मजदूर'));
-    const isBusiness = Object.values(session.profile).some(v => String(v).includes('Business') || String(v).includes('व्यापारी'));
-
-    if (isFarmer) {
-      return {
-        reply: isHi
-          ? "क्या आपके पास अपनी खेती की ज़मीन है या आप बटाईदार/भूमिहीन मज़दूर हैं?"
-          : "Do you own cultivable agricultural land, or do you work as a tenant farmer / laborer?",
-        quick_replies: isHi
-          ? ["अपनी ज़मीन (2 हेक्टेयर तक)", "अपनी ज़मीन (2 हेक्टेयर से अधिक)", "बटाईदार / भूमिहीन"]
-          : ["Own land (up to 2 hectares)", "Own land (more than 2 hectares)", "Tenant farmer / Landless"],
-        why: isHi
-          ? "अधिकांश किसान योजनाओं में आपके नाम पर ज़मीन के रिकॉर्ड की आवश्यकता होती है।"
-          : "Most farmer support schemes require verified landholding records in your name.",
-        progress: { answered: 1 },
-        profile: { ...session.profile },
-        done: false,
-        results: []
-      };
-    } else if (isStudent) {
-      return {
-        reply: isHi
-          ? "आप वर्तमान में किस कक्षा या पाठ्यक्रम में पढ़ाई कर रहे हैं?"
-          : "Which level of education are you currently enrolled in?",
-        quick_replies: isHi
-          ? ["कक्षा 9 - 10", "कक्षा 11 - 12 / कॉलेज", "स्नातक / उच्च शिक्षा"]
-          : ["Class 9 - 10", "Class 11 - 12 / College", "Graduation / Higher Studies"],
-        why: isHi
-          ? "छात्रवृत्ति योजनाएँ स्कूल, कॉलेज और उच्च शिक्षा के स्तर पर निर्भर करती हैं।"
-          : "Scholarship schemes differ between school, college, and post-matric courses.",
-        progress: { answered: 1 },
-        profile: { ...session.profile },
-        done: false,
-        results: []
-      };
-    } else if (isWoman) {
-      return {
-        reply: isHi
-          ? "आपकी मुख्य आवश्यकता या वर्तमान स्थिति क्या है?"
-          : "What is your primary focus or category?",
-        quick_replies: isHi
-          ? ["गर्भवती / धात्री महिला", "स्वरोज़गार / छोटा व्यवसाय", "बालिका बचत योजना"]
-          : ["Pregnant / Lactating mother", "Self-employment / Enterprise", "Girl child savings"],
-        why: isHi
-          ? "मातृत्व पोषण, बालिका बचत और महिला उद्यम के लिए अलग-अलग योजनाएँ उपलब्ध हैं।"
-          : "Specialized schemes exist for maternity nutrition, girl child savings, and women enterprise.",
-        progress: { answered: 1 },
-        profile: { ...session.profile },
-        done: false,
-        results: []
-      };
-    } else if (isSenior) {
-      return {
-        reply: isHi
-          ? "आपकी वर्तमान आयु सीमा क्या है?"
-          : "What is your current age bracket?",
-        quick_replies: isHi
-          ? ["60 - 70 वर्ष", "70 - 80 वर्ष", "80 वर्ष से अधिक"]
-          : ["60 - 70 years", "70 - 80 years", "Above 80 years"],
-        why: isHi
-          ? "वरिष्ठ नागरिक पेंशन और स्वास्थ्य सुरक्षा योजनाएँ आयु सीमा के आधार पर लागू होती हैं।"
-          : "Senior citizen pension and welfare schemes have specific age brackets.",
-        progress: { answered: 1 },
-        profile: { ...session.profile },
-        done: false,
-        results: []
-      };
-    } else if (isBusiness) {
-      return {
-        reply: isHi
-          ? "आपका व्यवसाय किस प्रकार का है?"
-          : "What is the nature of your business?",
-        quick_replies: isHi
-          ? ["रेहड़ी-पटरी / स्ट्रीट वेंडर", "छोटी दुकान / माइक्रो उद्यम", "नया व्यवसाय शुरू करना"]
-          : ["Street vendor / Hawker", "Small retail / Micro unit", "New business setup"],
-        why: isHi
-          ? "पीएम स्वनिधि, मुद्रा और पीएमईजीपी अलग-अलग व्यापार आकारों के लिए हैं।"
-          : "PM SVANidhi, MUDRA, and PMEGP cater to specific business scales.",
-        progress: { answered: 1 },
-        profile: { ...session.profile },
-        done: false,
-        results: []
-      };
-    } else if (isWorker) {
-      return {
-        reply: isHi
-          ? "क्या आप असंगठित क्षेत्र (दैनिक मज़दूरी, निर्माण, घरेलू कार्य) में काम करते हैं?"
-          : "Do you work in the unorganized sector (daily wage, construction, informal)?",
-        quick_replies: isHi
-          ? ["दैनिक वेतन मज़दूर", "निर्माण श्रमिक", "घरेलू / अन्य कामगार"]
-          : ["Daily wage laborer", "Construction worker", "Domestic / Informal worker"],
-        why: isHi
-          ? "ई-श्रम और असंगठित कामगार सामाजिक सुरक्षा योजनाएँ विशेष रूप से श्रमिकों के लिए हैं।"
-          : "Social security and e-Shram welfare schemes target unorganized workers.",
-        progress: { answered: 1 },
-        profile: { ...session.profile },
-        done: false,
-        results: []
-      };
-    } else {
-      return {
-        reply: isHi
-          ? "आपकी मुख्य पहचान या पेशा क्या है?"
-          : "What best describes your current category or occupation?",
-        quick_replies: isHi
-          ? ["किसान", "छात्र", "महिला", "वरिष्ठ नागरिक", "मज़दूर", "छोटा व्यापारी"]
-          : ["Farmer", "Student", "Woman", "Senior citizen", "Worker", "Small business"],
-        why: isHi
-          ? "सरकारी योजनाएँ मुख्य रूप से आपके पेशे और सामाजिक श्रेणी के अनुसार लाभ देती हैं।"
-          : "Government schemes are primarily targeted based on your category and occupation.",
-        progress: { answered: 1 },
-        profile: { ...session.profile },
-        done: false,
-        results: []
-      };
-    }
-  }
-
-  // Question 2
-  if (session.step === 2) {
-    // Add answer detail to profile if chip selected
-    if (message.includes('more than 2') || message.includes('2 हेक्टेयर से अधिक')) {
-      session.profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? '2 हेक्टेयर से अधिक' : 'More than 2 hectares';
-    } else if (message.includes('Tenant') || message.includes('बटाईदार') || message.includes('भूमिहीन')) {
-      session.profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? 'भूमिहीन / बटाईदार' : 'Tenant / Landless';
-    } else if (message.includes('2 hectare') || message.includes('2 हेक्टेयर')) {
-      session.profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? '2 हेक्टेयर तक' : 'Up to 2 hectares';
-    } else if (message.includes('Urban') || message.includes('शहरी')) {
-      session.profile[isHi ? 'क्षेत्र' : 'Area'] = isHi ? 'शहरी' : 'Urban';
-    } else if (message.includes('Rural') || message.includes('ग्रामीण')) {
-      session.profile[isHi ? 'क्षेत्र' : 'Area'] = isHi ? 'ग्रामीण' : 'Rural';
-    } else if (message.includes('College') || message.includes('कॉलेज')) {
-      session.profile[isHi ? 'शिक्षा' : 'Education'] = isHi ? 'कॉलेज' : 'College';
-    } else if (message.includes('Class 9') || message.includes('कक्षा 9')) {
-      session.profile[isHi ? 'शिक्षा' : 'Education'] = isHi ? 'कक्षा 9 - 10' : 'Class 9 - 10';
-    } else if (message.includes('Higher') || message.includes('उच्च शिक्षा') || message.includes('स्नातक')) {
-      session.profile[isHi ? 'शिक्षा' : 'Education'] = isHi ? 'उच्च शिक्षा' : 'Higher Studies';
-    } else if (message.includes('Street vendor') || message.includes('रेहड़ी') || message.includes('वेंडर')) {
-      session.profile[isHi ? 'व्यवसाय' : 'Business Type'] = isHi ? 'स्ट्रीट वेंडर' : 'Street vendor';
-    } else if (message.includes('Lactating') || message.includes('गर्भवती')) {
-      session.profile[isHi ? 'श्रेणी' : 'Category'] = isHi ? 'गर्भवती / धात्री' : 'Maternity';
-    }
-
-    return {
-      reply: isHi
-        ? "आपके पूरे परिवार की अनुमानित वार्षिक आय कितनी है?"
-        : "What is your approximate total household annual income?",
-      quick_replies: isHi
-        ? ["₹1 लाख से कम", "₹1 लाख - ₹2.5 लाख", "₹2.5 लाख से अधिक"]
-        : ["Below ₹1 Lakh", "₹1 Lakh - ₹2.5 Lakh", "Above ₹2.5 Lakh"],
-      why: isHi
-        ? "सरकारी योजनाएँ आय सीमा तय करती हैं ताकि लाभ सही परिवारों तक पहुँचे।"
-        : "Government schemes use income thresholds to ensure benefits reach low-income families.",
-      progress: { answered: 2 },
-      profile: { ...session.profile },
-      done: false,
->>>>>>> origin/master
       results: []
     };
   }
 
-<<<<<<< HEAD
   // 2. Empathetic Uncertainty Handler ("Not sure", "Don't know", "पता नहीं")
   const isNotSure = /^(not sure|dont know|don't know|no idea|pata nahi|nahi pata|maloom nahi|पता नहीं|मालूम नहीं)/i.test(trimmed) ||
     lowerMsg === 'not sure' || lowerMsg === "don't know" || lowerMsg === 'dont know';
@@ -883,17 +513,6 @@ async function mockSendMessage(sessionId, message, language = 'en') {
   session.history.push({ role: 'user', content: message });
   session.step += 1;
 
-=======
-  // Step 3 -> Done: true
-  if (message.includes('Below') || message.includes('कम')) {
-    session.profile[isHi ? 'वार्षिक आय' : 'Annual Income'] = isHi ? '₹1 लाख से कम' : 'Below ₹1 Lakh';
-  } else if (message.includes('Above') || message.includes('अधिक')) {
-    session.profile[isHi ? 'वार्षिक आय' : 'Annual Income'] = isHi ? '₹2.5 लाख से अधिक' : 'Above ₹2.5 Lakh';
-  } else if (message.includes('1 Lakh') || message.includes('1 लाख') || message.includes('2.5')) {
-    session.profile[isHi ? 'वार्षिक आय' : 'Annual Income'] = isHi ? '₹1 - ₹2.5 लाख' : '₹1 - ₹2.5 Lakh';
-  }
-
->>>>>>> origin/master
   // Evaluate against Supabase criteria if configured
   let results = [];
   if (isSupabaseConfigured()) {
@@ -907,7 +526,6 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     }
   }
 
-<<<<<<< HEAD
   // Filter out any invalid or non-eligible entries
   if (Array.isArray(results) && results.length > 0) {
     results = results.filter(r => r.status === "potentially_eligible" || r.status === "needs_information");
@@ -1024,89 +642,13 @@ async function mockSendMessage(sessionId, message, language = 'en') {
     reply: isHi
       ? `हमने आपके विवरण के आधार पर ${results.length} प्रासंगिक सरकारी योजनाओं की पहचान की है। आप नीचे दिए गए कार्ड्स में विस्तृत जानकारी देख सकते हैं।`
       : `Based on your details, we found ${results.length} relevant government schemes. You can view the details in the cards below.`,
-=======
-  // Fallback to mock results if Supabase is offline or yielded no matches
-  if (!results || results.length === 0) {
-    const isCropSown = session.profile['फसल बुवाई'] === 'मौसमी फसल बोई' || session.profile['Crop Cultivation'] === 'Seasonal crops sown';
-    const isLandFallow = session.profile['फसल बुवाई'] === 'खेत खाली रहा' || session.profile['Crop Cultivation'] === 'Land was fallow';
-
-    let schemeBStatus = "needs_information";
-    let schemeBPassed = isHi ? ["मौसमी फसल खेती में संलग्न"] : ["Engaged in seasonal crop cultivation"];
-    let schemeBFailed = [];
-    let schemeBMissing = isHi ? ["वर्तमान मौसम के लिए फसल बुवाई सत्यापन की आवश्यकता है"] : ["Need crop sowing verification for current season"];
-
-    if (isCropSown) {
-      schemeBStatus = "potentially_eligible";
-      schemeBPassed.push(isHi ? "वर्तमान मौसम में फसल बुवाई सत्यापित" : "Seasonal crop cultivation verified");
-      schemeBMissing = [];
-    } else if (isLandFallow) {
-      schemeBStatus = "not_eligible";
-      schemeBFailed.push(isHi ? "फसल बीमा केवल बुवाई की गई भूमि के लिए लागू होता है" : "Crop insurance applies only to cultivated land");
-      schemeBMissing = [];
-    }
-
-    results = isHi
-      ? [
-          {
-            scheme_id: "scheme-a",
-            name: "योजना A (डेमो)",
-            summary: "छोटे और सीमांत किसान परिवारों के लिए वार्षिक आय सहायता",
-            status: "potentially_eligible",
-            passed: [
-              "खेती योग्य भूमि 2 हेक्टेयर सीमा के भीतर है",
-              "मुख्य व्यवसाय कृषि दर्ज है"
-            ],
-            failed: [],
-            missing: []
-          },
-          {
-            scheme_id: "scheme-b",
-            name: "योजना B (डेमो)",
-            summary: "प्राकृतिक आपदाओं के विरुद्ध रियायती फसल बीमा सहायता",
-            status: schemeBStatus,
-            passed: schemeBPassed,
-            failed: schemeBFailed,
-            missing: schemeBMissing
-          }
-        ]
-      : [
-          {
-            scheme_id: "scheme-a",
-            name: "Scheme A (demo)",
-            summary: "Yearly support for small farmers",
-            status: "potentially_eligible",
-            passed: [
-              "Landholding within 2 hectares limit",
-              "Primary occupation is farming"
-            ],
-            failed: [],
-            missing: []
-          },
-          {
-            scheme_id: "scheme-b",
-            name: "Scheme B (demo)",
-            summary: "Crop insurance support",
-            status: schemeBStatus,
-            passed: schemeBPassed,
-            failed: schemeBFailed,
-            missing: schemeBMissing
-          }
-        ];
-  }
-
-  return {
-    reply: isHi ? "धन्यवाद। हमने आपके सभी उत्तरों की जाँच कर ली है।" : "Thank you. We have completed checking your details against scheme rules.",
->>>>>>> origin/master
     quick_replies: [],
     why: "",
     progress: { answered: session.step },
     profile: { ...session.profile },
     done: true,
-<<<<<<< HEAD
     show_results: true,
     results_url: "/results",
-=======
->>>>>>> origin/master
     results
   };
 }
@@ -1158,16 +700,11 @@ export async function createSession(language = 'en') {
   }
 }
 
-<<<<<<< HEAD
 export async function sendMessage({ sessionId, message, language = 'en', audioBase64 = null }) {
-=======
-export async function sendMessage({ sessionId, message, language = 'en' }) {
->>>>>>> origin/master
   if (!API_BASE) {
     return mockSendMessage(sessionId, message, language);
   }
 
-<<<<<<< HEAD
   // 1. Try AI-powered Voice/Text endpoint first (Groq 8B + Sarvam AI)
   try {
     const aiRes = await fetch(`${API_BASE}/api/ai/chat`, {
@@ -1202,8 +739,6 @@ export async function sendMessage({ sessionId, message, language = 'en' }) {
   }
 
   // 2. Fallback to standard chat endpoint
-=======
->>>>>>> origin/master
   try {
     const res = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
@@ -1264,7 +799,6 @@ export async function getSchemeById(id, language = 'en') {
   return mockGetSchemeDetail(id, language);
 }
 
-<<<<<<< HEAD
 export function getAudioStreamUrl(text, language = 'hi', speaker = null) {
   if (!text) return null;
   const endpoint = API_BASE ? `${API_BASE}/api/ai/synthesize/stream` : '/api/ai/synthesize/stream';
@@ -1304,8 +838,6 @@ export async function synthesizeSpeech(text, language = 'hi') {
   return { audio_base64: null, fallback_to_browser_tts: true };
 }
 
-=======
->>>>>>> origin/master
 // Allows rolling back step in mock mode for "Go Back"
 export function mockRollbackStep(sessionId) {
   const session = mockSessions.get(sessionId);

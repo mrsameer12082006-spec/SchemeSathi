@@ -153,7 +153,8 @@ class RAGService:
         except Exception:
             return []
 
-        query_tokens = [w for w in re.findall(r'\w+', query.lower()) if len(w) > 2]
+        STOP_WORDS = {"scheme", "schemes", "yojana", "yojanaye", "for", "the", "and", "with", "year", "years", "old", "about", "tell", "kya", "hai", "hain", "mujhe", "chahiye"}
+        query_tokens = [w for w in re.findall(r'\w+', query.lower()) if len(w) > 2 and w not in STOP_WORDS]
         if not query_tokens:
             return []
 
@@ -166,12 +167,13 @@ class RAGService:
             ).lower()
 
             for token in query_tokens:
-                if token in searchable:
-                    score += 2
-                if token in s.get("category", "").lower():
+                pat = r'\b' + re.escape(token) + r'\b'
+                if re.search(pat, s.get("name_en", "").lower()) or re.search(pat, s.get("name_hi", "").lower()):
+                    score += 20
+                elif re.search(pat, s.get("category", "").lower()):
+                    score += 15
+                elif re.search(pat, searchable):
                     score += 5
-                if token in s.get("name_en", "").lower() or token in s.get("name_hi", "").lower():
-                    score += 10
 
             if score > 0:
                 scored.append({
@@ -182,10 +184,11 @@ class RAGService:
                     "chunk_title": f"{s.get('name_en')} - Overview",
                     "chunk_type": "overview",
                     "content": s.get("summary_en", ""),
-                    "similarity": round(min(1.0, 0.4 + (score * 0.05)), 4)
+                    "similarity": round(min(1.0, 0.4 + (score * 0.05)), 4),
+                    "_score": score
                 })
 
-        scored.sort(key=lambda x: x["similarity"], reverse=True)
+        scored.sort(key=lambda x: x["_score"], reverse=True)
         return scored[:top_k]
 
 
