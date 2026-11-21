@@ -53,3 +53,10 @@ venv/
 coverage/
 *.tmp
 *.temp
+
+# Local documentation and database artifacts
+SchemeSathi_Supabase_Database_Guide.pdf
+VOICE_LLM_AGENT_INTEGRATION_GUIDE.md
+supabase_schema_and_seed.sql
+context.md
+
