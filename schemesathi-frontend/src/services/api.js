@@ -799,6 +799,17 @@ export async function getSchemeById(id, language = 'en') {
   return mockGetSchemeDetail(id, language);
 }
 
+export function getAudioStreamUrl(text, language = 'hi', speaker = null) {
+  if (!text) return null;
+  const endpoint = API_BASE ? `${API_BASE}/api/ai/synthesize/stream` : '/api/ai/synthesize/stream';
+  const params = new URLSearchParams({
+    text: text.slice(0, 500),
+    lang: language,
+  });
+  if (speaker) params.append('speaker', speaker);
+  return `${endpoint}?${params.toString()}`;
+}
+
 export async function synthesizeSpeech(text, language = 'hi') {
   if (!text) {
     return { audio_base64: null, fallback_to_browser_tts: true };

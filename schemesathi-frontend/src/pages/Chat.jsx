@@ -59,12 +59,14 @@ export function Chat({
     if (e) e.preventDefault();
     const text = inputText.trim();
     if (!text || loading) return;
+    cancelSpeech();
     setInputText('');
     onSendMessage(text);
   };
 
   const handleChipClick = (replyText) => {
     if (loading) return;
+    cancelSpeech();
     onSendMessage(replyText);
   };
 
@@ -302,7 +304,10 @@ export function Chat({
             autoCapitalize="off"
             spellCheck={false}
             value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
+            onChange={(e) => {
+              if (isSpeaking) cancelSpeech();
+              setInputText(e.target.value);
+            }}
             disabled={loading}
             placeholder={tCore.typeHere}
             className="flex-1 min-h-[44px] px-4 py-2.5 rounded-xl border border-line dark:border-nightline bg-white dark:bg-nightcard text-ink dark:text-mist placeholder:text-ink/40 dark:placeholder:text-mist/40 transition-colors"

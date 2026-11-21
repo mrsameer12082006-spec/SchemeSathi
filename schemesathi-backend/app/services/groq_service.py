@@ -519,7 +519,7 @@ class GroqService:
                     "5. SPECIFICITY & EMPATHY:\n"
                     "   - If talking about OBC scholarship: explicitly state 'चूंकि यह योजना अन्य पिछड़ा वर्ग (OBC) के छात्रों के लिए है...'.\n"
                     "   - If user is a farmer asking about education: 'चूंकि आप किसान हैं, यह स्कॉलरशिप आपके बच्चों के लिए है! 🎓'.\n"
-                    "6. LANGUAGE RULE: Reply in the user's exact language (Hindi -> simple Hindi in Devanagari, Hinglish -> warm Hinglish, English -> English with the same bullet format).\n"
+                    "6. LANGUAGE & SCRIPT CODE-MIXING: Reply in the user's exact language. For Hindi/Hinglish, write Hindi words in clean Devanagari script, but keep well-known English technical words and scheme names in Roman script (e.g. 'PM-KISAN', 'scholarship', 'form', 'college', 'OBC', 'percentage', 'free') so Indian neural voice TTS reads them cleanly.\n"
                     "7. ZERO HALLUCINATION: Never invent fake schemes (like 'Scheme A' or 'Scheme B').\n"
                     "8. NO ELLIPSES: Do NOT use ellipses (...) anywhere in your response. Complete every sentence clearly."
                 )

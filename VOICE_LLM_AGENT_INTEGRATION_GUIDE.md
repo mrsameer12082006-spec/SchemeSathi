@@ -154,6 +154,7 @@ CREATE TABLE IF NOT EXISTS public.scheme_embeddings (
 ALTER TABLE public.scheme_embeddings ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.scheme_embeddings FROM anon, public;
 
+DROP POLICY IF EXISTS "Strict service_role access only to scheme_embeddings" ON public.scheme_embeddings;
 CREATE POLICY "Strict service_role access only to scheme_embeddings"
 ON public.scheme_embeddings FOR ALL TO service_role USING (true) WITH CHECK (true);
 ```

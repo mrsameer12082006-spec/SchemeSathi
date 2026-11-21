@@ -1,7 +1,8 @@
 import base64
 import logging
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.models.profile import UserProfile
@@ -361,12 +362,42 @@ async def transcribe_audio_endpoint(
 @router.post("/synthesize", summary="Synthesize Hindi/Indian English speech via Sarvam AI Bulbul TTS")
 async def synthesize_speech_endpoint(req: SynthesizeRequest):
     """
-    Synthesizes natural speech using Sarvam AI Bulbul v4-flash / v3.
+    Synthesizes natural speech using Sarvam AI Bulbul v4-flash.
     Returns base64 encoded audio for immediate browser playback.
     """
     lang_code = "hi-IN" if req.language == "hi" else "en-IN"
     result = await voice_service.synthesize(req.text, language_code=lang_code, speaker=req.speaker)
     return result
+
+
+@router.get("/synthesize/stream", summary="Real-time HTTP audio streaming via Sarvam Bulbul v4-flash")
+async def stream_speech_get(
+    text: str = Query(..., description="Text to speak"),
+    lang: str = Query("hi", description="Language code ('hi' or 'en')"),
+    speaker: Optional[str] = Query(None, description="Optional speaker ID override")
+):
+    """
+    Streams audio/mpeg chunks with ultra-low latency (<400ms time to first word)
+    using Sarvam Bulbul v4-flash streaming API.
+    """
+    lang_code = "hi-IN" if lang == "hi" else "en-IN"
+    return StreamingResponse(
+        voice_service.stream_synthesize(text, language_code=lang_code, speaker=speaker),
+        media_type="audio/mpeg"
+    )
+
+
+@router.post("/synthesize/stream", summary="Real-time HTTP audio streaming via Sarvam Bulbul v4-flash (POST)")
+async def stream_speech_post(req: SynthesizeRequest):
+    """
+    Streams audio/mpeg chunks with ultra-low latency (<400ms time to first word)
+    using Sarvam Bulbul v4-flash streaming API.
+    """
+    lang_code = "hi-IN" if req.language == "hi" else "en-IN"
+    return StreamingResponse(
+        voice_service.stream_synthesize(req.text, language_code=lang_code, speaker=req.speaker),
+        media_type="audio/mpeg"
+    )
 
 
 @router.post("/chat", response_model=AIChatTurnResponse, summary="Full AI Voice Agent Turn: STT -> Groq 8B Extraction -> Rule Engine -> Groq Explanation -> Sarvam TTS")

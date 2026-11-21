@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { synthesizeSpeech } from '../services/api';
+import { synthesizeSpeech, getAudioStreamUrl } from '../services/api';
 
 /**
  * Hook for Voice progressive enhancement:
@@ -192,6 +192,57 @@ export function useVoice({ lang = 'en' } = {}) {
     });
   }, [cancelSpeech]);
 
+  // Helper: play streaming audio via HTML5 Audio with instant start (<400ms)
+  const playAudioStream = useCallback((streamUrl, id = null) => {
+    return new Promise((resolve) => {
+      try {
+        cancelSpeech();
+
+        const audio = new Audio(streamUrl);
+        audioPlayerRef.current = audio;
+
+        audio.onplay = () => {
+          setIsSpeaking(true);
+          setActivePlayingId(id || 'current');
+        };
+
+        audio.onended = () => {
+          setIsSpeaking(false);
+          setActivePlayingId(null);
+          audioPlayerRef.current = null;
+          resolve(true);
+        };
+
+        audio.onerror = (e) => {
+          console.warn("Audio stream playback error:", e);
+          setIsSpeaking(false);
+          setActivePlayingId(null);
+          audioPlayerRef.current = null;
+          resolve(false);
+        };
+
+        audio.onpause = () => {
+          if (audioPlayerRef.current === audio && audio.currentTime < (audio.duration || 999)) {
+            setIsSpeaking(false);
+            setActivePlayingId(null);
+          }
+        };
+
+        audio.play().catch((playErr) => {
+          console.warn("Audio stream play prevented:", playErr);
+          setIsSpeaking(false);
+          setActivePlayingId(null);
+          resolve(false);
+        });
+      } catch (err) {
+        console.warn("Error creating stream Audio element:", err);
+        setIsSpeaking(false);
+        setActivePlayingId(null);
+        resolve(false);
+      }
+    });
+  }, [cancelSpeech]);
+
   // Fallback: browser speech synthesis with grounded, calm pitch & pace
   const speakBrowserFallback = useCallback((text, id = null) => {
     if (typeof window === 'undefined' || !window.speechSynthesis || !text) {
@@ -243,7 +294,7 @@ export function useVoice({ lang = 'en' } = {}) {
     }
   }, [lang, speechLang]);
 
-  // Main speak method: Sarvam AI Bulbul neural voice first, browser fallback second
+  // Main speak method: Sarvam AI Bulbul neural voice (streaming) first, browser fallback second
   const speak = useCallback(async (text, { audioBase64 = null, id = null } = {}) => {
     if (!text && !audioBase64) return;
 
@@ -262,7 +313,18 @@ export function useVoice({ lang = 'en' } = {}) {
       if (success) return audioBase64;
     }
 
-    // 2. Fetch neural companion speech from Sarvam Bulbul endpoint
+    // 2. Stream neural companion speech via HTTP streaming for instantaneous playback (<400ms)
+    try {
+      const streamUrl = getAudioStreamUrl(text, lang);
+      if (streamUrl) {
+        const streamSuccess = await playAudioStream(streamUrl, id);
+        if (streamSuccess) return null;
+      }
+    } catch (streamErr) {
+      console.warn("Audio streaming failed, trying REST synthesis:", streamErr);
+    }
+
+    // 3. Fallback: Fetch neural speech from Sarvam Bulbul REST endpoint
     try {
       const synth = await synthesizeSpeech(text, lang);
       if (synth && synth.audio_base64 && !synth.fallback_to_browser_tts) {
@@ -273,10 +335,10 @@ export function useVoice({ lang = 'en' } = {}) {
       console.warn("Sarvam speech synthesis request failed, using browser fallback:", err);
     }
 
-    // 3. Fallback to tuned browser speech synthesis
+    // 4. Fallback to tuned browser speech synthesis
     speakBrowserFallback(text, id);
     return null;
-  }, [activePlayingId, cancelSpeech, playAudioBase64, speakBrowserFallback, lang]);
+  }, [activePlayingId, cancelSpeech, playAudioBase64, playAudioStream, speakBrowserFallback, lang]);
 
   return {
     isListening,
