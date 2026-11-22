@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Volume2, Pause, Gift, FileText, Send, Info, ShieldCheck, ExternalLink } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import { getSchemeById } from '../services/api';
-import { coreStrings } from '../i18n';
+import { coreStrings, translateText, translateStep, formatDisplayDate } from '../i18n';
 import { extraStrings } from '../i18n.extra';
 import { useVoice } from '../hooks/useVoice';
 
@@ -57,7 +57,7 @@ export function SchemeDetail({
 
   const handleListenSteps = () => {
     if (!scheme?.steps) return;
-    const textToRead = scheme.steps.map((s, i) => `${i + 1}. ${s}`).join('. ');
+    const textToRead = scheme.steps.map((s, i) => `${i + 1}. ${translateStep(s, lang)}`).join('. ');
     if (activePlayingId === 'steps') {
       cancelSpeech();
     } else {
@@ -140,12 +140,12 @@ export function SchemeDetail({
       <header className="space-y-3 pb-4 border-b border-stone-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1C1B1A]">
-            {scheme.name}
+            {translateText(scheme.name, lang)}
           </h1>
           <StatusBadge status={status} lang={lang} />
         </div>
         <p className="text-base text-stone-600 leading-relaxed font-normal">
-          {scheme.summary}
+          {translateText(scheme.summary, lang)}
         </p>
       </header>
 
@@ -156,7 +156,7 @@ export function SchemeDetail({
           <span>{tExtra.whatYouGet}</span>
         </h2>
         <p className="text-base text-stone-700 leading-relaxed font-normal">
-          {scheme.benefits}
+          {translateText(scheme.benefits, lang)}
         </p>
       </section>
 
@@ -181,7 +181,7 @@ export function SchemeDetail({
             aria-valuenow={checkedCount}
             aria-valuemin={0}
             aria-valuemax={totalCount}
-            aria-label={`${checkedCount} of ${totalCount} documents ready`}
+            aria-label={lang === 'hi' ? `${checkedCount} / ${totalCount} दस्तावेज़ तैयार हैं` : `${checkedCount} of ${totalCount} documents ready`}
           />
         </div>
 
@@ -212,7 +212,7 @@ export function SchemeDetail({
                       : 'text-[#1C1B1A] font-normal'
                   }`}
                 >
-                  {doc}
+                  {translateText(doc, lang)}
                 </span>
               </label>
             );
@@ -255,7 +255,7 @@ export function SchemeDetail({
               <span className="w-6 h-6 rounded-full bg-[#166534]/10 text-[#166534] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
                 {idx + 1}
               </span>
-              <span>{step}</span>
+              <span>{translateStep(step, lang)}</span>
             </li>
           ))}
         </ol>
@@ -296,10 +296,10 @@ export function SchemeDetail({
         <div className="pt-2 text-xs text-stone-500 space-y-1">
           <p>
             <span className="font-medium text-stone-600">{tExtra.lastChecked}: </span>
-            {scheme.last_verified || tExtra.lastCheckedDemo}
+            <span>{formatDisplayDate(scheme.last_verified, lang) || tExtra.lastCheckedDemo}</span>
           </p>
           <p className="truncate">
-            <span className="font-medium text-stone-600">URL: </span>
+            <span className="font-medium text-stone-600">{lang === 'hi' ? 'वेबसाइट: ' : 'URL: '}</span>
             <a
               href={scheme.official_url}
               target="_blank"

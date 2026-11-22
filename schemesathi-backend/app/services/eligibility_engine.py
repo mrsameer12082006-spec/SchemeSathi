@@ -39,15 +39,7 @@ class EligibilityEngine:
         if profile.gender:
             raw_text += f" {profile.gender.lower()}"
 
-        # 1. Persona / Occupation
-        attrs["is_farmer"] = any(k in raw_text for k in ["farmer", "किसान", "kisan", "farming", "खेती", "कृषि"])
-        attrs["is_student"] = any(k in raw_text for k in ["student", "छात्र", "विद्यार्थी", "vidyarthi", "college", "school", "पढ़ाई"])
-        attrs["is_woman"] = any(k in raw_text for k in ["woman", "women", "महिला", "female", "widow", "विधवा", "गर्भवती", "lactating"])
-        attrs["is_senior"] = any(k in raw_text for k in ["senior", "वृद्ध", "बुजुर्ग", "वरिष्ठ", "pension", "पेंशन"])
-        attrs["is_worker"] = any(k in raw_text for k in ["worker", "मज़दूर", "मजदूर", "labour", "श्रमिक", "unorganized", "दिहाड़ी"])
-        attrs["is_business"] = any(k in raw_text for k in ["business", "व्यापारी", "दुकान", "vendor", "वेंडर", "रेहड़ी", "उद्यमी", "shop"])
-
-        # 2. Landholding
+        # 1. Landholding
         attrs["land_hectares"] = profile.landholding_hectares
         attrs["is_tenant_or_landless"] = any(k in raw_text for k in ["tenant", "बटाईदार", "भूमिहीन", "landless"])
         if attrs["land_hectares"] is None:
@@ -55,6 +47,14 @@ class EligibilityEngine:
                 attrs["land_hectares"] = 3.5  # Represents large farmer > 2ha
             elif "up to 2" in raw_text or "2 hectare tak" in raw_text or "2 हेक्टेयर तक" in raw_text:
                 attrs["land_hectares"] = 1.5  # Represents small/marginal farmer <= 2ha
+
+        # 2. Persona / Occupation
+        attrs["is_farmer"] = any(k in raw_text for k in ["farmer", "किसान", "kisan", "farming", "खेती", "कृषि"]) or (attrs["land_hectares"] is not None) or attrs["is_tenant_or_landless"]
+        attrs["is_student"] = any(k in raw_text for k in ["student", "छात्र", "विद्यार्थी", "vidyarthi", "college", "school", "पढ़ाई"])
+        attrs["is_woman"] = any(k in raw_text for k in ["woman", "women", "महिला", "female", "widow", "विधवा", "गर्भवती", "lactating"])
+        attrs["is_senior"] = any(k in raw_text for k in ["senior", "वृद्ध", "बुजुर्ग", "वरिष्ठ", "pension", "पेंशन"])
+        attrs["is_worker"] = any(k in raw_text for k in ["worker", "मज़दूर", "मजदूर", "labour", "श्रमिक", "unorganized", "दिहाड़ी"])
+        attrs["is_business"] = any(k in raw_text for k in ["business", "व्यापारी", "दुकान", "vendor", "वेंडर", "रेहड़ी", "उद्यमी", "shop"])
 
         # 3. Income
         attrs["annual_income"] = profile.annual_income
@@ -135,13 +135,20 @@ class EligibilityEngine:
 
         for item in schemes_data:
             cat = item.get("categories") or {}
-            cat_code = cat.get("code", "")
-            scheme_code = item.get("code", "")
-            criteria = item.get("scheme_eligibility_criteria") or {}
+            if isinstance(cat, list):
+                cat = cat[0] if cat else {}
+            cat_code = (cat.get("code") or item.get("category", "")).lower()
+            scheme_code = item.get("code") or item.get("id", "")
+            criteria = item.get("scheme_eligibility_criteria") or item.get("eligibility") or {}
+            if isinstance(criteria, list):
+                criteria = criteria[0] if criteria else {}
 
-            passed: List[str] = []
-            failed: List[str] = []
-            missing: List[str] = []
+            passed_en: List[str] = []
+            passed_hi: List[str] = []
+            failed_en: List[str] = []
+            failed_hi: List[str] = []
+            missing_en: List[str] = []
+            missing_hi: List[str] = []
 
             # Step 1: Target Persona & Category Affinity Match
             persona_matched = False
@@ -163,12 +170,11 @@ class EligibilityEngine:
             occ_matched, occ_mismatch = self._check_occupation_match(crit_occs, attrs, profile.occupation)
 
             if occ_mismatch:
-                failed.append(
-                    f"यह योजना आपके वर्तमान व्यवसाय/पेशा ({profile.occupation or 'वर्ग'}) के लिए नहीं है"
-                    if is_hi else f"Scheme not applicable for {profile.occupation or 'your occupation'}"
-                )
+                failed_en.append(f"Scheme not applicable for {profile.occupation or 'your occupation'}")
+                failed_hi.append(f"यह योजना आपके वर्तमान व्यवसाय/पेशा ({profile.occupation or 'वर्ग'}) के लिए नहीं है")
             elif (occ_matched and crit_occs) or persona_matched:
-                passed.append("लक्षित श्रेणी/पेशा मेल खाता है" if is_hi else "Target occupation/category matches")
+                passed_en.append("Target occupation/category matches")
+                passed_hi.append("लक्षित श्रेणी/पेशा मेल खाता है")
 
             # Universal social security schemes available to workers & general citizens
             # CRITICAL SAFEGUARD: Do not match universal schemes if citizen profile is completely blank,
@@ -191,31 +197,21 @@ class EligibilityEngine:
                 max_land_val = float(max_land)
                 if attrs["land_hectares"] is not None:
                     if attrs["land_hectares"] <= max_land_val:
-                        passed.append(
-                            f"खेती योग्य भूमि {max_land_val} हेक्टेयर सीमा के भीतर है"
-                            if is_hi else f"Agricultural land within {max_land_val} ha limit"
-                        )
+                        passed_en.append(f"Agricultural land within {max_land_val} ha limit")
+                        passed_hi.append(f"खेती योग्य भूमि {max_land_val} हेक्टेयर सीमा के भीतर है")
                     else:
-                        failed.append(
-                            f"भूमि {max_land_val} हेक्टेयर सीमा से अधिक है"
-                            if is_hi else f"Landholding exceeds {max_land_val} ha limit"
-                        )
+                        failed_en.append(f"Landholding exceeds {max_land_val} ha limit")
+                        failed_hi.append(f"भूमि {max_land_val} हेक्टेयर सीमा से अधिक है")
                 elif attrs["is_tenant_or_landless"]:
                     if scheme_code == "pm-kisan":
-                        failed.append(
-                            "सरकारी रिकॉर्ड में स्वयं की ज़मीन का मालिकाना हक आवश्यक है"
-                            if is_hi else "Direct land ownership record required"
-                        )
+                        failed_en.append("Direct land ownership record required")
+                        failed_hi.append("सरकारी रिकॉर्ड में स्वयं की ज़मीन का मालिकाना हक आवश्यक है")
                     else:
-                        passed.append(
-                            "बटाईदार/काश्तकार के रूप में आवेदन योग्य"
-                            if is_hi else "Eligible as tenant/cultivator"
-                        )
+                        passed_en.append("Eligible as tenant/cultivator")
+                        passed_hi.append("बटाईदार/काश्तकार के रूप में आवेदन योग्य")
                 elif cat_code == "farmers":
-                    missing.append(
-                        "ज़मीन के रकबे (हेक्टेयर) की जानकारी आवश्यक है"
-                        if is_hi else "Landholding size (in hectares) needed"
-                    )
+                    missing_en.append("Landholding size (in hectares) needed")
+                    missing_hi.append("ज़मीन के रकबे (हेक्टेयर) की जानकारी आवश्यक है")
 
             # Step 3: Income Threshold Checks
             max_income = criteria.get("max_annual_income")
@@ -223,20 +219,14 @@ class EligibilityEngine:
                 max_income_val = float(max_income)
                 if attrs["annual_income"] is not None:
                     if attrs["annual_income"] <= max_income_val:
-                        passed.append(
-                            f"वार्षिक पारिवारिक आय ₹{int(max_income_val):,} की सीमा के भीतर है"
-                            if is_hi else f"Household annual income within ₹{int(max_income_val):,} limit"
-                        )
+                        passed_en.append(f"Household annual income within ₹{int(max_income_val):,} limit")
+                        passed_hi.append(f"वार्षिक पारिवारिक आय ₹{int(max_income_val):,} की सीमा के भीतर है")
                     else:
-                        failed.append(
-                            f"वार्षिक पारिवारिक आय ₹{int(max_income_val):,} की पात्रता सीमा से अधिक है"
-                            if is_hi else f"Annual income exceeds ₹{int(max_income_val):,} limit"
-                        )
+                        failed_en.append(f"Annual income exceeds ₹{int(max_income_val):,} limit")
+                        failed_hi.append(f"वार्षिक पारिवारिक आय ₹{int(max_income_val):,} की पात्रता सीमा से अधिक है")
                 else:
-                    missing.append(
-                        "पारिवारिक वार्षिक आय के सत्यापन की आवश्यकता है"
-                        if is_hi else "Household annual income verification needed"
-                    )
+                    missing_en.append("Household annual income verification needed")
+                    missing_hi.append("पारिवारिक वार्षिक आय के सत्यापन की आवश्यकता है")
 
             # Step 4: Age Limit Checks
             min_age = criteria.get("min_age", 0)
@@ -244,39 +234,27 @@ class EligibilityEngine:
             if min_age > 0 or max_age < 100:
                 if attrs["age"] is not None:
                     if min_age <= attrs["age"] <= max_age:
-                        passed.append(
-                            f"आयु {attrs['age']} वर्ष ({min_age}-{max_age} वर्ष सीमा में)"
-                            if is_hi else f"Age {attrs['age']} is within {min_age}-{max_age} years range"
-                        )
+                        passed_en.append(f"Age {attrs['age']} is within {min_age}-{max_age} years range")
+                        passed_hi.append(f"आयु {attrs['age']} वर्ष ({min_age}-{max_age} वर्ष सीमा में)")
                     else:
-                        failed.append(
-                            f"आयु {min_age} से {max_age} वर्ष के बीच होनी चाहिए"
-                            if is_hi else f"Age must be between {min_age} and {max_age} years"
-                        )
+                        failed_en.append(f"Age must be between {min_age} and {max_age} years")
+                        failed_hi.append(f"आयु {min_age} से {max_age} वर्ष के बीच होनी चाहिए")
                 elif cat_code == "seniors":
-                    passed.append(
-                        "वरिष्ठ नागरिक (60+ वर्ष) पात्रता"
-                        if is_hi else "Senior citizen (60+ years) eligibility"
-                    )
+                    passed_en.append("Senior citizen (60+ years) eligibility")
+                    passed_hi.append("वरिष्ठ नागरिक (60+ वर्ष) पात्रता")
 
             # Step 5: Gender Exclusivity Checks
             allowed_genders = criteria.get("allowed_genders") or []
             if len(allowed_genders) == 1 and allowed_genders[0] == "Female":
                 if attrs["is_female"]:
-                    passed.append(
-                        "महिला लाभार्थी पात्रता"
-                        if is_hi else "Eligible female beneficiary"
-                    )
+                    passed_en.append("Eligible female beneficiary")
+                    passed_hi.append("महिला लाभार्थी पात्रता")
                 elif attrs["is_male"]:
-                    failed.append(
-                        "यह योजना विशेष रूप से महिलाओं के लिए है"
-                        if is_hi else "Scheme is exclusively for women"
-                    )
+                    failed_en.append("Scheme is exclusively for women")
+                    failed_hi.append("यह योजना विशेष रूप से महिलाओं के लिए है")
                 else:
-                    missing.append(
-                        "यह योजना केवल महिलाओं के लिए है (महिला लाभार्थी होना आवश्यक है)"
-                        if is_hi else "Exclusively for female beneficiaries (female applicant required)"
-                    )
+                    missing_en.append("Exclusively for female beneficiaries (female applicant required)")
+                    missing_hi.append("यह योजना केवल महिलाओं के लिए है (महिला लाभार्थी होना आवश्यक है)")
 
             # Step 6: Residential Area (Rural/Urban) Checks
             allowed_areas = criteria.get("allowed_areas") or []
@@ -284,14 +262,23 @@ class EligibilityEngine:
                 req_area = allowed_areas[0]
                 if req_area == "Rural":
                     if attrs["is_rural"]:
-                        passed.append("ग्रामीण क्षेत्र के निवासी" if is_hi else "Resident of rural area")
+                        passed_en.append("Resident of rural area")
+                        passed_hi.append("ग्रामीण क्षेत्र के निवासी")
                     elif attrs["is_urban"]:
-                        failed.append("यह योजना केवल ग्रामीण क्षेत्रों के लिए है" if is_hi else "Restricted to rural areas only")
+                        failed_en.append("Restricted to rural areas only")
+                        failed_hi.append("यह योजना केवल ग्रामीण क्षेत्रों के लिए है")
                 elif req_area == "Urban":
                     if attrs["is_urban"]:
-                        passed.append("शहरी क्षेत्र के निवासी" if is_hi else "Resident of urban area")
+                        passed_en.append("Resident of urban area")
+                        passed_hi.append("शहरी क्षेत्र के निवासी")
                     elif attrs["is_rural"]:
-                        failed.append("यह योजना केवल शहरी क्षेत्रों के लिए है" if is_hi else "Restricted to urban areas only")
+                        failed_en.append("Restricted to urban areas only")
+                        failed_hi.append("यह योजना केवल शहरी क्षेत्रों के लिए है")
+
+            # Active language passed/failed/missing
+            passed = passed_hi if is_hi else passed_en
+            failed = failed_hi if is_hi else failed_en
+            missing = missing_hi if is_hi else missing_en
 
             # Determine Result Status
             if failed:
@@ -327,7 +314,21 @@ class EligibilityEngine:
                     benefits=(item.get("benefits_hi") if is_hi and item.get("benefits_hi") else item.get("benefits_en", "")),
                     official_url=item.get("official_url", ""),
                     documents=docs_list,
-                    steps=steps_list
+                    steps=steps_list,
+                    name_en=item.get("name_en", ""),
+                    name_hi=item.get("name_hi", ""),
+                    summary_en=item.get("summary_en", ""),
+                    summary_hi=item.get("summary_hi", ""),
+                    category_en=cat.get("name_en", "General"),
+                    category_hi=cat.get("name_hi", "सामान्य"),
+                    benefits_en=item.get("benefits_en", ""),
+                    benefits_hi=item.get("benefits_hi", ""),
+                    passed_en=passed_en,
+                    passed_hi=passed_hi,
+                    missing_en=missing_en,
+                    missing_hi=missing_hi,
+                    failed_en=failed_en,
+                    failed_hi=failed_hi
                 )
             )
 

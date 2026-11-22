@@ -110,7 +110,7 @@ export function Navbar({ route, navigate, lang, setLang, isBigText, setIsBigText
             onClick={() => setShowDevelopers(true)}
             className="hover:text-[#1C1B1A] transition-colors cursor-pointer py-1"
           >
-            Developers
+            {t.navDevelopers}
           </button>
         </div>
 
@@ -251,7 +251,7 @@ export function Navbar({ route, navigate, lang, setLang, isBigText, setIsBigText
             }}
             className="btn justify-start text-left w-full px-4 py-2.5 text-base font-semibold rounded-xl text-stone-700 hover:bg-stone-200/50"
           >
-            Developers
+            {t.navDevelopers}
           </button>
         </nav>
       )}
@@ -271,13 +271,13 @@ export function Navbar({ route, navigate, lang, setLang, isBigText, setIsBigText
         >
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
-              <p className="mb-2 text-sm font-semibold text-stone-500">The people behind Scheme Sathi</p>
-              <h2 id="developers-title" className="font-serif text-2xl font-bold text-[#1C1B1A] sm:text-3xl">Meet our developers</h2>
+              <p className="mb-2 text-sm font-semibold text-stone-500">{t.developersSubheading}</p>
+              <h2 id="developers-title" className="font-serif text-2xl font-bold text-[#1C1B1A] sm:text-3xl">{t.developersHeading}</h2>
             </div>
             <button
               type="button"
               onClick={() => setShowDevelopers(false)}
-              aria-label="Close developers panel"
+              aria-label={t.closeDevelopersAria}
               className="btn flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-xl text-[#1C1B1A] hover:bg-stone-100 shadow-sm"
             >
               ×

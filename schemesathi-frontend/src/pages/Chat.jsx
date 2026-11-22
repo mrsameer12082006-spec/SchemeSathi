@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Mic, Volume2, Square, ArrowRight, ArrowLeft } from 'lucide-react';
 import Chips from '../components/Chips';
-import { coreStrings } from '../i18n';
+import { coreStrings, translateText } from '../i18n';
 import { extraStrings } from '../i18n.extra';
 import { useVoice } from '../hooks/useVoice';
 
@@ -76,21 +76,34 @@ export function Chat({
     onSendMessage(replyText);
   };
 
+  const voiceDispatchedRef = useRef(false);
+
   const handleToggleVoice = () => {
     cancelSpeech();
     if (isListening) {
       stopListening();
     } else {
-      startListening((transcript) => {
-        if (transcript) {
-          onSendMessage(transcript);
+      voiceDispatchedRef.current = false;
+      startListening(
+        (transcript) => {
+          if (voiceDispatchedRef.current) return;
+          voiceDispatchedRef.current = true;
+          if (transcript && transcript.trim()) {
+            setInputText('');
+            onSendMessage(transcript.trim());
+          }
+        },
+        (interim) => {
+          if (!voiceDispatchedRef.current && interim) {
+            setInputText(interim.trim());
+          }
         }
-      });
+      );
     }
   };
 
   // Convert profile object to chips array
-  const profileChips = Object.entries(profile).map(([, val]) => `${val}`);
+  const profileChips = Object.entries(profile).map(([, val]) => translateText(String(val), lang));
 
   // Can go back if user has answered at least one question after starting
   const canGoBack = messages.filter(m => m.sender === 'user').length > 1;
@@ -99,14 +112,111 @@ export function Chat({
   const latestBotMsgIndex = messages.map(m => m.sender).lastIndexOf('bot');
   const latestBotMsg = latestBotMsgIndex !== -1 ? messages[latestBotMsgIndex] : null;
 
-  // Default quick suggestion chips if none returned by backend
-  const defaultSuggestions = lang === 'hi'
-    ? ['किसान योजनाएं', 'छात्रवृत्ति', 'महिला कल्याण', 'स्वास्थ्य बीमा', 'पेंशन', 'पता नहीं']
-    : ['Farmer Schemes', 'Scholarships', 'Women Welfare', 'Health Insurance', 'Pensions', 'Not sure'];
+  // Helper to deduce strictly contextual quick-reply options from conversation if backend returns empty
+  const getContextualFallbackChips = (latestBot, allMsgs, userProfile, currentLang) => {
+    const isHi = currentLang === 'hi';
+    if (!latestBot && allMsgs.length === 0) {
+      return isHi
+        ? ['किसान योजनाएं', 'छात्रवृत्ति', 'महिला कल्याण', 'स्वास्थ्य बीमा', 'पेंशन']
+        : ['Farmer Schemes', 'Scholarships', 'Women Welfare', 'Health Insurance', 'Pensions'];
+    }
 
-  const activeChips = (latestBotMsg?.quick_replies && latestBotMsg.quick_replies.length > 0)
-    ? latestBotMsg.quick_replies
-    : (messages.length <= 2 ? defaultSuggestions : []);
+    const botText = (latestBot?.text || '').toLowerCase();
+    const convText = allMsgs.map(m => m.text).join(' ').toLowerCase();
+    const profValues = Object.values(userProfile || {}).join(' ').toLowerCase();
+    const fullContext = `${convText} ${botText} ${profValues}`;
+
+    // 1. Direct follow-up to question in bot's message
+    if (/crop insurance|fasal bima|फसल बीमा|बीमा/.test(botText)) {
+      return isHi
+        ? ['हाँ, फसल बीमा की जानकारी दें', 'पीएम किसान स्टेटस', 'ज़रूरी दस्तावेज़', 'किसान क्रेडिट कार्ड']
+        : ['Yes, tell me about crop insurance', 'PM Kisan status', 'Required documents', 'Kisan Credit Card'];
+    }
+    if (/land|hectare|acre|ज़मीन|रकबा|हेक्टेयर|बटाईदार/.test(botText)) {
+      return isHi
+        ? ['अपनी ज़मीन (2 हेक्टेयर तक)', 'अपनी ज़मीन (2 हेक्टेयर से अधिक)', 'बटाईदार / भूमिहीन']
+        : ['Own land (up to 2 hectares)', 'Own land (more than 2 hectares)', 'Tenant farmer / Landless'];
+    }
+    if (/sow|cultivat|बुवाई|बोई/.test(botText)) {
+      return isHi
+        ? ['हाँ, मौसमी फसल बोई है', 'नहीं, खेत खाली रहा', 'शर्तें बताएं']
+        : ['Yes, cultivated seasonal crops', 'No, land was fallow', 'Tell me requirements'];
+    }
+    if (/class 12|12वीं|college|enrolled|दाखिला|marksheet/.test(botText)) {
+      return isHi
+        ? ['हाँ, 12वीं पास हैं', 'अभी स्कूल में पढ़ रहे हैं', 'कॉलेज में दाखिला है']
+        : ['Yes, passed Class 12', 'Currently in school', 'Enrolled in college'];
+    }
+    if (/income|annual income|आय|सालाना आय/.test(botText)) {
+      return isHi
+        ? ['₹1 लाख से कम', '₹1 - ₹2.5 लाख', '₹2.5 लाख से अधिक']
+        : ['Below ₹1 Lakh', '₹1 - ₹2.5 Lakh', 'Above ₹2.5 Lakh'];
+    }
+    if (/ration card|राशन कार्ड|ayushman list|सूची में नाम/.test(botText)) {
+      return isHi
+        ? ['हाँ, राशन कार्ड है', 'राशन कार्ड नहीं है', 'नाम कैसे चेक करें?']
+        : ['Yes, have ration card', 'No ration card', 'How to check name?'];
+    }
+
+    // 2. Topic/Role specific options based on current conversation context
+    if (/farmer|kisan|farming|खेती|किसान|हरियाणा|कृषि/.test(fullContext)) {
+      return isHi
+        ? ['पीएम किसान ₹6,000 किस्त', 'फसल बीमा की जानकारी', 'किसान क्रेडिट कार्ड (KCC)', 'ज़रूरी दस्तावेज़']
+        : ['PM Kisan ₹6,000 status', 'Crop insurance details', 'Kisan Credit Card (KCC)', 'Required documents'];
+    }
+    if (/student|scholarship|college|छात्र|छात्रवृत्ति|पढ़ाई/.test(fullContext)) {
+      return isHi
+        ? ['कॉलेज छात्रवृत्ति योजना', 'पात्रता की शर्तें', 'आवश्यक दस्तावेज़', 'आवेदन के चरण']
+        : ['College Scholarship (CSSS)', 'Eligibility criteria', 'Required documents', 'Application steps'];
+    }
+    if (/woman|women|maternity|pregnant|महिला|मातृ/.test(fullContext)) {
+      return isHi
+        ? ['मातृ वंदना योजना (PMMVY)', 'लखपति दीदी योजना', 'ज़रूरी दस्तावेज़', 'आवेदन के चरण']
+        : ['Matru Vandana (PMMVY)', 'Lakhpati Didi', 'Required documents', 'Application steps'];
+    }
+    if (/worker|labour|shramik|मज़दूर|श्रमिक|ई-श्रम/.test(fullContext)) {
+      return isHi
+        ? ['ई-श्रम कार्ड लाभ', 'सुरक्षा बीमा (PMSBY)', 'श्रम योगी मान-धन', 'ज़रूरी दस्तावेज़']
+        : ['e-Shram card benefits', 'Accident insurance (PMSBY)', 'PM-SYM pension', 'Required documents'];
+    }
+    if (/senior|elderly|pension|वृद्धावस्था|बुजुर्ग|पेंशन/.test(fullContext)) {
+      return isHi
+        ? ['वृद्धावस्था पेंशन', 'अटल पेंशन योजना', 'मुफ़्त अस्पताल इलाज', 'आवेदन प्रक्रिया']
+        : ['Old age pension', 'Atal Pension Yojana', 'Free hospital cover', 'Application process'];
+    }
+    if (/health|hospital|ayushman|इलाज|आयुष्मान|दवा/.test(fullContext)) {
+      return isHi
+        ? ['आयुष्मान भारत ₹5 लाख', 'सूची में नाम चेक करें', 'संबद्ध अस्पताल', 'ज़रूरी दस्तावेज़']
+        : ['Ayushman Bharat ₹5 Lakh', 'Check name in list', 'Empaneled hospitals', 'Required documents'];
+    }
+    if (/loan|business|vyapar|लोन|मुद्रा|व्यापार/.test(fullContext)) {
+      return isHi
+        ? ['पीएम मुद्रा लोन', 'पीएम स्वनिधि', 'पात्रता की शर्तें', 'ज़रूरी दस्तावेज़']
+        : ['PM Mudra loan', 'PM SVANidhi', 'Eligibility criteria', 'Required documents'];
+    }
+
+    // 3. Conversational follow-up if question was asked
+    if (botText.includes('?') || botText.includes('क्या')) {
+      return isHi
+        ? ['हाँ, और जानकारी दें', 'पात्रता की शर्तें क्या हैं?', 'ज़रूरी दस्तावेज़']
+        : ['Yes, tell me more', 'What are the rules?', 'Required documents'];
+    }
+
+    // Default clean options for ongoing chat
+    return isHi
+      ? ['पात्रता की शर्तें', 'आवश्यक दस्तावेज़', 'आवेदन प्रक्रिया']
+      : ['Eligibility criteria', 'Required documents', 'Application steps'];
+  };
+
+  const activeChips = (
+    (lang === 'hi' && Array.isArray(latestBotMsg?.quick_replies_hi) && latestBotMsg.quick_replies_hi.length > 0)
+      ? latestBotMsg.quick_replies_hi
+      : (lang === 'en' && Array.isArray(latestBotMsg?.quick_replies_en) && latestBotMsg.quick_replies_en.length > 0)
+        ? latestBotMsg.quick_replies_en
+        : (Array.isArray(latestBotMsg?.quick_replies) && latestBotMsg.quick_replies.length > 0)
+          ? latestBotMsg.quick_replies
+          : getContextualFallbackChips(latestBotMsg, messages, profile, lang)
+  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-65px)] bg-[#F9F8F6]">
@@ -184,7 +294,7 @@ export function Chat({
                     {msg.why && (
                       <p className="mt-2 text-xs sm:text-sm text-stone-500 italic leading-snug">
                         <span className="font-semibold not-italic text-stone-600">{tCore.whyAsk}: </span>
-                        {msg.why}
+                        {translateText(msg.why, lang)}
                       </p>
                     )}
 
@@ -268,16 +378,19 @@ export function Chat({
           {/* Suggestion Chips */}
           {activeChips.length > 0 && !loading && (
             <div className="flex flex-wrap gap-2 mb-3">
-              {activeChips.map((chip, idx) => (
-                <button
-                  key={`chip-${idx}`}
-                  type="button"
-                  onClick={() => handleChipClick(chip)}
-                  className="px-3.5 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-600 hover:border-[#166534] hover:text-[#166534] hover:bg-white transition-all shadow-sm active:scale-95 cursor-pointer"
-                >
-                  {chip}
-                </button>
-              ))}
+              {activeChips.map((chip, idx) => {
+                const localizedChip = translateText(chip, lang);
+                return (
+                  <button
+                    key={`chip-${idx}`}
+                    type="button"
+                    onClick={() => handleChipClick(localizedChip)}
+                    className="px-3.5 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-stone-600 hover:border-[#166534] hover:text-[#166534] hover:bg-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                  >
+                    {localizedChip}
+                  </button>
+                );
+              })}
             </div>
           )}
 

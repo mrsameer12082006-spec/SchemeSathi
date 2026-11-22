@@ -15,6 +15,10 @@ export function useVoice({ lang = 'en' } = {}) {
 
   const recognitionRef = useRef(null);
   const audioPlayerRef = useRef(null);
+  const silenceTimerRef = useRef(null);
+  const latestTranscriptRef = useRef('');
+  const hasDispatchedRef = useRef(false);
+  const dispatchResultRef = useRef(null);
   const speechLang = lang === 'hi' ? 'hi-IN' : 'en-IN';
 
   // Check SpeechRecognition browser support
@@ -49,6 +53,10 @@ export function useVoice({ lang = 'en' } = {}) {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
       if (recognitionRef.current) {
         try {
           recognitionRef.current.abort();
@@ -60,10 +68,46 @@ export function useVoice({ lang = 'en' } = {}) {
     };
   }, [cancelSpeech]);
 
-  // Start speech recognition
-  const startListening = useCallback((onResultCallback) => {
+/**
+ * Deduplicate repeated phrases or echo artifacts often produced by ASR engines
+ * when silence detection or multiple speech recognition events fire.
+ */
+function dedupeSpokenText(text) {
+  if (!text || typeof text !== 'string') return '';
+  const cleaned = text.trim();
+  const words = cleaned.split(/\s+/);
+
+  // 1. Exact halving repeat: "I am a student I am a student" (minimum 4 words to avoid single-word words)
+  if (words.length >= 4 && words.length % 2 === 0) {
+    const half = words.length / 2;
+    const firstHalf = words.slice(0, half).join(' ');
+    const secondHalf = words.slice(half).join(' ');
+    if (firstHalf.toLowerCase() === secondHalf.toLowerCase()) {
+      return firstHalf;
+    }
+  }
+
+  // 2. Immediate repeated phrase chunks: "X Y Z X Y Z"
+  for (let n = Math.floor(words.length / 2); n >= 2; n--) {
+    const first = words.slice(0, n).join(' ');
+    const second = words.slice(n, n * 2).join(' ');
+    if (first.toLowerCase() === second.toLowerCase() && n * 2 === words.length) {
+      return first;
+    }
+  }
+
+  return cleaned;
+}
+
+  // Start speech recognition (supports final callback and optional live interim callback)
+  const startListening = useCallback((onResultCallback, onInterimCallback) => {
     setVoiceError(null);
     cancelSpeech();
+
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
 
     if (!isSpeechToTextSupported) {
       const msg = lang === 'hi'
@@ -73,14 +117,65 @@ export function useVoice({ lang = 'en' } = {}) {
       return;
     }
 
+    // Abort and detach any existing recognition instance to prevent duplicate listeners
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.onend = null;
+        recognitionRef.current.onstart = null;
+        recognitionRef.current.abort();
+      } catch {
+        // ignore
+      }
+      recognitionRef.current = null;
+    }
+
     try {
       const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognitionClass();
       recognitionRef.current = recognition;
 
       recognition.lang = speechLang;
-      recognition.continuous = false;
-      recognition.interimResults = false;
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      hasDispatchedRef.current = false;
+      latestTranscriptRef.current = '';
+
+      const dispatchResult = (rawTranscript) => {
+        if (hasDispatchedRef.current) return;
+        const clean = dedupeSpokenText(rawTranscript);
+        if (!clean) return;
+        hasDispatchedRef.current = true;
+
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
+        }
+
+        // Clean up recognizer upon final sentence
+        if (recognitionRef.current === recognition) {
+          try {
+            recognition.onresult = null;
+            recognition.onerror = null;
+            recognition.onend = null;
+            recognition.stop();
+          } catch {
+            // ignore
+          }
+          recognitionRef.current = null;
+        }
+
+        setIsListening(false);
+
+        if (onResultCallback) {
+          onResultCallback(clean);
+        }
+      };
+
+      dispatchResultRef.current = dispatchResult;
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -88,16 +183,45 @@ export function useVoice({ lang = 'en' } = {}) {
       };
 
       recognition.onresult = (event) => {
-        const transcript = event.results[0]?.[0]?.transcript || '';
-        setIsListening(false);
-        if (transcript && onResultCallback) {
-          onResultCallback(transcript);
+        let accumulated = '';
+
+        // Accumulate full sentence across all result segments
+        for (let i = 0; i < event.results.length; i++) {
+          const item = event.results[i];
+          if (item && item[0] && item[0].transcript) {
+            accumulated += item[0].transcript + ' ';
+          }
+        }
+
+        accumulated = accumulated.trim();
+        if (accumulated) {
+          latestTranscriptRef.current = accumulated;
+
+          // Provide live word preview to caller
+          if (onInterimCallback) {
+            onInterimCallback(accumulated);
+          }
+
+          // Reset silence timer: finalize full sentence after 1200ms pause
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+          }
+          silenceTimerRef.current = setTimeout(() => {
+            if (!hasDispatchedRef.current && latestTranscriptRef.current) {
+              dispatchResult(latestTranscriptRef.current);
+            }
+          }, 1200);
         }
       };
 
       recognition.onerror = (event) => {
         console.warn("Speech recognition error:", event.error);
-        setIsListening(false);
+
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
+        }
+
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
           setVoiceError(
             lang === 'hi'
@@ -111,10 +235,33 @@ export function useVoice({ lang = 'en' } = {}) {
               : "Could not capture speech. Please try typing instead."
           );
         }
+
+        // If recognizer had captured words before error, deliver the sentence
+        if (!hasDispatchedRef.current && latestTranscriptRef.current) {
+          dispatchResult(latestTranscriptRef.current);
+        } else {
+          setIsListening(false);
+          if (recognitionRef.current === recognition) {
+            recognitionRef.current = null;
+          }
+        }
       };
 
       recognition.onend = () => {
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
+        }
+
         setIsListening(false);
+        if (recognitionRef.current === recognition) {
+          recognitionRef.current = null;
+        }
+
+        // Deliver full sentence if speech finished naturally
+        if (!hasDispatchedRef.current && latestTranscriptRef.current) {
+          dispatchResult(latestTranscriptRef.current);
+        }
       };
 
       recognition.start();
@@ -129,14 +276,27 @@ export function useVoice({ lang = 'en' } = {}) {
     }
   }, [cancelSpeech, isSpeechToTextSupported, lang, speechLang]);
 
-  // Stop listening manually
+  // Stop listening manually (flushes any captured sentence immediately)
   const stopListening = useCallback(() => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+
+    if (!hasDispatchedRef.current && latestTranscriptRef.current) {
+      dispatchResultRef.current?.(latestTranscriptRef.current);
+    }
+
     if (recognitionRef.current) {
       try {
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.onend = null;
         recognitionRef.current.stop();
       } catch {
         // ignore
       }
+      recognitionRef.current = null;
     }
     setIsListening(false);
   }, []);

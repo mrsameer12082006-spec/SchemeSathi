@@ -104,6 +104,8 @@ async def chat_endpoint(req: ChatMessageRequest):
 
     return {
         "reply": ai_res.reply,
+        "reply_en": ai_res.reply_en,
+        "reply_hi": ai_res.reply_hi,
         "audio_base64": ai_res.audio_base64,
         "fallback_to_browser_tts": ai_res.fallback_to_browser_tts,
         "quick_replies": [],
