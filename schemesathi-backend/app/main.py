@@ -88,10 +88,17 @@ if cors_origins_env.strip() == "*":
         allow_headers=["*"],
     )
 else:
-    allowed_origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+    allowed_origins = set()
+    for o in cors_origins_env.split(","):
+        cleaned = o.strip()
+        if cleaned:
+            allowed_origins.add(cleaned.rstrip("/"))
+            allowed_origins.add(cleaned.rstrip("/") + "/")
+    # Always allow local dev origins for developer convenience
+    allowed_origins.update(["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"])
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=allowed_origins,
+        allow_origins=list(allowed_origins),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
