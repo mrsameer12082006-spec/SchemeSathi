@@ -87,7 +87,15 @@ export async function fetchSchemeByIdFromSupabase(idOrCode, language = 'en') {
     : `code=eq.${encodeURIComponent(idOrCode)}`;
 
   const query = `schemes?${filter}&select=*,categories(*),scheme_eligibility_criteria(*),scheme_documents(*),scheme_steps(*)&limit=1`;
-  const data = await supabaseFetch(query);
+  let data = await supabaseFetch(query);
+
+  if ((!data || data.length === 0) && !isUUID) {
+    const altCode = idOrCode.includes('_') ? idOrCode.replace(/_/g, '-') : idOrCode.replace(/-/g, '_');
+    const altQuery = `schemes?code=eq.${encodeURIComponent(altCode)}&select=*,categories(*),scheme_eligibility_criteria(*),scheme_documents(*),scheme_steps(*)&limit=1`;
+    try {
+      data = await supabaseFetch(altQuery);
+    } catch (_) {}
+  }
 
   if (!data || data.length === 0) {
     throw new Error(`Scheme '${idOrCode}' not found`);

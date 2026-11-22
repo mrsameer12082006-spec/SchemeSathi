@@ -181,7 +181,7 @@ export function SchemeDetail({
             aria-valuenow={checkedCount}
             aria-valuemin={0}
             aria-valuemax={totalCount}
-            aria-label={`${checkedCount} of ${totalCount} documents ready`}
+            aria-label={lang === 'hi' ? `${checkedCount} / ${totalCount} दस्तावेज़ तैयार हैं` : `${checkedCount} of ${totalCount} documents ready`}
           />
         </div>
 
@@ -299,7 +299,7 @@ export function SchemeDetail({
             <span>{formatDisplayDate(scheme.last_verified, lang) || tExtra.lastCheckedDemo}</span>
           </p>
           <p className="truncate">
-            <span className="font-medium text-stone-600">URL: </span>
+            <span className="font-medium text-stone-600">{lang === 'hi' ? 'वेबसाइट: ' : 'URL: '}</span>
             <a
               href={scheme.official_url}
               target="_blank"

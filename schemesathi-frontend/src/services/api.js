@@ -9,6 +9,7 @@ import {
   fetchEligibilityCriteriaFromSupabase,
   evaluateEligibilityAgainstCriteria
 } from './supabaseClient';
+import top40Schemes from '../top_40_schemes.json';
 
 const API_BASE = import.meta.env.VITE_API_URL 
   ? import.meta.env.VITE_API_URL.replace(/\/$/, '') 
@@ -309,17 +310,32 @@ function parseProfileFromText(text, lang) {
   // Landholding check
   if (lower.includes('up to 2') || lower.includes('2 hectare tak') || lower.includes('2 हेक्टेयर तक') || lower.includes('अपनी ज़मीन (2 हेक्टेयर तक)')) {
     profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? '2 हेक्टेयर तक' : 'Up to 2 hectares';
-  } else if (lower.includes('more than 2') || lower.includes('2 hectare se adhik') || lower.includes('2 हेक्टेयर से अधिक')) {
+    if (!profile[isHi ? 'पेशा' : 'Occupation']) {
+      profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'किसान' : 'Farmer';
+    }
+  } else if (lower.includes('more than 2') || lower.includes('2 hectare se adhik') || lower.includes('2 हेक्टेयर से अधिक') || lower.includes('अपनी ज़मीन (2 हेक्टेयर से अधिक)')) {
     profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? '2 हेक्टेयर से अधिक' : 'More than 2 hectares';
+    if (!profile[isHi ? 'पेशा' : 'Occupation']) {
+      profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'किसान' : 'Farmer';
+    }
   } else if (lower.includes('tenant') || lower.includes('बटाईदार') || lower.includes('भूमिहीन') || lower.includes('landless')) {
     profile[isHi ? 'भूमि' : 'Landholding'] = isHi ? 'भूमिहीन / बटाईदार' : 'Tenant / Landless';
+    if (!profile[isHi ? 'पेशा' : 'Occupation']) {
+      profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'किसान' : 'Farmer';
+    }
   }
 
   // Crop sowing check
   if (lower.includes('cultivated') || lower.includes('मौसमी फसल') || lower.includes('बोई') || lower.includes('sown')) {
     profile[isHi ? 'फसल बुवाई' : 'Crop Cultivation'] = isHi ? 'मौसमी फसल बोई' : 'Seasonal crops sown';
+    if (!profile[isHi ? 'पेशा' : 'Occupation']) {
+      profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'किसान' : 'Farmer';
+    }
   } else if (lower.includes('fallow') || lower.includes('खाली')) {
     profile[isHi ? 'फसल बुवाई' : 'Crop Cultivation'] = isHi ? 'खेत खाली रहा' : 'Land was fallow';
+    if (!profile[isHi ? 'पेशा' : 'Occupation']) {
+      profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'किसान' : 'Farmer';
+    }
   }
 
   // Income check
@@ -350,7 +366,7 @@ async function mockCreateSession(language = 'en') {
   return { session_id: sessionId };
 }
 
-async function mockSendMessage(sessionId, message, language = 'en') {
+async function mockSendMessage(sessionId, message, language = 'en', clientProfile = null) {
   // Simulate network latency (150-250ms)
   await new Promise(r => setTimeout(r, 200));
 
@@ -372,6 +388,15 @@ async function mockSendMessage(sessionId, message, language = 'en') {
   const lowerMsg = trimmed.toLowerCase();
   const isHi = (language || session.language) === 'hi' || /[\u0900-\u097F]/.test(trimmed);
   if (isHi) session.language = 'hi';
+
+  // Persist clientProfile and extract attributes immediately on every turn
+  if (clientProfile && typeof clientProfile === 'object') {
+    Object.assign(session.profile, clientProfile);
+  }
+  const extractedEarly = parseProfileFromText(message, isHi ? 'hi' : 'en');
+  Object.assign(session.profile, extractedEarly);
+  session.history.push({ role: 'user', content: message });
+  session.step += 1;
 
   // 1. Conversational Greeting & Introduction Handler (like ChatGPT / Claude)
   const nameMatch = trimmed.match(/(?:i am|i\'m|im|my name is|mera naam|main|mai)\s+([a-zA-Z\u0900-\u097F]+)/i);
@@ -457,7 +482,10 @@ async function mockSendMessage(sessionId, message, language = 'en') {
         quick_replies_en: ["Eligibility Criteria", "Required Documents", "Application Steps"],
         why: "",
         progress: { answered: 2 },
-        profile: { ...session.profile, [isHi ? 'पेशा' : 'Occupation']: isHi ? 'छात्र' : 'Student' },
+        profile: (() => {
+          session.profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'छात्र' : 'Student';
+          return { ...session.profile };
+        })(),
         done: false,
         show_results: true,
         results_url: "/results",
@@ -509,7 +537,10 @@ async function mockSendMessage(sessionId, message, language = 'en') {
       quick_replies_en: ["Up to 2 hectares", "More than 2 hectares", "Tenant / Landless"],
       why: "",
       progress: { answered: 2 },
-      profile: { ...session.profile, [isHi ? 'पेशा' : 'Occupation']: isHi ? 'किसान' : 'Farmer' },
+      profile: (() => {
+        session.profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'किसान' : 'Farmer';
+        return { ...session.profile };
+      })(),
       done: false,
       show_results: true,
       results_url: "/results",
@@ -596,8 +627,13 @@ async function mockSendMessage(sessionId, message, language = 'en') {
 
   // Match against verified real schemes if Supabase yielded no results
   if (!results || results.length === 0) {
-    const isFarmer = Object.values(session.profile).some(v => String(v).includes('Farmer') || String(v).includes('किसान'));
-    const isStudent = Object.values(session.profile).some(v => String(v).includes('Student') || String(v).includes('छात्र'));
+    const hasLandholding = Object.keys(session.profile).some(k => k.toLowerCase().includes('land') || k.toLowerCase().includes('भूमि') || k.toLowerCase().includes('holding'));
+    const historyMentionsFarmer = (session.history || []).some(h => /kisan|farmer|farming|खेती|किसान|फसल|बीमा|hectare|हेक्टेयर|bigha|बीघा|acre|एकड़/i.test(h.content || ''));
+    const isFarmer = hasLandholding || historyMentionsFarmer || Object.values(session.profile).some(v => String(v).includes('Farmer') || String(v).includes('किसान'));
+    if (isFarmer && !session.profile[isHi ? 'पेशा' : 'Occupation']) {
+      session.profile[isHi ? 'पेशा' : 'Occupation'] = isHi ? 'किसान' : 'Farmer';
+    }
+    const isStudent = Object.values(session.profile).some(v => String(v).includes('Student') || String(v).includes('छात्र')) || (session.history || []).some(h => /student|छात्र|scholarship|छात्रवृत्ति|college|school/i.test(h.content || ''));
     const isWoman = Object.values(session.profile).some(v => String(v).includes('Woman') || String(v).includes('महिला'));
     const isWorker = Object.values(session.profile).some(v => String(v).includes('Worker') || String(v).includes('मज़दूर') || String(v).includes('मजदूर'));
 
@@ -788,11 +824,24 @@ async function mockSendMessage(sessionId, message, language = 'en') {
   const final_reply_hi = `हमने आपके विवरण के आधार पर ${results.length} प्रासंगिक सरकारी योजनाओं की पहचान की है। आप नीचे दिए गए कार्ड्स में विस्तृत जानकारी देख सकते हैं।`;
   const final_reply_en = `Based on your details, we found ${results.length} relevant government schemes. You can view the details in the cards below.`;
 
+  const isFarmerMatched = Object.values(session.profile).some(v => String(v).includes('Farmer') || String(v).includes('किसान')) ||
+    Object.keys(session.profile).some(k => k.toLowerCase().includes('land') || k.toLowerCase().includes('भूमि'));
+  const isStudentMatched = Object.values(session.profile).some(v => String(v).includes('Student') || String(v).includes('छात्र'));
+
+  const final_chips_hi = isFarmerMatched
+    ? ["पीएम किसान स्टेटस", "फसल बीमा की जानकारी", "ज़रूरी दस्तावेज़", "आवेदन प्रक्रिया"]
+    : (isStudentMatched ? ["कॉलेज छात्रवृत्ति योजना", "पात्रता की शर्तें", "आवश्यक दस्तावेज़"] : ["पात्रता की शर्तें", "आवश्यक दस्तावेज़", "आवेदन प्रक्रिया"]);
+  const final_chips_en = isFarmerMatched
+    ? ["PM Kisan status", "Crop insurance details", "Required documents", "Application steps"]
+    : (isStudentMatched ? ["College Scholarship (CSSS)", "Eligibility criteria", "Required documents"] : ["Eligibility criteria", "Required documents", "Application steps"]);
+
   return {
     reply: isHi ? final_reply_hi : final_reply_en,
     reply_en: final_reply_en,
     reply_hi: final_reply_hi,
-    quick_replies: [],
+    quick_replies: isHi ? final_chips_hi : final_chips_en,
+    quick_replies_hi: final_chips_hi,
+    quick_replies_en: final_chips_en,
     why: "",
     progress: { answered: session.step },
     profile: { ...session.profile },
@@ -805,7 +854,16 @@ async function mockSendMessage(sessionId, message, language = 'en') {
 
 async function mockGetSchemes(language = 'en') {
   await new Promise(r => setTimeout(r, 120));
-  const list = language === 'hi' ? MOCK_SCHEMES_HI : MOCK_SCHEMES_EN;
+  const isHi = language === 'hi';
+  if (Array.isArray(top40Schemes) && top40Schemes.length > 0) {
+    return top40Schemes.map(s => ({
+      id: s.code,
+      name: isHi ? (s.name_hi || s.name_en) : s.name_en,
+      summary: isHi ? (s.summary_hi || s.summary_en) : s.summary_en,
+      category: isHi ? (s.category_hi || s.category) : s.category
+    }));
+  }
+  const list = isHi ? MOCK_SCHEMES_HI : MOCK_SCHEMES_EN;
   return list.map(s => ({
     id: s.id,
     name: s.name,
@@ -816,14 +874,45 @@ async function mockGetSchemes(language = 'en') {
 
 async function mockGetSchemeDetail(id, language = 'en') {
   await new Promise(r => setTimeout(r, 150));
-  const list = language === 'hi' ? MOCK_SCHEMES_HI : MOCK_SCHEMES_EN;
-  const found = list.find(s => s.id === id);
+  const normId = (id || '').toLowerCase();
+  const altId = normId.includes('_') ? normId.replace(/_/g, '-') : normId.replace(/-/g, '_');
+  const isHi = language === 'hi';
+
+  const list = isHi ? MOCK_SCHEMES_HI : MOCK_SCHEMES_EN;
+  let found = list.find(s => s.id === normId || s.id === altId);
+
   if (!found) {
-    // Fallback to English if not found in Hindi
-    const enFallback = MOCK_SCHEMES_EN.find(s => s.id === id);
-    if (!enFallback) throw new Error("Scheme not found");
-    return enFallback;
+    const fallbackList = isHi ? MOCK_SCHEMES_EN : MOCK_SCHEMES_HI;
+    found = fallbackList.find(s => s.id === normId || s.id === altId);
   }
+
+  if (!found && Array.isArray(top40Schemes)) {
+    const raw = top40Schemes.find(s => s.code === normId || s.code === altId);
+    if (raw) {
+      found = {
+        id: raw.code,
+        code: raw.code,
+        name: isHi ? (raw.name_hi || raw.name_en) : raw.name_en,
+        summary: isHi ? (raw.summary_hi || raw.summary_en) : raw.summary_en,
+        category: isHi ? (raw.category_hi || raw.category) : raw.category,
+        benefits: isHi ? (raw.benefits_hi || raw.benefits_en) : raw.benefits_en,
+        documents: (raw.documents || []).map(d => isHi ? (d.document_name_hi || d.document_name_en) : d.document_name_en),
+        steps: (raw.steps || []).map(st => {
+          const title = isHi ? (st.title_hi || st.title_en) : st.title_en;
+          const desc = isHi ? (st.description_hi || st.description_en) : st.description_en;
+          return title && desc && title !== desc ? `${title}: ${desc}` : (desc || title || '');
+        }),
+        official_url: raw.official_url || 'https://scholarships.gov.in',
+        last_verified: isHi ? '14 नवम्बर 2026' : '14 Nov 2026',
+        demo: false
+      };
+    }
+  }
+
+  if (!found) {
+    throw new Error("Scheme not found");
+  }
+
   return found;
 }
 
@@ -850,9 +939,9 @@ export async function createSession(language = 'en') {
   }
 }
 
-export async function sendMessage({ sessionId, message, language = 'en', audioBase64 = null }) {
+export async function sendMessage({ sessionId, message, language = 'en', audioBase64 = null, profile = null }) {
   if (!API_BASE) {
-    return mockSendMessage(sessionId, message, language);
+    return mockSendMessage(sessionId, message, language, profile);
   }
 
   // 1. Try AI-powered Voice/Text endpoint first (Groq 8B + Sarvam AI)
@@ -865,7 +954,8 @@ export async function sendMessage({ sessionId, message, language = 'en', audioBa
         message: message || '',
         audio_base64: audioBase64,
         language,
-        synthesize_audio: false
+        synthesize_audio: false,
+        profile: profile || undefined
       })
     });
     if (aiRes.ok) {
@@ -876,9 +966,15 @@ export async function sendMessage({ sessionId, message, language = 'en', audioBa
         reply_hi: data.reply_hi || (language === 'hi' ? data.reply : null),
         audio_base64: data.audio_base64,
         fallback_to_browser_tts: data.fallback_to_browser_tts,
-        quick_replies: data.done ? [] : (language === 'hi' ? ['₹1 लाख से कम', '₹1 - ₹2.5 लाख', '₹2.5 लाख से अधिक'] : ['Below ₹1 Lakh', '₹1 - ₹2.5 Lakh', 'Above ₹2.5 Lakh']),
-        quick_replies_hi: data.done ? [] : ['₹1 लाख से कम', '₹1 - ₹2.5 लाख', '₹2.5 लाख से अधिक'],
-        quick_replies_en: data.done ? [] : ['Below ₹1 Lakh', '₹1 - ₹2.5 Lakh', 'Above ₹2.5 Lakh'],
+        quick_replies: (Array.isArray(data.quick_replies) && data.quick_replies.length > 0)
+          ? (language === 'hi' ? (data.quick_replies_hi || data.quick_replies) : (data.quick_replies_en || data.quick_replies))
+          : (data.done ? [] : (language === 'hi' ? ['पात्रता की शर्तें', 'आवश्यक दस्तावेज़', 'आवेदन प्रक्रिया'] : ['Eligibility criteria', 'Required documents', 'Application steps'])),
+        quick_replies_hi: (Array.isArray(data.quick_replies_hi) && data.quick_replies_hi.length > 0)
+          ? data.quick_replies_hi
+          : (Array.isArray(data.quick_replies) ? data.quick_replies : ['पात्रता की शर्तें', 'आवश्यक दस्तावेज़', 'आवेदन प्रक्रिया']),
+        quick_replies_en: (Array.isArray(data.quick_replies_en) && data.quick_replies_en.length > 0)
+          ? data.quick_replies_en
+          : (Array.isArray(data.quick_replies) ? data.quick_replies : ['Eligibility criteria', 'Required documents', 'Application steps']),
         why: '',
         progress: { answered: data.done ? 3 : 1 },
         profile: data.profile || {},
@@ -900,7 +996,8 @@ export async function sendMessage({ sessionId, message, language = 'en', audioBa
       body: JSON.stringify({
         session_id: sessionId,
         message,
-        language
+        language,
+        profile: profile || undefined
       })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -912,7 +1009,7 @@ export async function sendMessage({ sessionId, message, language = 'en', audioBa
     };
   } catch (err) {
     console.warn("Real API failed, falling back to mock sendMessage", err);
-    return mockSendMessage(sessionId, message, language);
+    return mockSendMessage(sessionId, message, language, profile);
   }
 }
 

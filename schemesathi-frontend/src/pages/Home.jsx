@@ -69,12 +69,20 @@ export function Home({
     if (isListening) {
       stopListening();
     } else {
-      startListening((transcript) => {
-        if (transcript) {
-          setInputText(transcript.trim());
-          setInputError('');
+      startListening(
+        (finalTranscript) => {
+          if (finalTranscript) {
+            setInputText(finalTranscript.trim());
+            setInputError('');
+          }
+        },
+        (interimTranscript) => {
+          if (interimTranscript) {
+            setInputText(interimTranscript.trim());
+            setInputError('');
+          }
         }
-      });
+      );
     }
   };
 

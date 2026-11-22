@@ -108,6 +108,11 @@ class SupabaseService:
         filter_col = "id" if is_uuid else "code"
         query = f"schemes?{filter_col}=eq.{code_or_id}&select=*,categories(*),scheme_eligibility_criteria(*),scheme_documents(*),scheme_steps(*)&limit=1"
         data = await self._postgrest_get(query)
+        if not data and not is_uuid:
+            alt_code = code_or_id.replace("_", "-") if "_" in code_or_id else code_or_id.replace("-", "_")
+            alt_query = f"schemes?code=eq.{alt_code}&select=*,categories(*),scheme_eligibility_criteria(*),scheme_documents(*),scheme_steps(*)&limit=1"
+            data = await self._postgrest_get(alt_query)
+
         if not data:
             return None
 
@@ -131,6 +136,20 @@ class SupabaseService:
             "Submit application under Central Sector Scheme on scholarships.gov.in.": "scholarships.gov.in पर सेंट्रल सेक्टर स्कीम में आवेदन करें।",
             "College & State Board Verification": "कॉलेज व बोर्ड सत्यापन",
             "College verifies enrollment and 12th board verifies percentile ranking.": "कॉलेज और राज्य शिक्षा बोर्ड द्वारा अंकों की पुष्टि की जाती है।",
+            "Apply on National Scholarship Portal": "राष्ट्रीय छात्रवृत्ति पोर्टल (NSP) पर ऑनलाइन आवेदन",
+            "Visit scholarships.gov.in and complete one-time registration.": "scholarships.gov.in पर जाएं और वन-टाइम रजिस्ट्रेशन (OTR) पूरा करें।",
+            "Institute Verification": "संस्थान स्तर पर सत्यापन",
+            "School/College verifies application and forwards for DBT sanction.": "स्कूल/कॉलेज आवेदन और दस्तावेजों का सत्यापन कर डीबीटी (DBT) स्वीकृति हेतु आगे भेजता है।",
+            "College Level Verification": "कॉलेज स्तर पर सत्यापन",
+            "Institute nodal officer verifies enrollment, fees, and attendance.": "कॉलेज नोडल अधिकारी दस्तावेजों और उपस्थिति की जांच करता है।",
+            "Direct DBT Credit": "सीधे बैंक खाते में डीबीटी भुगतान",
+            "Tuition fees and allowance credited directly via Aadhaar Payment Bridge.": "छात्रवृत्ति राशि सीधे आधार से जुड़े बैंक खाते में जमा होती है।",
+            "Institute Approval": "संस्थान से सत्यापन",
+            "College verifies bonafide student status.": "कॉलेज प्रशासन छात्रवृत्ति आवेदन को सत्यापित करता है।",
+            "Welfare Dept Sanction": "कल्याण विभाग स्वीकृति",
+            "District welfare office clears grant directly into bank account.": "ज़िला कल्याण अधिकारी द्वारा राशि स्वीकृत की जाती है।",
+            "Register on State / NSP Portal": "एनएसपी या राज्य पोर्टल पर पंजीकरण",
+            "Fill scholarship form under OBC post-matric category.": "ओबीसी पोस्ट-मैट्रिक श्रेणी में ऑनलाइन आवेदन भरें।",
         }
 
         # Sort steps by step_number

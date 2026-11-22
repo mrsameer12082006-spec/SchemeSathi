@@ -292,10 +292,14 @@ class GroqService:
                     if extracted.education_level:
                         profile.education_level = extracted.education_level
 
+                    # If citizen provides land details without explicitly stating occupation, they are a Farmer
+                    if (profile.landholding_hectares is not None or profile.land_ownership) and not profile.occupation:
+                        profile.occupation = "Farmer"
+
                     # Create human-readable raw_attributes for UI
                     raw = profile.raw_attributes or {}
                     if profile.occupation:
-                        raw["पेशा" if is_hi else "Occupation"] = profile.occupation
+                        raw["पेशा" if is_hi else "Occupation"] = "किसान" if is_hi else profile.occupation
                     if profile.landholding_hectares is not None:
                         raw["भूमि (हेक्टेयर)" if is_hi else "Land (Hectares)"] = f"{profile.landholding_hectares} ha"
                     if profile.annual_income is not None:
@@ -386,6 +390,10 @@ class GroqService:
             profile.land_ownership = "Tenant"
             profile.landholding_hectares = 0.0
             raw["भूमि" if is_hi else "Landholding"] = "बटाईदार / भूमिहीन"
+
+        if (profile.landholding_hectares is not None or profile.land_ownership) and not profile.occupation:
+            profile.occupation = "Farmer"
+            raw["पेशा" if is_hi else "Occupation"] = "किसान" if is_hi else "Farmer"
 
         # 3. Income
         if any(k in text_lower for k in ["below 1", "1 lakh se kam", "1 लाख से कम"]):
@@ -810,6 +818,129 @@ class GroqService:
             "Hello! 🙏 Welcome to SchemeSathi. How can I help you today? Are you looking for schemes for yourself, or for your family?"
         )
         return sanitize_language_purity(fallback, "hi" if is_hi else "en")
+
+    def generate_contextual_chips(
+        self,
+        spoken_reply: str,
+        user_query: str,
+        language: str = "en",
+        user_occupation: Optional[str] = None,
+        retrieved_schemes: Optional[List[Dict[str, Any]]] = None
+    ) -> Tuple[List[str], List[str]]:
+        """
+        Generates 3-4 concise, highly relevant quick-reply options (both en and hi)
+        strictly tied to the ongoing conversation, the bot's latest question, and topic.
+        Returns: (chips_en, chips_hi)
+        """
+        lower_reply = (spoken_reply or "").lower()
+        lower_query = (user_query or "").lower()
+        combined = f"{lower_query} {lower_reply}"
+
+        # 1. Question-specific chips based on what the assistant asked
+        # A. Crop Insurance question (e.g. "Would you like details on crop insurance?" / "फसल बीमा")
+        if any(k in lower_reply for k in ["crop insurance", "fasal bima", "फसल बीमा", "बीमा"]):
+            return (
+                ["Yes, tell me about crop insurance", "PM Kisan status", "Required documents", "Kisan Credit Card"],
+                ["हाँ, फसल बीमा की जानकारी दें", "पीएम किसान स्टेटस", "ज़रूरी दस्तावेज़", "किसान क्रेडिट कार्ड"]
+            )
+
+        # B. Land / Agricultural holding question
+        if any(k in lower_reply for k in ["how much land", "landholding", "hectare", "acre", "ज़मीन", "रकबा", "हेक्टेयर", "बटाईदार"]):
+            return (
+                ["Own land (up to 2 hectares)", "Own land (more than 2 hectares)", "Tenant farmer / Landless"],
+                ["अपनी ज़मीन (2 हेक्टेयर तक)", "अपनी ज़मीन (2 हेक्टेयर से अधिक)", "बटाईदार / भूमिहीन"]
+            )
+
+        # C. Crop sowing verification
+        if any(k in lower_reply for k in ["sow crops", "sowing", "cultivat", "बुवाई", "बोई"]):
+            return (
+                ["Yes, cultivated seasonal crops", "No, land was fallow", "Tell me requirements"],
+                ["हाँ, मौसमी फसल बोई है", "नहीं, खेत खाली रहा", "शर्तें बताएं"]
+            )
+
+        # D. Education / Class 12 / College
+        if any(k in lower_reply for k in ["class 12", "12वीं", "marksheet", "college", "enrolled", "दाखिला"]):
+            return (
+                ["Yes, passed Class 12", "Currently in school", "Enrolled in college"],
+                ["हाँ, 12वीं पास हैं", "अभी स्कूल में पढ़ रहे हैं", "कॉलेज में दाखिला है"]
+            )
+
+        # E. Income question
+        if any(k in lower_reply for k in ["income", "annual income", "पारिवारिक आय", "सालाना आय"]):
+            return (
+                ["Below ₹1 Lakh", "₹1 - ₹2.5 Lakh", "Above ₹2.5 Lakh"],
+                ["₹1 लाख से कम", "₹1 - ₹2.5 लाख", "₹2.5 लाख से अधिक"]
+            )
+
+        # F. Ration card / Ayushman list check
+        if any(k in lower_reply for k in ["ration card", "राशन कार्ड", "ayushman list", "सूची में नाम"]):
+            return (
+                ["Yes, have ration card", "No ration card", "How to check name?"],
+                ["हाँ, राशन कार्ड है", "राशन कार्ड नहीं है", "नाम कैसे चेक करें?"]
+            )
+
+        # G. General Yes/No / How to apply question at the end
+        if "?" in spoken_reply or "क्या" in spoken_reply:
+            if any(k in lower_reply for k in ["how to apply", "आवेदन कैसे करें", "know how"]):
+                return (
+                    ["Yes, how to apply?", "Eligibility criteria", "Required documents"],
+                    ["हाँ, आवेदन कैसे करें?", "पात्रता की शर्तें", "आवश्यक दस्तावेज़"]
+                )
+            if any(k in lower_reply for k in ["want to know more", "जानना चाहते हैं", "details"]):
+                return (
+                    ["Yes, tell me details", "What are the rules?", "Required documents"],
+                    ["हाँ, पूरी जानकारी दें", "नियम क्या हैं?", "आवश्यक दस्तावेज़"]
+                )
+
+        # 2. Topic / Category specific chips based on user's background or domain
+        occ = (user_occupation or "").lower()
+        if occ == "farmer" or any(k in combined for k in ["farmer", "kisan", "farming", "खेती", "किसान", "हरियाणा", "कृषि"]):
+            return (
+                ["PM Kisan ₹6,000 status", "Crop Insurance details", "Kisan Credit Card (KCC)", "Required documents"],
+                ["पीएम किसान ₹6,000 किस्त", "फसल बीमा की जानकारी", "किसान क्रेडिट कार्ड (KCC)", "ज़रूरी दस्तावेज़"]
+            )
+
+        if occ == "student" or any(k in combined for k in ["student", "scholarship", "college", "छात्र", "छात्रवृत्ति", "पढ़ाई"]):
+            return (
+                ["College Scholarship (CSSS)", "Eligibility criteria", "Required documents", "Application steps"],
+                ["कॉलेज छात्रवृत्ति योजना", "पात्रता की शर्तें", "आवश्यक दस्तावेज़", "आवेदन के चरण"]
+            )
+
+        if occ == "woman" or any(k in combined for k in ["woman", "women", "maternity", "pregnant", "महिला", "मातृ"]):
+            return (
+                ["Matru Vandana (PMMVY)", "Lakhpati Didi", "Required documents", "Application steps"],
+                ["मातृ वंदना योजना (PMMVY)", "लखपति दीदी योजना", "ज़रूरी दस्तावेज़", "आवेदन के चरण"]
+            )
+
+        if occ == "worker" or any(k in combined for k in ["worker", "labour", "shramik", "मज़दूर", "श्रमिक", "ई-श्रम"]):
+            return (
+                ["e-Shram card benefits", "Accident insurance (PMSBY)", "PM-SYM pension", "Required documents"],
+                ["ई-श्रम कार्ड लाभ", "सुरक्षा बीमा (PMSBY)", "श्रम योगी मान-धन", "ज़रूरी दस्तावेज़"]
+            )
+
+        if occ == "senior citizen" or any(k in combined for k in ["senior", "elderly", "pension", "वृद्धावस्था", "बुजुर्ग", "पेंशन"]):
+            return (
+                ["Old age pension", "Atal Pension Yojana", "Free hospital cover", "Application process"],
+                ["वृद्धावस्था पेंशन", "अटल पेंशन योजना", "मुफ़्त अस्पताल इलाज", "आवेदन प्रक्रिया"]
+            )
+
+        if any(k in combined for k in ["health", "hospital", "ayushman", "इलाज", "आयुष्मान", "दवा"]):
+            return (
+                ["Ayushman Bharat ₹5 Lakh", "Check name in list", "Empaneled hospitals", "Required documents"],
+                ["आयुष्मान भारत ₹5 लाख", "सूची में नाम चेक करें", "संबद्ध अस्पताल", "ज़रूरी दस्तावेज़"]
+            )
+
+        if any(k in combined for k in ["loan", "business", "vyapar", "लोन", "मुद्रा", "व्यापार"]):
+            return (
+                ["PM Mudra loan", "PM SVANidhi", "Eligibility criteria", "Required documents"],
+                ["पीएम मुद्रा लोन", "पीएम स्वनिधि", "पात्रता की शर्तें", "ज़रूरी दस्तावेज़"]
+            )
+
+        # 3. Default contextual chips for general queries
+        return (
+            ["Eligibility criteria", "Required documents", "Application steps", "Free application guide"],
+            ["पात्रता की शर्तें", "आवश्यक दस्तावेज़", "आवेदन प्रक्रिया", "मुफ़्त आवेदन मार्गदर्शिका"]
+        )
 
 
 # Global singleton Groq service instance

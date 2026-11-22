@@ -1,4 +1,5 @@
 // Core translations for SchemeSathi (starter set + chat & results core)
+import extractedTranslations from './extracted_translations.json';
 
 export const coreStrings = {
   en: {
@@ -118,11 +119,25 @@ const EN_TO_HI = {
   // Profile keys & values
   "Occupation": "पेशा",
   "Farmer": "किसान",
+  "Farmers": "किसान",
   "Student": "छात्र",
+  "Students": "छात्र",
+  "SC Students": "अनुसूचित जाति के छात्र",
+  "ST Students": "अनुसूचित जनजाति के छात्र",
+  "OBC Students": "ओबीसी छात्र",
+  "Girl Students": "छात्राएँ / बालिकाएँ",
   "Woman": "महिला",
+  "Women": "महिला",
   "Senior citizen": "वरिष्ठ नागरिक",
+  "Senior citizens": "वरिष्ठ नागरिक",
+  "Senior Citizens": "वरिष्ठ नागरिक",
   "Worker": "मज़दूर",
+  "Workers": "मज़दूर",
+  "Unorganized Workers": "असंगठित मज़दूर",
   "Small business": "छोटा व्यापारी",
+  "Small business owner": "छोटा व्यापारी",
+  "Small businesses": "छोटा व्यवसाय",
+  "Micro-entrepreneurs": "सूक्ष्म उद्यमी",
   "Landholding": "भूमि",
   "Up to 2 hectares": "2 हेक्टेयर तक",
   "More than 2 hectares": "2 हेक्टेयर से अधिक",
@@ -168,6 +183,9 @@ const EN_TO_HI = {
   "Own land (up to 2 hectares)": "अपनी ज़मीन (2 हेक्टेयर तक)",
   "Own land (more than 2 hectares)": "अपनी ज़मीन (2 हेक्टेयर से अधिक)",
   "Tenant farmer / Landless": "बटाईदार / भूमिहीन",
+  "Up to 2 hectares": "2 हेक्टेयर तक ज़मीन",
+  "More than 2 hectares": "2 हेक्टेयर से अधिक",
+  "Tenant / Landless": "बटाईदार / भूमिहीन",
   "Class 9 - 10": "कक्षा 9 - 10",
   "Class 11 - 12 / College": "कक्षा 11 - 12 / कॉलेज",
   "Graduation / Higher Studies": "स्नातक / उच्च शिक्षा",
@@ -228,6 +246,45 @@ const EN_TO_HI = {
   "No, does not apply": "नहीं, यह लागू नहीं होता",
   "Rural area": "ग्रामीण क्षेत्र",
   "Urban area": "शहरी क्षेत्र",
+  "Yes, tell me about crop insurance": "हाँ, फसल बीमा की जानकारी दें",
+  "PM Kisan status": "पीएम किसान स्टेटस",
+  "PM Kisan ₹6,000 status": "पीएम किसान ₹6,000 किस्त",
+  "Crop Insurance details": "फसल बीमा की जानकारी",
+  "Crop insurance details": "फसल बीमा की जानकारी",
+  "Kisan Credit Card": "किसान क्रेडिट कार्ड",
+  "Kisan Credit Card (KCC)": "किसान क्रेडिट कार्ड (KCC)",
+  "Required documents": "ज़रूरी दस्तावेज़",
+  "Eligibility criteria": "पात्रता की शर्तें",
+  "Application steps": "आवेदन प्रक्रिया",
+  "Yes, tell me more": "हाँ, और जानकारी दें",
+  "What are the rules?": "नियम क्या हैं?",
+  "Tell me requirements": "शर्तें बताएं",
+  "College Scholarship (CSSS)": "कॉलेज छात्रवृत्ति योजना",
+  "Matru Vandana (PMMVY)": "मातृ वंदना योजना (PMMVY)",
+  "Lakhpati Didi": "लखपति दीदी योजना",
+  "e-Shram card benefits": "ई-श्रम कार्ड लाभ",
+  "Accident insurance (PMSBY)": "सुरक्षा बीमा (PMSBY)",
+  "PM-SYM pension": "श्रम योगी मान-धन",
+  "Old age pension": "वृद्धावस्था पेंशन",
+  "Atal Pension Yojana": "अटल पेंशन योजना",
+  "Free hospital cover": "मुफ़्त अस्पताल इलाज",
+  "Free medical cover": "मुफ़्त अस्पताल इलाज",
+  "Application process": "आवेदन प्रक्रिया",
+  "Ayushman Bharat ₹5 Lakh": "आयुष्मान भारत ₹5 लाख",
+  "Check name in list": "सूची में नाम चेक करें",
+  "Empaneled hospitals": "संबद्ध अस्पताल",
+  "PM Mudra loan": "पीएम मुद्रा लोन",
+  "PM SVANidhi": "पीएम स्वनिधि",
+  "Yes, passed Class 12": "हाँ, 12वीं पास हैं",
+  "Currently in school": "अभी स्कूल में पढ़ रहे हैं",
+  "Enrolled in college": "कॉलेज में दाखिला है",
+  "Yes, have ration card": "हाँ, राशन कार्ड है",
+  "No ration card": "राशन कार्ड नहीं है",
+  "How to check name?": "नाम कैसे चेक करें?",
+  "Yes, how to apply?": "हाँ, आवेदन कैसे करें?",
+  "Yes, please tell me": "हाँ, इसके बारे में बताएं",
+  "No, check other schemes": "नहीं, अन्य योजनाएं बताएं",
+  "Free application guide": "मुफ़्त आवेदन मार्गदर्शिका",
 
   // Scheme Application Steps & Instructions (Zero English in Hindi mode)
   "NSP Online Registration": "एनएसपी ऑनलाइन पंजीकरण",
@@ -311,8 +368,57 @@ const EN_TO_HI = {
   "Mother's Aadhaar card": "माता का आधार कार्ड",
   "Husband's Aadhaar card": "पति का आधार कार्ड",
   "Mother and Child Protection (MCP) card": "मातृ एवं शिशु सुरक्षा (MCP) कार्ड",
-  "Bank passbook in mother's name linked with Aadhaar": "माता के नाम पर बैंक पासबुक"
+  "Bank passbook in mother's name linked with Aadhaar": "माता के नाम पर बैंक पासबुक",
+
+  // Scholarship Steps from Database & Portals
+  "Apply on National Scholarship Portal": "राष्ट्रीय छात्रवृत्ति पोर्टल (NSP) पर ऑनलाइन आवेदन",
+  "Visit scholarships.gov.in and complete one-time registration.": "scholarships.gov.in पर जाएं और वन-टाइम रजिस्ट्रेशन (OTR) पूरा करें।",
+  "Apply on National Scholarship Portal: Visit scholarships.gov.in and complete one-time registration.": "राष्ट्रीय छात्रवृत्ति पोर्टल (NSP) पर ऑनलाइन आवेदन: scholarships.gov.in पर जाएं और वन-टाइम रजिस्ट्रेशन (OTR) पूरा करें।",
+  "Institute Verification": "संस्थान स्तर पर सत्यापन",
+  "School/College verifies application and forwards for DBT sanction.": "स्कूल/कॉलेज आवेदन और दस्तावेजों का सत्यापन कर डीबीटी (DBT) स्वीकृति हेतु आगे भेजता है।",
+  "Institute Verification: School/College verifies application and forwards for DBT sanction.": "संस्थान स्तर पर सत्यापन: स्कूल/कॉलेज आवेदन और दस्तावेजों का सत्यापन कर डीबीटी (DBT) स्वीकृति हेतु आगे भेजता है।",
+  "College Level Verification": "कॉलेज स्तर पर सत्यापन",
+  "Institute nodal officer verifies enrollment, fees, and attendance.": "कॉलेज नोडल अधिकारी दस्तावेजों और उपस्थिति की जांच करता है।",
+  "College Level Verification: Institute nodal officer verifies enrollment, fees, and attendance.": "कॉलेज स्तर पर सत्यापन: कॉलेज नोडल अधिकारी दस्तावेजों और उपस्थिति की जांच करता है।",
+  "Direct DBT Credit": "सीधे बैंक खाते में डीबीटी भुगतान",
+  "Tuition fees and allowance credited directly via Aadhaar Payment Bridge.": "छात्रवृत्ति राशि सीधे आधार से जुड़े बैंक खाते में जमा होती है।",
+  "Direct DBT Credit: Tuition fees and allowance credited directly via Aadhaar Payment Bridge.": "सीधे बैंक खाते में डीबीटी भुगतान: छात्रवृत्ति राशि सीधे आधार से जुड़े बैंक खाते में जमा होती है।",
+  "Institute Approval": "संस्थान से सत्यापन",
+  "College verifies bonafide student status.": "कॉलेज प्रशासन छात्रवृत्ति आवेदन को सत्यापित करता है।",
+  "Institute Approval: College verifies bonafide student status.": "संस्थान से सत्यापन: कॉलेज प्रशासन छात्रवृत्ति आवेदन को सत्यापित करता है।",
+  "Welfare Dept Sanction": "कल्याण विभाग स्वीकृति",
+  "District welfare office clears grant directly into bank account.": "ज़िला कल्याण अधिकारी द्वारा राशि स्वीकृत की जाती है।",
+  "Welfare Dept Sanction: District welfare office clears grant directly into bank account.": "कल्याण विभाग स्वीकृति: ज़िला कल्याण अधिकारी द्वारा राशि स्वीकृत की जाती है।",
+  "Register on State / NSP Portal": "एनएसपी या राज्य पोर्टल पर पंजीकरण",
+  "Fill scholarship form under OBC post-matric category.": "ओबीसी पोस्ट-मैट्रिक श्रेणी में ऑनलाइन आवेदन भरें।",
+  "Register on State / NSP Portal: Fill scholarship form under OBC post-matric category.": "एनएसपी या राज्य पोर्टल पर पंजीकरण: ओबीसी पोस्ट-मैट्रिक श्रेणी में ऑनलाइन आवेदन भरें।",
+
+  // Criteria & Key Options
+  "Category: Student": "श्रेणी: छात्र",
+  "Category: Farmer": "श्रेणी: किसान",
+  "Category: Woman": "श्रेणी: महिला",
+  "Category: Senior citizen": "श्रेणी: वरिष्ठ नागरिक",
+  "Category: Worker": "श्रेणी: मज़दूर",
+  "Category: Small business": "श्रेणी: छोटा व्यापारी",
+  "BPL Required: No": "बीपीएल कार्ड आवश्यक: नहीं",
+  "BPL Required: Yes": "बीपीएल कार्ड आवश्यक: हाँ",
+  "Key Eligibility Criteria": "मुख्य पात्रता मानदंड",
+  "Land: No landholding restriction": "भूमि: ज़मीन की कोई बाध्यता नहीं",
+  "All": "सभी",
+  "Farmers": "किसान",
+  "Students": "छात्र",
+  "Women": "महिलाएँ",
+  "Senior citizens": "वरिष्ठ नागरिक",
+  "Workers": "मज़दूर",
+  "Small business": "छोटा व्यापारी",
+  "Health": "स्वास्थ्य",
+  "Housing": "आवास"
 };
+
+// Merge all 40 verified schemes translations from JSON
+if (extractedTranslations && extractedTranslations.en_to_hi) {
+  Object.assign(EN_TO_HI, extractedTranslations.en_to_hi);
+}
 
 // Inverted map for Hindi to English
 const HI_TO_EN = {};
@@ -320,7 +426,17 @@ for (const [en, hi] of Object.entries(EN_TO_HI)) {
   HI_TO_EN[hi] = en;
 }
 
+if (extractedTranslations && extractedTranslations.hi_to_en) {
+  Object.assign(HI_TO_EN, extractedTranslations.hi_to_en);
+}
+
 // Additional variants for seamless Hindi to English lookup
+HI_TO_EN["2 हेक्टेयर तक"] = "Up to 2 hectares";
+HI_TO_EN["2 हेक्टेयर तक ज़मीन"] = "Up to 2 hectares";
+HI_TO_EN["अपनी ज़मीन (2 हेक्टेयर तक)"] = "Own land (up to 2 hectares)";
+HI_TO_EN["2 हेक्टेयर से अधिक"] = "More than 2 hectares";
+HI_TO_EN["अपनी ज़मीन (2 हेक्टेयर से अधिक)"] = "Own land (more than 2 hectares)";
+HI_TO_EN["बटाईदार / भूमिहीन"] = "Tenant / Landless";
 HI_TO_EN["मैं हरियाणा से किसान हूँ"] = "I'm a farmer from Haryana";
 HI_TO_EN["मैं हरियाणा से एक किसान हूँ"] = "I'm a farmer from Haryana";
 HI_TO_EN["फसल बीमा सुरक्षा सहायता"] = "Crop insurance support";
@@ -386,6 +502,11 @@ export function translateText(text, targetLang) {
   const trimmed = text.trim();
 
   if (targetLang === 'hi') {
+    // If text is ALREADY pure Hindi (contains Devanagari and no English letters), keep as-is!
+    if (/[\u0900-\u097F]/.test(trimmed) && !/[a-zA-Z]/.test(trimmed)) {
+      return trimmed;
+    }
+
     if (EN_TO_HI[trimmed]) return EN_TO_HI[trimmed];
     if (EN_TO_HI[text]) return EN_TO_HI[text];
 
@@ -451,6 +572,30 @@ export function translateText(text, targetLang) {
       return `यह योजना आपके वर्तमान व्यवसाय/पेशा (${occMismatchEn[1]}) के लिए नहीं है`;
     }
 
+    // Clean criteria bullet patterns from cards
+    const catMatch = text.match(/^Category:\s*(.+)$/i);
+    if (catMatch) {
+      const val = catMatch[1].trim();
+      const valHi = EN_TO_HI[val] || val;
+      return `श्रेणी: ${valHi}`;
+    }
+    const ageRangeMatch = text.match(/^Age:\s*(\d+)\s*to\s*(\d+)\s*years$/i);
+    if (ageRangeMatch) {
+      return `आयु: ${ageRangeMatch[1]} से ${ageRangeMatch[2]} वर्ष`;
+    }
+    const incLimitMatch = text.match(/^Income:\s*(?:Maximum annual income )?₹?([\d,]+)/i);
+    if (incLimitMatch) {
+      return `आय: अधिकतम वार्षिक आय ₹${incLimitMatch[1]}`;
+    }
+    const landLimitMatch = text.match(/^Land:\s*No landholding restriction$/i);
+    if (landLimitMatch) {
+      return `भूमि: ज़मीन की कोई बाध्यता नहीं`;
+    }
+    const bplMatch = text.match(/^BPL Required:\s*(No|Yes)$/i);
+    if (bplMatch) {
+      return `बीपीएल कार्ड आवश्यक: ${bplMatch[1].toLowerCase() === 'no' ? 'नहीं' : 'हाँ'}`;
+    }
+
     // Fallback bullet & phrase translation for English -> Hindi
     let translated = text
       .replace(/[\u2022\*\-]\s*\*{0,2}(?:Benefit|benefit|Fayda|fayda):\*{0,2}/g, '• **लाभ:**')
@@ -464,6 +609,11 @@ export function translateText(text, targetLang) {
   }
 
   // targetLang === 'en'
+  // If text is ALREADY pure English (contains no Devanagari script), keep as-is!
+  if (!/[\u0900-\u097F]/.test(trimmed)) {
+    return trimmed;
+  }
+
   if (HI_TO_EN[trimmed]) return HI_TO_EN[trimmed];
   if (HI_TO_EN[text]) return HI_TO_EN[text];
 
@@ -589,10 +739,22 @@ export function translateStep(step, targetLang) {
   if (!isHi) {
     if (HI_TO_EN[trimmed]) return HI_TO_EN[trimmed];
     if (HI_TO_EN[step]) return HI_TO_EN[step];
-    const colonIndex = step.indexOf(': ');
-    if (colonIndex !== -1) {
-      const title = step.slice(0, colonIndex).trim();
-      const desc = step.slice(colonIndex + 2).trim();
+    
+    // Delimiter split (: , - , : )
+    let splitIdx = step.indexOf(': ');
+    let delimLen = 2;
+    if (splitIdx === -1) {
+      splitIdx = step.indexOf(' - ');
+      delimLen = 3;
+    }
+    if (splitIdx === -1) {
+      splitIdx = step.indexOf(':');
+      delimLen = 1;
+    }
+
+    if (splitIdx !== -1) {
+      const title = step.slice(0, splitIdx).trim();
+      const desc = step.slice(splitIdx + delimLen).trim();
       const tTitle = HI_TO_EN[title] || translateText(title, 'en');
       const tDesc = HI_TO_EN[desc] || translateText(desc, 'en');
       return `${tTitle}: ${tDesc}`;
@@ -604,11 +766,38 @@ export function translateStep(step, targetLang) {
   if (EN_TO_HI[trimmed]) return EN_TO_HI[trimmed];
   if (EN_TO_HI[step]) return EN_TO_HI[step];
 
-  // Try decomposing "Title: Description"
-  const colonIndex = step.indexOf(': ');
-  if (colonIndex !== -1) {
-    const title = step.slice(0, colonIndex).trim();
-    const desc = step.slice(colonIndex + 2).trim();
+  // Dynamic regex fallbacks for database variants
+  if (/scholarships\.gov\.in/i.test(step) && (/Apply on/i.test(step) || /National Scholarship/i.test(step) || /Register/i.test(step) || /one-time registration/i.test(step))) {
+    return "राष्ट्रीय छात्रवृत्ति पोर्टल (NSP) पर ऑनलाइन आवेदन: scholarships.gov.in पर जाएं और वन-टाइम रजिस्ट्रेशन (OTR) पूरा करें।";
+  }
+  if ((/Institute Verification/i.test(step) || /College Level Verification/i.test(step)) && (/verif/i.test(step) || /nodal officer/i.test(step) || /sanction/i.test(step))) {
+    return "संस्थान स्तर पर सत्यापन: स्कूल/कॉलेज आवेदन और दस्तावेजों का सत्यापन कर डीबीटी (DBT) स्वीकृति हेतु आगे भेजता है।";
+  }
+  if (/Direct DBT Credit/i.test(step) || (/Tuition fees/i.test(step) && /credited/i.test(step))) {
+    return "सीधे बैंक खाते में डीबीटी भुगतान: छात्रवृत्ति राशि सीधे आधार से जुड़े बैंक खाते में जमा होती है।";
+  }
+  if (/Institute Approval/i.test(step) || /bonafide student/i.test(step)) {
+    return "संस्थान से सत्यापन: कॉलेज प्रशासन छात्रवृत्ति आवेदन को सत्यापित करता है।";
+  }
+  if (/Welfare Dept Sanction/i.test(step) || /District welfare/i.test(step)) {
+    return "कल्याण विभाग स्वीकृति: ज़िला कल्याण अधिकारी द्वारा राशि स्वीकृत की जाती है।";
+  }
+
+  // Try decomposing "Title: Description" or "Title - Description"
+  let splitIdx = step.indexOf(': ');
+  let delimLen = 2;
+  if (splitIdx === -1) {
+    splitIdx = step.indexOf(' - ');
+    delimLen = 3;
+  }
+  if (splitIdx === -1) {
+    splitIdx = step.indexOf(':');
+    delimLen = 1;
+  }
+
+  if (splitIdx !== -1) {
+    const title = step.slice(0, splitIdx).trim();
+    const desc = step.slice(splitIdx + delimLen).trim();
     const tTitle = EN_TO_HI[title] || translateText(title, 'hi');
     const tDesc = EN_TO_HI[desc] || translateText(desc, 'hi');
     return `${tTitle}: ${tDesc}`;

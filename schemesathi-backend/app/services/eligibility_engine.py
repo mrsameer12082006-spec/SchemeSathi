@@ -39,15 +39,7 @@ class EligibilityEngine:
         if profile.gender:
             raw_text += f" {profile.gender.lower()}"
 
-        # 1. Persona / Occupation
-        attrs["is_farmer"] = any(k in raw_text for k in ["farmer", "किसान", "kisan", "farming", "खेती", "कृषि"])
-        attrs["is_student"] = any(k in raw_text for k in ["student", "छात्र", "विद्यार्थी", "vidyarthi", "college", "school", "पढ़ाई"])
-        attrs["is_woman"] = any(k in raw_text for k in ["woman", "women", "महिला", "female", "widow", "विधवा", "गर्भवती", "lactating"])
-        attrs["is_senior"] = any(k in raw_text for k in ["senior", "वृद्ध", "बुजुर्ग", "वरिष्ठ", "pension", "पेंशन"])
-        attrs["is_worker"] = any(k in raw_text for k in ["worker", "मज़दूर", "मजदूर", "labour", "श्रमिक", "unorganized", "दिहाड़ी"])
-        attrs["is_business"] = any(k in raw_text for k in ["business", "व्यापारी", "दुकान", "vendor", "वेंडर", "रेहड़ी", "उद्यमी", "shop"])
-
-        # 2. Landholding
+        # 1. Landholding
         attrs["land_hectares"] = profile.landholding_hectares
         attrs["is_tenant_or_landless"] = any(k in raw_text for k in ["tenant", "बटाईदार", "भूमिहीन", "landless"])
         if attrs["land_hectares"] is None:
@@ -55,6 +47,14 @@ class EligibilityEngine:
                 attrs["land_hectares"] = 3.5  # Represents large farmer > 2ha
             elif "up to 2" in raw_text or "2 hectare tak" in raw_text or "2 हेक्टेयर तक" in raw_text:
                 attrs["land_hectares"] = 1.5  # Represents small/marginal farmer <= 2ha
+
+        # 2. Persona / Occupation
+        attrs["is_farmer"] = any(k in raw_text for k in ["farmer", "किसान", "kisan", "farming", "खेती", "कृषि"]) or (attrs["land_hectares"] is not None) or attrs["is_tenant_or_landless"]
+        attrs["is_student"] = any(k in raw_text for k in ["student", "छात्र", "विद्यार्थी", "vidyarthi", "college", "school", "पढ़ाई"])
+        attrs["is_woman"] = any(k in raw_text for k in ["woman", "women", "महिला", "female", "widow", "विधवा", "गर्भवती", "lactating"])
+        attrs["is_senior"] = any(k in raw_text for k in ["senior", "वृद्ध", "बुजुर्ग", "वरिष्ठ", "pension", "पेंशन"])
+        attrs["is_worker"] = any(k in raw_text for k in ["worker", "मज़दूर", "मजदूर", "labour", "श्रमिक", "unorganized", "दिहाड़ी"])
+        attrs["is_business"] = any(k in raw_text for k in ["business", "व्यापारी", "दुकान", "vendor", "वेंडर", "रेहड़ी", "उद्यमी", "shop"])
 
         # 3. Income
         attrs["annual_income"] = profile.annual_income
@@ -135,9 +135,13 @@ class EligibilityEngine:
 
         for item in schemes_data:
             cat = item.get("categories") or {}
-            cat_code = cat.get("code", "")
-            scheme_code = item.get("code", "")
-            criteria = item.get("scheme_eligibility_criteria") or {}
+            if isinstance(cat, list):
+                cat = cat[0] if cat else {}
+            cat_code = (cat.get("code") or item.get("category", "")).lower()
+            scheme_code = item.get("code") or item.get("id", "")
+            criteria = item.get("scheme_eligibility_criteria") or item.get("eligibility") or {}
+            if isinstance(criteria, list):
+                criteria = criteria[0] if criteria else {}
 
             passed_en: List[str] = []
             passed_hi: List[str] = []

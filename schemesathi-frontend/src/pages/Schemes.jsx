@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getSchemes } from '../services/api';
 import { extraStrings } from '../i18n.extra';
+import { translateText } from '../i18n';
 
 export function Schemes({ lang = 'en', navigate }) {
   const [schemes, setSchemes] = useState([]);
@@ -76,7 +77,7 @@ export function Schemes({ lang = 'en', navigate }) {
 
         {hasLiveSupabaseData ? (
           <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-[#166534] text-xs font-semibold border border-emerald-200 select-none shadow-sm">
-            {lang === 'hi' ? '✓ 30 सत्यापित सरकारी योजनाएँ (Supabase)' : '✓ 30 Verified Government Schemes (Supabase)'}
+            {lang === 'hi' ? '✓ 30+ सत्यापित सरकारी योजनाएँ' : '✓ 30+ Verified Government Schemes'}
           </div>
         ) : (
           <div className="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-900 text-xs font-semibold border border-amber-200 select-none shadow-sm">
@@ -127,10 +128,10 @@ export function Schemes({ lang = 'en', navigate }) {
             >
               <div className="space-y-2">
                 <h3 className="font-serif text-lg font-bold text-[#1C1B1A]">
-                  {scheme.name}
+                  {translateText(scheme.name, lang)}
                 </h3>
                 <p className="text-sm text-stone-600 line-clamp-3 leading-relaxed font-normal">
-                  {scheme.summary}
+                  {translateText(scheme.summary, lang)}
                 </p>
               </div>
 

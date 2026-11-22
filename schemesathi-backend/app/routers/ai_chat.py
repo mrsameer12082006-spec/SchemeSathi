@@ -42,6 +42,7 @@ class AIChatTurnRequest(BaseModel):
     audio_filename: Optional[str] = Field("user_speech.wav", description="Audio filename")
     language: str = Field("en", description="'en' or 'hi'")
     synthesize_audio: bool = Field(False, description="Whether to generate TTS audio in response")
+    profile: Optional[Dict[str, Any]] = Field(None, description="Current client profile")
 
 
 class AIChatTurnResponse(BaseModel):
@@ -61,6 +62,9 @@ class AIChatTurnResponse(BaseModel):
     done: bool
     show_results: bool = False
     results_url: str = "/results"
+    quick_replies: List[str] = []
+    quick_replies_en: List[str] = []
+    quick_replies_hi: List[str] = []
 
 
 def detect_user_language(text: str, default_lang: str = "en") -> str:
@@ -485,7 +489,31 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
     if not record:
         session_res = session_store.create_session(language=req.language)
         session_id = session_res.session_id
+        session_id = session_res.session_id
         record = session_store.get_session(session_id)
+
+    # Sync client profile if provided by frontend
+    if req.profile and isinstance(req.profile, dict):
+        if not record.profile.raw_attributes:
+            record.profile.raw_attributes = {}
+        for k, v in req.profile.items():
+            record.profile.raw_attributes[k] = v
+            v_str = str(v).lower()
+            k_str = str(k).lower()
+            if any(o in v_str for o in ["farmer", "किसान"]) or any(o in k_str for o in ["farmer", "किसान"]):
+                record.profile.occupation = "Farmer"
+            elif any(o in v_str for o in ["student", "छात्र"]):
+                record.profile.occupation = "Student"
+            elif any(o in v_str for o in ["woman", "महिला"]):
+                record.profile.occupation = "Woman"
+            elif any(o in v_str for o in ["worker", "मज़दूर"]):
+                record.profile.occupation = "Worker"
+            elif any(o in v_str for o in ["senior", "बुजुर्ग", "वरिष्ठ"]):
+                record.profile.occupation = "Senior citizen"
+            elif "2 hectare" in v_str or "2 हेक्टेयर" in v_str or "land" in k_str or "भूमि" in k_str:
+                record.profile.landholding_hectares = 1.5
+                if not record.profile.occupation:
+                    record.profile.occupation = "Farmer"
 
     # Step 2: Handle Audio Transcription (STT) or Text
     user_text = (req.message or "").strip()
@@ -543,7 +571,10 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
             results=[],
             done=False,
             show_results=False,
-            results_url="/results"
+            results_url="/results",
+            quick_replies=["किसान योजनाएं", "छात्रवृत्ति", "स्वास्थ्य बीमा"] if is_hi else ["Farmer Schemes", "Scholarships", "Healthcare"],
+            quick_replies_en=["Farmer Schemes", "Scholarships", "Healthcare"],
+            quick_replies_hi=["किसान योजनाएं", "छात्रवृत्ति", "स्वास्थ्य बीमा"]
         )
 
     # Direct Free-Cost Query Check
@@ -572,7 +603,10 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
             results=[],
             done=False,
             show_results=False,
-            results_url="/results"
+            results_url="/results",
+            quick_replies=["पात्रता की शर्तें", "आवेदन कैसे करें?", "आवश्यक दस्तावेज़"] if is_hi else ["Eligibility criteria", "How to apply?", "Required documents"],
+            quick_replies_en=["Eligibility criteria", "How to apply?", "Required documents"],
+            quick_replies_hi=["पात्रता की शर्तें", "आवेदन कैसे करें?", "आवश्यक दस्तावेज़"]
         )
     
     # Check for name introduction: "hi i m kaalu", "i am kaalu", "mera naam kaalu hai", "my name is kaalu"
@@ -638,6 +672,13 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
         record.history.append({"role": "user", "content": clean_text or ("नमस्ते" if is_hi else "Hello")})
         record.history.append({"role": "assistant", "content": conv_reply})
 
+        chips_en, chips_hi = groq_service.generate_contextual_chips(
+            spoken_reply=conv_reply,
+            user_query=clean_text,
+            language=active_lang
+        )
+        active_chips = chips_hi if is_hi else chips_en
+
         return AIChatTurnResponse(
             session_id=session_id,
             transcript=stt_transcript or user_text,
@@ -654,7 +695,10 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
             results=[],
             done=False,
             show_results=False,
-            results_url="/results"
+            results_url="/results",
+            quick_replies=active_chips,
+            quick_replies_en=chips_en,
+            quick_replies_hi=chips_hi
         )
 
     # Record user message in history
@@ -669,6 +713,29 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
         language=active_lang
     )
     record.profile = updated_profile
+
+    # Safety net: If citizen has landholding or mentions farm/student in history, infer occupation
+    if not record.profile.occupation:
+        if record.profile.landholding_hectares is not None:
+            record.profile.occupation = "Farmer"
+            if not record.profile.raw_attributes:
+                record.profile.raw_attributes = {}
+            record.profile.raw_attributes["पेशा" if is_hi else "Occupation"] = "किसान" if is_hi else "Farmer"
+        else:
+            for hist_turn in (record.history or []):
+                hist_content = (hist_turn.get("content") or "").lower()
+                if any(k in hist_content for k in ["farmer", "किसान", "kisan", "kheti", "खेती", "फसल"]):
+                    record.profile.occupation = "Farmer"
+                    if not record.profile.raw_attributes:
+                        record.profile.raw_attributes = {}
+                    record.profile.raw_attributes["पेशा" if is_hi else "Occupation"] = "किसान" if is_hi else "Farmer"
+                    break
+                elif any(k in hist_content for k in ["student", "छात्र", "scholarship", "विद्यार्थी"]):
+                    record.profile.occupation = "Student"
+                    if not record.profile.raw_attributes:
+                        record.profile.raw_attributes = {}
+                    record.profile.raw_attributes["पेशा" if is_hi else "Occupation"] = "छात्र" if is_hi else "Student"
+                    break
 
     has_meaningful_profile = bool(
         record.profile.occupation or
@@ -735,57 +802,83 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
 
     elif has_meaningful_profile:
         # Run Deterministic Eligibility Engine (Legal Source of Truth)
-        schemes_data = await supabase_service.get_schemes_with_criteria()
-        eval_resp = eligibility_engine.evaluate(record.profile, schemes_data, language=active_lang)
+        try:
+            schemes_data = await supabase_service.get_schemes_with_criteria()
+            eval_resp = eligibility_engine.evaluate(record.profile, schemes_data, language=active_lang)
 
-        spoken_reply = groq_service.generate_explanation(
-            eval_resp=eval_resp,
-            user_query=clean_text,
-            language=active_lang,
-            chat_history=record.history
-        )
+            valid_results = [
+                {
+                    "scheme_id": r.scheme_id,
+                    "name": r.name,
+                    "name_en": r.name_en or r.name,
+                    "name_hi": r.name_hi or r.name,
+                    "summary": r.summary,
+                    "summary_en": r.summary_en or r.summary,
+                    "summary_hi": r.summary_hi or r.summary,
+                    "category": r.category,
+                    "category_en": r.category_en or r.category,
+                    "category_hi": r.category_hi or r.category,
+                    "status": r.status,
+                    "passed": r.passed,
+                    "passed_en": r.passed_en or r.passed,
+                    "passed_hi": r.passed_hi or r.passed,
+                    "failed": r.failed,
+                    "failed_en": r.failed_en or r.failed,
+                    "failed_hi": r.failed_hi or r.failed,
+                    "missing": r.missing,
+                    "missing_en": r.missing_en or r.missing,
+                    "missing_hi": r.missing_hi or r.missing,
+                    "benefits": r.benefits,
+                    "benefits_en": r.benefits_en or r.benefits,
+                    "benefits_hi": r.benefits_hi or r.benefits,
+                    "official_url": r.official_url
+                }
+                for r in eval_resp.results
+                if r.status in ["potentially_eligible", "needs_information"]
+            ]
+            formatted_results = valid_results
+            eligible_count = eval_resp.eligible_count
+            needs_info_count = eval_resp.needs_info_count
+            not_eligible_count = eval_resp.not_eligible_count
+            done = eligible_count > 0 or needs_info_count > 0
 
-        valid_results = [
-            {
-                "scheme_id": r.scheme_id,
-                "name": r.name,
-                "name_en": r.name_en or r.name,
-                "name_hi": r.name_hi or r.name,
-                "summary": r.summary,
-                "summary_en": r.summary_en or r.summary,
-                "summary_hi": r.summary_hi or r.summary,
-                "category": r.category,
-                "category_en": r.category_en or r.category,
-                "category_hi": r.category_hi or r.category,
-                "status": r.status,
-                "passed": r.passed,
-                "passed_en": r.passed_en or r.passed,
-                "passed_hi": r.passed_hi or r.passed,
-                "failed": r.failed,
-                "failed_en": r.failed_en or r.failed,
-                "failed_hi": r.failed_hi or r.failed,
-                "missing": r.missing,
-                "missing_en": r.missing_en or r.missing,
-                "missing_hi": r.missing_hi or r.missing,
-                "benefits": r.benefits,
-                "benefits_en": r.benefits_en or r.benefits,
-                "benefits_hi": r.benefits_hi or r.benefits,
-                "official_url": r.official_url
-            }
-            for r in eval_resp.results
-            if r.status in ["potentially_eligible", "needs_information"]
-        ]
-        formatted_results = valid_results
-        eligible_count = eval_resp.eligible_count
-        needs_info_count = eval_resp.needs_info_count
-        not_eligible_count = eval_resp.not_eligible_count
-        done = eligible_count > 0 or needs_info_count > 0
-        if not formatted_results:
-            spoken_reply = (
-                "मुझे आपके विवरण के अनुसार अभी कोई उपयुक्त सरकारी योजना नहीं मिली। क्या आप अपना पेशा, शिक्षा या अनुमानित आय स्पष्ट रूप से साझा कर सकते हैं?"
-                if is_hi else
-                "I don't have enough information to find a matching scheme yet. Could you tell me your occupation, education, or income?"
+            spoken_reply = groq_service.generate_explanation(
+                eval_resp=eval_resp,
+                user_query=clean_text,
+                language=active_lang,
+                chat_history=record.history
             )
+        except Exception as e:
+            logger.error(f"Eligibility evaluation failed: {e}", exc_info=True)
+            formatted_results = []
+
+        if not formatted_results:
+            # Fall back to RAG retrieval for citizen's occupation so they ALWAYS get matching schemes!
+            occ = record.profile.occupation or ("Farmer" if any(k in clean_text.lower() for k in ["farmer", "किसान", "hectare", "land"]) else None)
+            search_term = f"{occ} schemes" if occ else clean_text
+            fallback_chunks = await rag_service.search(search_term, top_k=4)
+            if fallback_chunks:
+                spoken_reply = groq_service.generate_rag_reply(
+                    user_query=clean_text,
+                    retrieved_schemes=fallback_chunks,
+                    language=active_lang,
+                    chat_history=record.history,
+                    user_occupation=occ
+                )
+                formatted_results = format_rag_cards(
+                    rag_chunks=fallback_chunks,
+                    is_hi=is_hi,
+                    domain_intent=None,
+                    citizen_occupation=occ,
+                    clean_text=clean_text
+                )
+                needs_info_count = len(formatted_results)
+            else:
+                spoken_reply = (
+                    f"मैंने आपका विवरण ({record.profile.occupation or 'जानकारी'}) सुरक्षित कर लिया है। क्या आप अपनी अनुमानित वार्षिक आय साझा कर सकते हैं?"
+                    if is_hi else
+                    f"I have recorded your details as a {record.profile.occupation or 'citizen'}. Could you share your approximate annual income?"
+                )
 
     else:
         # Exploratory / Topical question without explicit keywords
@@ -821,13 +914,34 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
             needs_info_count = len(formatted_results)
             done = False
         else:
-            spoken_reply = (
-                "मुझे अभी सटीक योजना खोजने के लिए पर्याप्त जानकारी नहीं मिली है। क्या आप मुझे अपना पेशा, शिक्षा या आय बता सकते हैं?"
-                if is_hi else
-                "I don't have enough information to find a matching scheme yet. Could you tell me your occupation, education, or income?"
-            )
-            formatted_results = []
-            done = False
+            occ = record.profile.occupation or ("Farmer" if any(k in clean_text.lower() for k in ["farmer", "किसान", "hectare", "land"]) else None)
+            if occ:
+                fallback_chunks = await rag_service.search(f"{occ} schemes", top_k=4)
+                if fallback_chunks:
+                    spoken_reply = groq_service.generate_rag_reply(
+                        user_query=clean_text,
+                        retrieved_schemes=fallback_chunks,
+                        language=active_lang,
+                        chat_history=record.history,
+                        user_occupation=occ
+                    )
+                    formatted_results = format_rag_cards(
+                        rag_chunks=fallback_chunks,
+                        is_hi=is_hi,
+                        domain_intent=None,
+                        citizen_occupation=occ,
+                        clean_text=clean_text
+                    )
+                    needs_info_count = len(formatted_results)
+                    done = False
+            if not spoken_reply:
+                spoken_reply = (
+                    "मुझे अभी सटीक योजना खोजने के लिए पर्याप्त जानकारी नहीं मिली है। क्या आप मुझे अपना पेशा, शिक्षा या आय बता सकते हैं?"
+                    if is_hi else
+                    "I don't have enough information to find a matching scheme yet. Could you tell me your occupation, education, or income?"
+                )
+                formatted_results = []
+                done = False
 
     # Record bot reply in history (keep last 8 turns)
     record.history.append({"role": "assistant", "content": spoken_reply})
@@ -852,6 +966,15 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
         reply_en = spoken_reply
         reply_hi = groq_service.translate_text(spoken_reply, target_lang="hi")
 
+    chips_en, chips_hi = groq_service.generate_contextual_chips(
+        spoken_reply=spoken_reply,
+        user_query=clean_text,
+        language=active_lang,
+        user_occupation=record.profile.occupation or ("Farmer" if "farmer" in clean_text.lower() or "किसान" in clean_text else None),
+        retrieved_schemes=rag_chunks
+    )
+    active_chips = chips_hi if is_hi else chips_en
+
     return AIChatTurnResponse(
         session_id=session_id,
         transcript=stt_transcript or user_text,
@@ -868,5 +991,8 @@ async def ai_chat_turn(request: Request, req: AIChatTurnRequest):
         results=formatted_results,
         done=done,
         show_results=show_results_flag,
-        results_url="/results"
+        results_url="/results",
+        quick_replies=active_chips,
+        quick_replies_en=chips_en,
+        quick_replies_hi=chips_hi
     )

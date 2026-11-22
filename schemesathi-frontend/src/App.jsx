@@ -60,11 +60,13 @@ export function App() {
               ? (msg.why_hi || translateText(msg.why, 'hi'))
               : (msg.why_en || translateText(msg.why, 'en')))
           : msg.why,
-        quick_replies: Array.isArray(msg.quick_replies)
-          ? (newLang === 'hi'
-              ? (msg.quick_replies_hi || msg.quick_replies.map(qr => translateText(qr, 'hi')))
-              : (msg.quick_replies_en || msg.quick_replies.map(qr => translateText(qr, 'en'))))
-          : msg.quick_replies
+        quick_replies: newLang === 'hi'
+          ? ((Array.isArray(msg.quick_replies_hi) && msg.quick_replies_hi.length > 0)
+              ? msg.quick_replies_hi
+              : Array.isArray(msg.quick_replies) ? msg.quick_replies.map(qr => translateText(qr, 'hi')) : [])
+          : ((Array.isArray(msg.quick_replies_en) && msg.quick_replies_en.length > 0)
+              ? msg.quick_replies_en
+              : Array.isArray(msg.quick_replies) ? msg.quick_replies.map(qr => translateText(qr, 'en')) : [])
       }))
     );
 
@@ -91,11 +93,13 @@ export function App() {
                 ? (msg.why_hi || translateText(msg.why, 'hi'))
                 : (msg.why_en || translateText(msg.why, 'en')))
             : msg.why,
-          quick_replies: Array.isArray(msg.quick_replies)
-            ? (newLang === 'hi'
-                ? (msg.quick_replies_hi || msg.quick_replies.map(qr => translateText(qr, 'hi')))
-                : (msg.quick_replies_en || msg.quick_replies.map(qr => translateText(qr, 'en'))))
-            : msg.quick_replies
+          quick_replies: newLang === 'hi'
+            ? ((Array.isArray(msg.quick_replies_hi) && msg.quick_replies_hi.length > 0)
+                ? msg.quick_replies_hi
+                : Array.isArray(msg.quick_replies) ? msg.quick_replies.map(qr => translateText(qr, 'hi')) : [])
+            : ((Array.isArray(msg.quick_replies_en) && msg.quick_replies_en.length > 0)
+                ? msg.quick_replies_en
+                : Array.isArray(msg.quick_replies) ? msg.quick_replies.map(qr => translateText(qr, 'en')) : [])
         })),
         profile: translateProfile(snapshot.profile, newLang)
       }))
@@ -147,37 +151,54 @@ export function App() {
       const response = await sendMessage({
         sessionId: activeSessionId,
         message: initialText,
-        language: lang
+        language: lang,
+        profile: initialProfile || undefined
       });
 
       // Bot reply message
       const botMsg = {
         id: 'msg_bot_' + Date.now(),
         sender: 'bot',
-        text: response.reply,
+        text: lang === 'hi'
+          ? (response.reply_hi || translateText(response.reply, 'hi'))
+          : (response.reply_en || translateText(response.reply, 'en')),
         text_en: response.reply_en || (lang === 'en' ? response.reply : translateText(response.reply, 'en')),
         text_hi: response.reply_hi || (lang === 'hi' ? response.reply : translateText(response.reply, 'hi')),
-        why: response.why,
+        why: response.why
+          ? (lang === 'hi'
+              ? (response.why_hi || translateText(response.why, 'hi'))
+              : (response.why_en || translateText(response.why, 'en')))
+          : '',
         why_en: response.why_en || (response.why ? (lang === 'en' ? response.why : translateText(response.why, 'en')) : ''),
         why_hi: response.why_hi || (response.why ? (lang === 'hi' ? response.why : translateText(response.why, 'hi')) : ''),
         audio_base64: response.audio_base64 || null,
-        quick_replies: response.quick_replies || [],
-        quick_replies_en: response.quick_replies_en,
-        quick_replies_hi: response.quick_replies_hi,
+        quick_replies: lang === 'hi'
+          ? ((Array.isArray(response.quick_replies_hi) && response.quick_replies_hi.length > 0)
+              ? response.quick_replies_hi
+              : Array.isArray(response.quick_replies) ? response.quick_replies.map(qr => translateText(qr, 'hi')) : [])
+          : ((Array.isArray(response.quick_replies_en) && response.quick_replies_en.length > 0)
+              ? response.quick_replies_en
+              : Array.isArray(response.quick_replies) ? response.quick_replies.map(qr => translateText(qr, 'en')) : []),
+        quick_replies_en: Array.isArray(response.quick_replies_en) && response.quick_replies_en.length > 0
+          ? response.quick_replies_en
+          : (Array.isArray(response.quick_replies) ? response.quick_replies.map(qr => translateText(qr, 'en')) : []),
+        quick_replies_hi: Array.isArray(response.quick_replies_hi) && response.quick_replies_hi.length > 0
+          ? response.quick_replies_hi
+          : (Array.isArray(response.quick_replies) ? response.quick_replies.map(qr => translateText(qr, 'hi')) : []),
         show_results: response.show_results ?? (Array.isArray(response.results) && response.results.length > 0),
         results_url: response.results_url || '/results'
       };
 
       setMessages([userMsg, botMsg]);
       if (response.profile) {
-        setProfile(prev => ({ ...prev, ...response.profile }));
+        setProfile(prev => ({ ...prev, ...translateProfile(response.profile, lang) }));
       }
       if (response.progress) {
         setProgress(response.progress);
       }
 
       if (response.results && response.results.length > 0) {
-        setResults(response.results);
+        setResults(translateResults(response.results, lang));
       }
       // User stays in chat; no automatic redirect to /results. Clickable button is provided.
     } catch (err) {
@@ -224,22 +245,39 @@ export function App() {
       const response = await sendMessage({
         sessionId: currentSessionId,
         message: text,
-        language: lang
+        language: lang,
+        profile: profile || undefined
       });
 
       const botMsg = {
         id: 'msg_bot_' + Date.now(),
         sender: 'bot',
-        text: response.reply,
+        text: lang === 'hi'
+          ? (response.reply_hi || translateText(response.reply, 'hi'))
+          : (response.reply_en || translateText(response.reply, 'en')),
         text_en: response.reply_en || (lang === 'en' ? response.reply : translateText(response.reply, 'en')),
         text_hi: response.reply_hi || (lang === 'hi' ? response.reply : translateText(response.reply, 'hi')),
-        why: response.why,
+        why: response.why
+          ? (lang === 'hi'
+              ? (response.why_hi || translateText(response.why, 'hi'))
+              : (response.why_en || translateText(response.why, 'en')))
+          : '',
         why_en: response.why_en || (response.why ? (lang === 'en' ? response.why : translateText(response.why, 'en')) : ''),
         why_hi: response.why_hi || (response.why ? (lang === 'hi' ? response.why : translateText(response.why, 'hi')) : ''),
         audio_base64: response.audio_base64 || null,
-        quick_replies: response.quick_replies || [],
-        quick_replies_en: response.quick_replies_en,
-        quick_replies_hi: response.quick_replies_hi,
+        quick_replies: lang === 'hi'
+          ? ((Array.isArray(response.quick_replies_hi) && response.quick_replies_hi.length > 0)
+              ? response.quick_replies_hi
+              : Array.isArray(response.quick_replies) ? response.quick_replies.map(qr => translateText(qr, 'hi')) : [])
+          : ((Array.isArray(response.quick_replies_en) && response.quick_replies_en.length > 0)
+              ? response.quick_replies_en
+              : Array.isArray(response.quick_replies) ? response.quick_replies.map(qr => translateText(qr, 'en')) : []),
+        quick_replies_en: Array.isArray(response.quick_replies_en) && response.quick_replies_en.length > 0
+          ? response.quick_replies_en
+          : (Array.isArray(response.quick_replies) ? response.quick_replies.map(qr => translateText(qr, 'en')) : []),
+        quick_replies_hi: Array.isArray(response.quick_replies_hi) && response.quick_replies_hi.length > 0
+          ? response.quick_replies_hi
+          : (Array.isArray(response.quick_replies) ? response.quick_replies.map(qr => translateText(qr, 'hi')) : []),
         show_results: response.show_results ?? (Array.isArray(response.results) && response.results.length > 0),
         results_url: response.results_url || '/results'
       };
@@ -247,14 +285,14 @@ export function App() {
       setMessages(prev => [...prev, botMsg]);
 
       if (response.profile) {
-        setProfile(prev => ({ ...prev, ...response.profile }));
+        setProfile(prev => ({ ...prev, ...translateProfile(response.profile, lang) }));
       }
       if (response.progress) {
         setProgress(response.progress);
       }
 
       if (response.results && response.results.length > 0) {
-        setResults(response.results);
+        setResults(translateResults(response.results, lang));
       }
       // User stays in chat; no automatic redirect to /results. Clickable button is provided.
     } catch (err) {

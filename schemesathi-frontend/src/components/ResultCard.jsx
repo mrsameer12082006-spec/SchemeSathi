@@ -36,7 +36,7 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
           .replace(/^Age Range:\s*/i, 'Age: ')
           .replace(/^Income Limit:\s*/i, 'Income: ')
           .replace(/^Landholding Limit:\s*/i, 'Land: ')
-          .replace(/^BPL Card Required:\s*No/i, 'BPL Required: No');
+          .replace(/^BPL Card Required:\s*(Yes|No)/i, 'BPL Required: $1');
         parsedCriteria.push(clean);
       }
     });
@@ -100,7 +100,7 @@ export function ResultCard({ result, lang = 'en', onHowToApply, onAnswerMore }) 
             {parsedCriteria.map((crit, idx) => (
               <li key={`crit-${idx}`} className="flex items-center gap-2">
                 <span className="text-[#166534] font-bold text-sm select-none">•</span>
-                <span className="font-medium">{crit}</span>
+                <span className="font-medium">{translateText(crit, lang)}</span>
               </li>
             ))}
           </ul>
